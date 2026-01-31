@@ -1,0 +1,13 @@
+{
+  "id": "{1919151A-3C0F-4C09-B906-291638EC1469}",
+  "name": "DG_HeishaMon",
+  "type": 3,
+  "vendor": "DG",
+  "aliases": [
+    "Panasonic - HeishaMon"
+  ],
+  "parentRequirements": [],
+  "implemented": [],
+  "childRequirements": [],
+  "prefix": "DGHEISHA"
+}
