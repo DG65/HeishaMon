@@ -13,6 +13,32 @@
         {
             "type": "Label",
             "caption": "Variables are created automatically as soon as HeishaMon publishes the corresponding topics."
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "COP / performance factor",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Select the power variable (W) of an external energy meter measuring the heat pump phase to get a measured COP. With an energy counter variable (kWh) the daily performance factor is calculated additionally."
+                },
+                {
+                    "type": "SelectVariable",
+                    "name": "PowerVariable",
+                    "caption": "Power variable heat pump (W)"
+                },
+                {
+                    "type": "SelectVariable",
+                    "name": "EnergyVariable",
+                    "caption": "Energy counter heat pump (kWh)"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "COPMinPower",
+                    "caption": "Minimum power for COP calculation",
+                    "suffix": " W"
+                }
+            ]
         }
     ],
     "actions": [

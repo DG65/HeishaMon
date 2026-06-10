@@ -25,6 +25,19 @@ class HeishaMon extends IPSModule
         $this->RegisterPropertyString('MQTTTopic', 'panasonic_heat_pump');
         $this->RegisterPropertyBoolean('DebugUnknownTopics', false);
 
+        //COP / Arbeitszahl: externe Messung ueber Stromzaehler (z.B. Shelly 3EM, Phase der Waermepumpe)
+        $this->RegisterPropertyInteger('PowerVariable', 0);
+        $this->RegisterPropertyInteger('EnergyVariable', 0);
+        $this->RegisterPropertyFloat('COPMinPower', 100);
+
+        //Persistente Zwischenstaende der Tagesberechnung (ueberleben einen IPS-Neustart)
+        $this->RegisterAttributeString('CurrentDay', '');
+        $this->RegisterAttributeFloat('EnergyCounterBase', -1);
+        $this->RegisterAttributeFloat('HeatWhToday', 0);
+        $this->RegisterAttributeInteger('LastIntegration', 0);
+
+        $this->RegisterTimer('COPUpdate', 0, 'HEISHA_UpdateCOPCalculation($_IPS[\'TARGET\']);');
+
         $this->RegisterVariableBoolean('Reachable', $this->Translate('Reachable'), [
             'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
             'OPTIONS'      => json_encode([
@@ -71,6 +84,186 @@ class HeishaMon extends IPSModule
         $filterTopic = str_replace('/', '\\\\/', $baseTopic);
         $this->SetReceiveDataFilter('.*' . $filterTopic . '.*');
         $this->SetStatus(IS_ACTIVE);
+
+        //Variablen der COP-Berechnung anlegen bzw. entfernen, je nach Konfiguration
+        $powerID = $this->ReadPropertyInteger('PowerVariable');
+        $energyID = $this->ReadPropertyInteger('EnergyVariable');
+        $copPresentation = [
+            'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+            'DIGITS'       => 2
+        ];
+        $kwhPresentation = [
+            'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+            'SUFFIX'       => ' kWh',
+            'DIGITS'       => 2
+        ];
+        $this->MaintainVariable('COP_Measured', $this->Translate('COP (measured)'), VARIABLETYPE_FLOAT, $copPresentation, 201, $powerID > 0);
+        $this->MaintainVariable('Heat_Energy_Today', $this->Translate('Heat energy today'), VARIABLETYPE_FLOAT, $kwhPresentation, 202, $energyID > 0);
+        $this->MaintainVariable('Power_Energy_Today', $this->Translate('Energy consumption today'), VARIABLETYPE_FLOAT, $kwhPresentation, 203, $energyID > 0);
+        $this->MaintainVariable('COP_Today', $this->Translate('Performance factor today'), VARIABLETYPE_FLOAT, $copPresentation, 204, $energyID > 0);
+
+        $this->SetTimerInterval('COPUpdate', $energyID > 0 ? 60000 : 0);
+
+        if (IPS_GetKernelRunlevel() == KR_READY) {
+            $this->registerExternalMessages();
+        } else {
+            $this->RegisterMessage(0, IPS_KERNELSTARTED);
+        }
+    }
+
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        switch ($Message) {
+            case IPS_KERNELSTARTED:
+                $this->registerExternalMessages();
+                break;
+            case VM_UPDATE:
+                if ($SenderID == $this->ReadPropertyInteger('PowerVariable')) {
+                    $this->updateMeasuredCOP(floatval($Data[0]));
+                } elseif ($SenderID == $this->ReadPropertyInteger('EnergyVariable')) {
+                    $this->updateDailyValues();
+                }
+                break;
+        }
+    }
+
+    /**
+     * Timer-Funktion: integriert die thermische Leistung zur Tageswaermemenge
+     * und aktualisiert die Tages-Arbeitszahl.
+     */
+    public function UpdateCOPCalculation()
+    {
+        $now = time();
+        $today = date('Y-m-d', $now);
+
+        //Tageswechsel: Zaehlerbasis neu setzen, Waermemenge zuruecksetzen
+        if ($this->ReadAttributeString('CurrentDay') != $today) {
+            $this->WriteAttributeString('CurrentDay', $today);
+            $this->WriteAttributeFloat('HeatWhToday', 0);
+            $this->WriteAttributeInteger('LastIntegration', $now);
+            $energyID = $this->ReadPropertyInteger('EnergyVariable');
+            if ($energyID > 0 && IPS_VariableExists($energyID)) {
+                $this->WriteAttributeFloat('EnergyCounterBase', floatval(GetValue($energyID)));
+            }
+        }
+
+        //Thermische Leistung ueber die Zeit integrieren (Trapez waere uebertrieben, Rechteck reicht)
+        $last = $this->ReadAttributeInteger('LastIntegration');
+        $dt = $now - $last;
+        if ($last > 0 && $dt > 0 && $dt <= 600) {
+            $heatWh = $this->ReadAttributeFloat('HeatWhToday') + $this->getThermalPower() * $dt / 3600;
+            $this->WriteAttributeFloat('HeatWhToday', $heatWh);
+        }
+        $this->WriteAttributeInteger('LastIntegration', $now);
+
+        $this->updateDailyValues();
+    }
+
+    private function registerExternalMessages()
+    {
+        foreach ($this->GetMessageList() as $senderID => $messages) {
+            if (in_array(VM_UPDATE, $messages)) {
+                $this->UnregisterMessage($senderID, VM_UPDATE);
+            }
+        }
+        foreach ($this->GetReferenceList() as $referenceID) {
+            $this->UnregisterReference($referenceID);
+        }
+        foreach (['PowerVariable', 'EnergyVariable'] as $property) {
+            $variableID = $this->ReadPropertyInteger($property);
+            if ($variableID > 0 && IPS_VariableExists($variableID)) {
+                $this->RegisterMessage($variableID, VM_UPDATE);
+                $this->RegisterReference($variableID);
+            }
+        }
+    }
+
+    /**
+     * Summe der thermischen Leistung (Heizen + Kuehlen + Warmwasser) in Watt.
+     */
+    private function getThermalPower(): float
+    {
+        $sum = 0.0;
+        foreach (['Heat_Power_Production', 'Cool_Power_Production', 'DHW_Power_Production'] as $ident) {
+            $variableID = @$this->GetIDForIdent($ident);
+            if ($variableID !== false) {
+                $sum += floatval(GetValue($variableID));
+            }
+        }
+        return $sum;
+    }
+
+    private function getElectricalPower(): float
+    {
+        $sum = 0.0;
+        foreach (['Heat_Power_Consumption', 'Cool_Power_Consumption', 'DHW_Power_Consumption'] as $ident) {
+            $variableID = @$this->GetIDForIdent($ident);
+            if ($variableID !== false) {
+                $sum += floatval(GetValue($variableID));
+            }
+        }
+        return $sum;
+    }
+
+    /**
+     * COP aus den HeishaMon-eigenen Schaetzwerten, bei jedem Empfang der Leistungs-Topics.
+     */
+    private function updateInternalCOP()
+    {
+        $ident = 'COP_Internal';
+        if (@$this->GetIDForIdent($ident) === false) {
+            $this->MaintainVariable($ident, $this->Translate('COP (HeishaMon estimate)'), VARIABLETYPE_FLOAT, [
+                'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                'DIGITS'       => 2
+            ], 200, true);
+        }
+        $consumption = $this->getElectricalPower();
+        $this->SetValue($ident, $consumption > 0 ? round($this->getThermalPower() / $consumption, 2) : 0.0);
+    }
+
+    /**
+     * COP aus der gemessenen elektrischen Leistung des Stromzaehlers.
+     */
+    private function updateMeasuredCOP(float $electricalPower)
+    {
+        if (@$this->GetIDForIdent('COP_Measured') === false) {
+            return;
+        }
+        $minPower = $this->ReadPropertyFloat('COPMinPower');
+        $cop = 0.0;
+        if ($electricalPower >= $minPower) {
+            //Obergrenze gegen Ausreisser beim Anlaufen/Takten
+            $cop = round(min($this->getThermalPower() / $electricalPower, 15), 2);
+        }
+        $this->SetValue('COP_Measured', $cop);
+    }
+
+    /**
+     * Tageswerte: Stromverbrauch aus dem Energiezaehler, Waermemenge aus der Integration,
+     * daraus die Tages-Arbeitszahl.
+     */
+    private function updateDailyValues()
+    {
+        $energyID = $this->ReadPropertyInteger('EnergyVariable');
+        if ($energyID <= 0 || !IPS_VariableExists($energyID) || @$this->GetIDForIdent('COP_Today') === false) {
+            return;
+        }
+
+        $counter = floatval(GetValue($energyID));
+        $base = $this->ReadAttributeFloat('EnergyCounterBase');
+        //Erststart oder Zaehler wurde zurueckgesetzt/getauscht
+        if ($base < 0 || $counter < $base) {
+            $base = $counter;
+            $this->WriteAttributeFloat('EnergyCounterBase', $base);
+        }
+
+        $electricalKwh = $counter - $base;
+        $heatKwh = $this->ReadAttributeFloat('HeatWhToday') / 1000;
+
+        $this->SetValue('Power_Energy_Today', round($electricalKwh, 3));
+        $this->SetValue('Heat_Energy_Today', round($heatKwh, 3));
+        //Erst ab einer Mindestenergie rechnen, sonst dominiert das Rauschen
+        $this->SetValue('COP_Today', $electricalKwh >= 0.05 ? round($heatKwh / $electricalKwh, 2) : 0.0);
     }
 
     public function ReceiveData($JSONString)
@@ -122,6 +315,15 @@ class HeishaMon extends IPSModule
             default:
                 $this->SetValue($ident, $payload);
                 break;
+        }
+
+        //COP aus den HeishaMon-Schaetzwerten nachfuehren
+        if (in_array($subTopic, [
+            'main/Heat_Power_Production', 'main/Heat_Power_Consumption',
+            'main/Cool_Power_Production', 'main/Cool_Power_Consumption',
+            'main/DHW_Power_Production', 'main/DHW_Power_Consumption'
+        ])) {
+            $this->updateInternalCOP();
         }
         return '';
     }

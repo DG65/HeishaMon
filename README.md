@@ -32,6 +32,21 @@ https://github.com/DG65/HeishaMon-IPS
 3. **MQTT Basistopic** eintragen (Standard: `panasonic_heat_pump`, muss dem im HeishaMon konfigurierten Basistopic entsprechen).
 4. Übernehmen — die Variablen werden automatisch angelegt, sobald der HeishaMon Daten sendet (spätestens nach dem nächsten Update-Intervall des HeishaMon).
 
+## COP / Arbeitszahl
+
+Das Modul berechnet den COP auf zwei Wegen:
+
+- **COP (HeishaMon-Schätzung)** — automatisch aus den HeishaMon-eigenen Werten (thermische Leistung / elektrische Aufnahme über alle Betriebsarten). Keine Konfiguration nötig, aber grob, da Panasonic die Aufnahme nur in ~200-W-Stufen schätzt.
+- **COP (gemessen)** — über einen externen Stromzähler (z. B. Shelly 3EM auf der Wärmepumpen-Phase). Dazu im Konfigurationspanel **COP / Arbeitszahl** die Leistungs-Variable (W) auswählen; der COP wird bei jeder Wertänderung neu berechnet. Unterhalb der **Mindestleistung** (Standard 100 W, gegen Standby-Rauschen) wird 0 ausgegeben.
+
+Wird zusätzlich die **Energiezähler-Variable (kWh)** ausgewählt, berechnet das Modul Tageswerte:
+
+- **Stromverbrauch heute** — exakt aus dem Zählerstand (Basis wird um Mitternacht neu gesetzt, ein Zähler-Reset wird abgefangen)
+- **Wärmemenge heute** — Integration der thermischen Leistung über einen 60-Sekunden-Timer (Zwischenstände überleben einen IPS-Neustart)
+- **Arbeitszahl heute** — Verhältnis der beiden; mit Archiv-Logging entsteht daraus die Langzeit-Historie
+
+Hinweis: Läuft der Heizstab, steckt seine Wärme in der gemessenen thermischen Leistung. Da nur die Wärmepumpen-Phase im Nenner steht, fällt der COP in diesen Phasen optisch zu gut aus — für die reine Verdichter-Bewertung ist das aber genau richtig.
+
 ## Befehle per Skript
 
 Alle HeishaMon-Befehle (siehe [MQTT-Topics](https://github.com/heishamon/HeishaMon/blob/master/MQTT-Topics.md)) lassen sich auch per Skript senden:
