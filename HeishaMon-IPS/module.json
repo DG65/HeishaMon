@@ -1,0 +1,18 @@
+{
+    "id": "{1919151A-3C0F-4C09-B906-291638EC1469}",
+    "name": "HeishaMon-IPS",
+    "type": 3,
+    "vendor": "DG65",
+    "aliases": [
+        "HeishaMon-IPS"
+    ],
+    "parentRequirements": [
+        "{043EA491-0325-4ADD-8FC2-A30C8EEB4D3F}"
+    ],
+    "childRequirements": [],
+    "implemented": [
+        "{7F7632D9-FA40-4F38-8DEA-C83CD4325A32}"
+    ],
+    "prefix": "HEISHA",
+    "url": "https://github.com/DG65/HeishaMon-IPS"
+}

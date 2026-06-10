@@ -1,0 +1,24 @@
+{
+    "elements": [
+        {
+            "type": "ValidationTextBox",
+            "name": "MQTTTopic",
+            "caption": "MQTT base topic"
+        },
+        {
+            "type": "CheckBox",
+            "name": "DebugUnknownTopics",
+            "caption": "Debug: unknown topics"
+        },
+        {
+            "type": "Label",
+            "caption": "Variables are created automatically as soon as HeishaMon publishes the corresponding topics."
+        }
+    ],
+    "actions": [
+        {
+            "type": "TestCenter"
+        }
+    ],
+    "status": []
+}

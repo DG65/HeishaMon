@@ -1,12 +1,13 @@
 {
   "id": "{C7325B7F-EF35-482B-8002-D267D629FD81}",
-  "author": "Dietmar Gureth",
-  "name": "DG_HeishaMon",
+  "author": "DG65",
+  "name": "HeishaMon-IPS",
+  "url": "https://github.com/DG65/HeishaMon-IPS",
   "compatibility": {
-    "version": "8.2",
+    "version": "9.0",
     "date": 0
   },
-  "version": "2.3",
+  "version": "1.0",
   "build": 1,
   "date": 0
 }
