@@ -5,14 +5,17 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/HeishaMonTopics.php';
 
 /**
- * DG_HeishaMon
+ * HeishaMon
  *
  * Bindet einen HeishaMon (https://github.com/heishamon/HeishaMon) an IP-Symcon an.
  * Das Modul wird unter einem MQTT Server / MQTT Client (Splitter) angelegt und
  * erzeugt fuer jedes empfangene Topic automatisch eine passende Statusvariable.
  * Schreibbare Werte werden ueber <Basistopic>/commands/SetXxx an den HeishaMon gesendet.
+ *
+ * Wichtig: Der Klassenname muss exakt dem "name" in der module.json entsprechen
+ * und ein gueltiger PHP-Klassenname sein (keine Bindestriche).
  */
-class DG_HeishaMon extends IPSModule
+class HeishaMon extends IPSModule
 {
     public function Create()
     {

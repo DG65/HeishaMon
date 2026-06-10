@@ -38,10 +38,10 @@ Alle HeishaMon-Befehle (siehe [MQTT-Topics](https://github.com/heishamon/HeishaM
 
 ```php
 // Beliebiger Set-Befehl
-DGHEISHA_SendSetCommand(12345, 'SetQuietMode', '2');
+HEISHA_SendSetCommand(12345, 'SetQuietMode', '2');
 
 // Heiz-/Kühlkurven setzen (SET16, JSON laut HeishaMon-Doku)
-DGHEISHA_SetCurves(12345, '{"zone1":{"heat":{"target":{"high":35,"low":25},"outside":{"high":15,"low":-15}}}}');
+HEISHA_SetCurves(12345, '{"zone1":{"heat":{"target":{"high":35,"low":25},"outside":{"high":15,"low":-15}}}}');
 ```
 
 ## Hinweise
