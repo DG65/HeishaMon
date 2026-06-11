@@ -16,21 +16,21 @@
         },
         {
             "type": "ExpansionPanel",
-            "caption": "COP / performance factor",
+            "caption": "External energy meter (COP / performance factor)",
             "items": [
                 {
                     "type": "Label",
-                    "caption": "Select the power variable (W) of an external energy meter measuring the heat pump phase to get a measured COP. With an energy counter variable (kWh) the daily performance factor is calculated additionally."
+                    "caption": "If an external energy meter (e.g. Shelly 3EM) measures the heat pump supply line, select its variables here. The module then calculates the measured COP and the daily performance factor from the meter readings."
                 },
                 {
                     "type": "SelectVariable",
                     "name": "PowerVariable",
-                    "caption": "Power variable heat pump (W)"
+                    "caption": "Energy meter: active power of the heat pump (W)"
                 },
                 {
                     "type": "SelectVariable",
                     "name": "EnergyVariable",
-                    "caption": "Energy counter heat pump (kWh)"
+                    "caption": "Energy meter: energy counter of the heat pump (kWh)"
                 },
                 {
                     "type": "NumberSpinner",
