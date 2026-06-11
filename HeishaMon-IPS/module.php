@@ -25,6 +25,10 @@ class HeishaMon extends IPSModule
         $this->RegisterPropertyString('MQTTTopic', 'panasonic_heat_pump');
         $this->RegisterPropertyBoolean('DebugUnknownTopics', false);
 
+        //Auswahl der gewuenschten Datenpunkte (leer = alle aktiv)
+        $this->RegisterPropertyString('VariableList', '[]');
+        $this->RegisterAttributeString('SeenTopics', '[]');
+
         //COP / Arbeitszahl: externe Messung ueber Stromzaehler (z.B. Shelly 3EM, Phase der Waermepumpe)
         $this->RegisterPropertyInteger('PowerVariable', 0);
         $this->RegisterPropertyInteger('EnergyVariable', 0);
@@ -67,6 +71,36 @@ class HeishaMon extends IPSModule
         parent::Destroy();
     }
 
+    public function GetConfigurationForm()
+    {
+        $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+
+        $seenTopics = json_decode($this->ReadAttributeString('SeenTopics'), true) ?: [];
+        $selection = $this->getSelectionMap();
+
+        $rows = [];
+        foreach (HeishaMonTopics::topics() as $topic => $definition) {
+            $rows[] = [
+                'Selected' => $selection[$topic] ?? true,
+                'Caption'  => $this->Translate($definition['cap']),
+                'Topic'    => $topic,
+                'Received' => in_array($topic, $seenTopics) ? $this->Translate('Yes') : ''
+            ];
+        }
+        //Empfangene Datenpunkte zuerst, dadurch sieht man sofort, was die Anlage liefert
+        usort($rows, function ($a, $b) {
+            return strcmp($b['Received'], $a['Received']);
+        });
+
+        foreach ($form['elements'] as &$element) {
+            if (($element['name'] ?? '') == 'VariableList') {
+                $element['values'] = $rows;
+                break;
+            }
+        }
+        return json_encode($form);
+    }
+
     public function ApplyChanges()
     {
         //Never delete this line!
@@ -103,6 +137,17 @@ class HeishaMon extends IPSModule
         $this->MaintainVariable('COP_Today', $this->Translate('Performance factor today'), VARIABLETYPE_FLOAT, $copPresentation, 204, $energyID > 0);
 
         $this->SetTimerInterval('COPUpdate', $energyID > 0 ? 60000 : 0);
+
+        //Abgewaehlte Datenpunkte entfernen; wieder angehakte entstehen beim naechsten Empfang neu
+        $topics = HeishaMonTopics::topics();
+        foreach ($this->getSelectionMap() as $topic => $selected) {
+            if (!$selected && array_key_exists($topic, $topics)) {
+                $ident = HeishaMonTopics::identFromTopic($topic);
+                if (@$this->GetIDForIdent($ident) !== false) {
+                    $this->MaintainVariable($ident, '', VARIABLETYPE_INTEGER, '', 0, false);
+                }
+            }
+        }
 
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->registerExternalMessages();
@@ -157,6 +202,41 @@ class HeishaMon extends IPSModule
         $this->WriteAttributeInteger('LastIntegration', $now);
 
         $this->updateDailyValues();
+    }
+
+    /**
+     * Auswahl aus der Konfigurationsliste: Topic => aktiv. Nicht gelistete Topics gelten als aktiv.
+     */
+    private function getSelectionMap(): array
+    {
+        $map = [];
+        $rows = json_decode($this->ReadPropertyString('VariableList'), true);
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
+                if (isset($row['Topic'])) {
+                    $map[$row['Topic']] = boolval($row['Selected'] ?? true);
+                }
+            }
+        }
+        return $map;
+    }
+
+    private function isTopicSelected(string $topic): bool
+    {
+        $map = $this->getSelectionMap();
+        return $map[$topic] ?? true;
+    }
+
+    /**
+     * Merkt sich, welche Topics die Anlage tatsaechlich sendet (Spalte "Empfangen" in der Konfiguration).
+     */
+    private function rememberSeenTopic(string $topic)
+    {
+        $seen = json_decode($this->ReadAttributeString('SeenTopics'), true) ?: [];
+        if (!in_array($topic, $seen)) {
+            $seen[] = $topic;
+            $this->WriteAttributeString('SeenTopics', json_encode($seen));
+        }
     }
 
     private function registerExternalMessages()
@@ -293,6 +373,11 @@ class HeishaMon extends IPSModule
             if ($this->ReadPropertyBoolean('DebugUnknownTopics')) {
                 $this->SendDebug('Unknown Topic', $subTopic . ' = ' . $payload, 0);
             }
+            return '';
+        }
+
+        $this->rememberSeenTopic($subTopic);
+        if (!$this->isTopicSelected($subTopic)) {
             return '';
         }
 

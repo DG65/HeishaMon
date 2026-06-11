@@ -32,6 +32,12 @@ https://github.com/DG65/HeishaMon-IPS
 3. **MQTT Basistopic** eintragen (Standard: `panasonic_heat_pump`, muss dem im HeishaMon konfigurierten Basistopic entsprechen).
 4. Übernehmen — die Variablen werden automatisch angelegt, sobald der HeishaMon Daten sendet (spätestens nach dem nächsten Update-Intervall des HeishaMon).
 
+## Datenpunkte auswählen
+
+In der Instanz-Konfiguration listet die Tabelle **Datenpunkte** alle bekannten HeishaMon-Topics. Die Spalte **Empfangen** zeigt, welche Topics die eigene Anlage tatsächlich sendet (empfangene stehen oben). Über die Checkbox **Aktiv** lassen sich einzelne Datenpunkte abwählen — deren Variablen werden entfernt und nicht mehr angelegt. Beim erneuten Aktivieren kommt die Variable mit dem nächsten HeishaMon-Update automatisch zurück.
+
+Hinweis: Beim Entfernen und Wiederanlegen erhält die Variable eine neue Objekt-ID — eine eventuell vorhandene Archiv-Aufzeichnung muss danach neu aktiviert werden.
+
 ## COP / Arbeitszahl
 
 Das Modul berechnet den COP auf zwei Wegen:

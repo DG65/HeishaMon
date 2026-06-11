@@ -15,6 +15,48 @@
             "caption": "Variables are created automatically as soon as HeishaMon publishes the corresponding topics."
         },
         {
+            "type": "List",
+            "name": "VariableList",
+            "caption": "Datapoints",
+            "rowCount": 15,
+            "add": false,
+            "delete": false,
+            "columns": [
+                {
+                    "caption": "Active",
+                    "name": "Selected",
+                    "width": "80px",
+                    "add": true,
+                    "edit": {
+                        "type": "CheckBox"
+                    }
+                },
+                {
+                    "caption": "Name",
+                    "name": "Caption",
+                    "width": "auto",
+                    "add": ""
+                },
+                {
+                    "caption": "Topic",
+                    "name": "Topic",
+                    "width": "320px",
+                    "add": ""
+                },
+                {
+                    "caption": "Received",
+                    "name": "Received",
+                    "width": "110px",
+                    "add": ""
+                }
+            ],
+            "values": []
+        },
+        {
+            "type": "Label",
+            "caption": "Deactivated datapoints are removed and no longer created. Re-activate them at any time - the variable returns with the next HeishaMon update."
+        },
+        {
             "type": "ExpansionPanel",
             "caption": "External energy meter (COP / performance factor)",
             "items": [
