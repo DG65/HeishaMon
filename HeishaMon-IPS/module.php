@@ -138,8 +138,13 @@ class HeishaMon extends IPSModule
 
         $this->SetTimerInterval('COPUpdate', $energyID > 0 ? 60000 : 0);
 
-        //Abgewaehlte Datenpunkte entfernen; wieder angehakte entstehen beim naechsten Empfang neu
+        //Praesentationen bestehender Variablen auffrischen (z.B. neue Enum-Optionen nach Modul-Update)
         $topics = HeishaMonTopics::topics();
+        foreach ($topics as $topic => $definition) {
+            $this->maintainTopicVariable(HeishaMonTopics::identFromTopic($topic), $topic, $definition, true);
+        }
+
+        //Abgewaehlte Datenpunkte entfernen; wieder angehakte entstehen beim naechsten Empfang neu
         foreach ($this->getSelectionMap() as $topic => $selected) {
             if (!$selected && array_key_exists($topic, $topics)) {
                 $ident = HeishaMonTopics::identFromTopic($topic);
@@ -466,10 +471,12 @@ class HeishaMon extends IPSModule
         $this->SendSetCommand('SetCurves', $CurvesJSON);
     }
 
-    private function maintainTopicVariable(string $ident, string $subTopic, array $definition)
+    private function maintainTopicVariable(string $ident, string $subTopic, array $definition, bool $refreshOnly = false)
     {
-        //Variable nur einmal anlegen, nicht bei jeder Nachricht
-        if (@$this->GetIDForIdent($ident) !== false) {
+        $exists = @$this->GetIDForIdent($ident) !== false;
+        //Im Normalfall (Empfang) nur einmal anlegen, nicht bei jeder Nachricht;
+        //beim Auffrischen (ApplyChanges) nur bestehende Variablen aktualisieren
+        if ($exists != $refreshOnly) {
             return;
         }
 
@@ -532,7 +539,15 @@ class HeishaMon extends IPSModule
                 ];
 
             case 'enum':
-                $options = [];
+                //Zustands-Topics koennen laut HeishaMon-Doku -1 (unbekannt) liefern
+                $options = [[
+                    'Value'       => -1,
+                    'Caption'     => $this->Translate('Unknown'),
+                    'IconActive'  => false,
+                    'Icon'        => '',
+                    'ColorActive' => false,
+                    'ColorValue'  => -1
+                ]];
                 foreach ($definition['options'] as $value => $optionCaption) {
                     $options[] = [
                         'Value'       => $value,
