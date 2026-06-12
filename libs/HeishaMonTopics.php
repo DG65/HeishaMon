@@ -217,6 +217,30 @@ class HeishaMonTopics
         return strpos($topic, 'optional/') === 0 ? 'Optional PCB' : 'Device values';
     }
 
+    /**
+     * Sinnvolle Standard-Reihenfolge: nach Gruppen sortiert (siehe groupOrder),
+     * innerhalb der Gruppe in der Reihenfolge der groupMap-Listen, Fallback-Topics
+     * (Geraetewerte, Optional-PCB) in TopicMap-Reihenfolge dahinter.
+     */
+    public static function defaultOrder(): array
+    {
+        $all = array_keys(self::topics());
+        $ordered = [];
+        foreach (self::groupOrder() as $group) {
+            foreach (self::groupMap()[$group] ?? [] as $topic) {
+                if (in_array($topic, $all, true)) {
+                    $ordered[] = $topic;
+                }
+            }
+            foreach ($all as $topic) {
+                if (!in_array($topic, $ordered, true) && self::groupForTopic($topic) === $group) {
+                    $ordered[] = $topic;
+                }
+            }
+        }
+        return $ordered;
+    }
+
     private static function groupMap(): array
     {
         return [

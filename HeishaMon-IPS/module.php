@@ -89,6 +89,7 @@ class HeishaMon extends IPSModule
             $rows[] = [
                 'Selected' => $selection[$topic] ?? true,
                 'Caption'  => $this->Translate($topics[$topic]['cap']),
+                'Group'    => $this->Translate(HeishaMonTopics::groupForTopic($topic)),
                 'Topic'    => $topic,
                 'Received' => in_array($topic, $seenTopics) ? $this->Translate('Yes') : ''
             ];
@@ -255,7 +256,7 @@ class HeishaMon extends IPSModule
      */
     private function getOrderedTopics(): array
     {
-        $all = array_keys(HeishaMonTopics::topics());
+        $all = HeishaMonTopics::defaultOrder();
         $saved = [];
         $rows = json_decode($this->ReadPropertyString('VariableList'), true);
         if (is_array($rows)) {

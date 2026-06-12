@@ -7,6 +7,7 @@
             "Variables are created automatically as soon as HeishaMon publishes the corresponding topics.": "Variablen werden automatisch angelegt, sobald der HeishaMon die entsprechenden Topics sendet.",
             "Datapoints": "Datenpunkte",
             "Unknown": "Unbekannt",
+            "Group": "Gruppe",
             "Topic": "Topic",
             "Received": "Empfangen",
             "Yes": "Ja",

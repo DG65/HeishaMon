@@ -40,6 +40,12 @@
                     "add": ""
                 },
                 {
+                    "caption": "Group",
+                    "name": "Group",
+                    "width": "170px",
+                    "add": ""
+                },
+                {
                     "caption": "Topic",
                     "name": "Topic",
                     "width": "320px",
