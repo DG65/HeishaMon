@@ -22,12 +22,12 @@ IP-Symcon Modul zur Anbindung eines [HeishaMon](https://github.com/heishamon/Hei
 Über die Modulverwaltung (Kern Instanzen → Modules) die URL dieses Repositories hinzufügen:
 
 ```
-https://github.com/DG65/HeishaMon-IPS
+https://github.com/DG65/HeishaMon
 ```
 
 ## Einrichtung
 
-1. Instanz **HeishaMon-IPS** anlegen.
+1. Instanz **HeishaMon** anlegen.
 2. Als übergeordnete Instanz den MQTT Server bzw. MQTT Client auswählen, mit dem der HeishaMon verbunden ist.
 3. **MQTT Basistopic** eintragen (Standard: `panasonic_heat_pump`, muss dem im HeishaMon konfigurierten Basistopic entsprechen).
 4. Übernehmen — die Variablen werden automatisch angelegt, sobald der HeishaMon Daten sendet (spätestens nach dem nächsten Update-Intervall des HeishaMon).
