@@ -21,6 +21,8 @@
             "rowCount": 15,
             "add": false,
             "delete": false,
+            "changeOrder": true,
+            "loadValuesFromConfiguration": false,
             "columns": [
                 {
                     "caption": "Active",
@@ -55,7 +57,7 @@
         },
         {
             "type": "Label",
-            "caption": "Deactivated datapoints are hidden - object ID and archive data remain. New topics are only created while activated."
+            "caption": "Deactivated datapoints are hidden - object ID and archive data remain. New topics are only created while activated. Reorder rows by drag & drop - variables and links follow the order."
         },
         {
             "type": "ExpansionPanel",
@@ -105,6 +107,12 @@
         }
     ],
     "actions": [
+        {
+            "type": "Button",
+            "caption": "Reset order and selection",
+            "confirm": "Really reset the datapoint list to its default order and selection?",
+            "onClick": "HEISHA_ResetVariableList($_IPS['TARGET']);"
+        },
         {
             "type": "TestCenter"
         }

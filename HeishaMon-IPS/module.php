@@ -81,20 +81,18 @@ class HeishaMon extends IPSModule
 
         $seenTopics = json_decode($this->ReadAttributeString('SeenTopics'), true) ?: [];
         $selection = $this->getSelectionMap();
+        $topics = HeishaMonTopics::topics();
 
+        //Zeilen in der gespeicherten (per Drag & Drop sortierten) Reihenfolge
         $rows = [];
-        foreach (HeishaMonTopics::topics() as $topic => $definition) {
+        foreach ($this->getOrderedTopics() as $topic) {
             $rows[] = [
                 'Selected' => $selection[$topic] ?? true,
-                'Caption'  => $this->Translate($definition['cap']),
+                'Caption'  => $this->Translate($topics[$topic]['cap']),
                 'Topic'    => $topic,
                 'Received' => in_array($topic, $seenTopics) ? $this->Translate('Yes') : ''
             ];
         }
-        //Empfangene Datenpunkte zuerst, dadurch sieht man sofort, was die Anlage liefert
-        usort($rows, function ($a, $b) {
-            return strcmp($b['Received'], $a['Received']);
-        });
 
         foreach ($form['elements'] as &$element) {
             if (($element['name'] ?? '') == 'VariableList') {
@@ -152,16 +150,22 @@ class HeishaMon extends IPSModule
             $this->maintainTopicVariable(HeishaMonTopics::identFromTopic($topic), $topic, $definition, true);
         }
 
-        //Abgewaehlte Datenpunkte ausblenden statt loeschen: Objekt-ID und Archivdaten bleiben erhalten
+        //Abgewaehlte Datenpunkte ausblenden statt loeschen (Objekt-ID und Archivdaten bleiben
+        //erhalten) und Positionen gemaess der Listen-Reihenfolge nachfuehren
         $selection = $this->getSelectionMap();
+        $positions = $this->getPositionMap();
         foreach ($topics as $topic => $definition) {
             $variableID = @$this->GetIDForIdent(HeishaMonTopics::identFromTopic($topic));
             if ($variableID === false) {
                 continue;
             }
+            $object = IPS_GetObject($variableID);
             $hidden = !($selection[$topic] ?? true);
-            if (IPS_GetObject($variableID)['ObjectIsHidden'] != $hidden) {
+            if ($object['ObjectIsHidden'] != $hidden) {
                 IPS_SetHidden($variableID, $hidden);
+            }
+            if ($object['ObjectPosition'] != $positions[$topic]) {
+                IPS_SetPosition($variableID, $positions[$topic]);
             }
         }
 
@@ -246,6 +250,53 @@ class HeishaMon extends IPSModule
     }
 
     /**
+     * Alle Topics in Anzeige-Reihenfolge: zuerst die gespeicherte (per Drag & Drop
+     * sortierte) Liste, danach noch unbekannte Topics in TopicMap-Reihenfolge.
+     */
+    private function getOrderedTopics(): array
+    {
+        $all = array_keys(HeishaMonTopics::topics());
+        $saved = [];
+        $rows = json_decode($this->ReadPropertyString('VariableList'), true);
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
+                if (isset($row['Topic']) && in_array($row['Topic'], $all, true)) {
+                    $saved[] = $row['Topic'];
+                }
+            }
+        }
+        foreach ($all as $topic) {
+            if (!in_array($topic, $saved, true)) {
+                $saved[] = $topic;
+            }
+        }
+        return $saved;
+    }
+
+    /**
+     * Topic => Variablen-Position, abgeleitet aus der Listen-Reihenfolge.
+     */
+    private function getPositionMap(): array
+    {
+        $map = [];
+        $position = 10;
+        foreach ($this->getOrderedTopics() as $topic) {
+            $map[$topic] = $position;
+            $position += 10;
+        }
+        return $map;
+    }
+
+    /**
+     * Setzt Reihenfolge und Auswahl der Datenpunkte auf den Standard zurueck.
+     */
+    public function ResetVariableList()
+    {
+        IPS_SetProperty($this->InstanceID, 'VariableList', '[]');
+        IPS_ApplyChanges($this->InstanceID);
+    }
+
+    /**
      * Merkt sich, welche Topics die Anlage tatsaechlich sendet (Spalte "Empfangen" in der Konfiguration).
      */
     private function rememberSeenTopic(string $topic)
@@ -282,10 +333,10 @@ class HeishaMon extends IPSModule
             IPS_SetName($rootID, IPS_GetName($this->InstanceID));
         }
 
-        //Gewuenschte Links je Gruppe zusammenstellen
+        //Gewuenschte Links je Gruppe zusammenstellen, in der Reihenfolge der Datenpunkt-Liste
         $selection = $this->getSelectionMap();
         $desired = [];
-        foreach (HeishaMonTopics::topics() as $topic => $definition) {
+        foreach ($this->getOrderedTopics() as $topic) {
             if (!($selection[$topic] ?? true)) {
                 continue;
             }
@@ -616,7 +667,7 @@ class HeishaMon extends IPSModule
         }
 
         $caption = $this->Translate($definition['cap']);
-        $position = array_search($subTopic, array_keys(HeishaMonTopics::topics())) + 10;
+        $position = $this->getPositionMap()[$subTopic] ?? 0;
 
         switch ($definition['kind']) {
             case 'bool':
