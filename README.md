@@ -23,11 +23,19 @@ Die Nutzung dieses Moduls erfolgt **auf eigenes Risiko**. Das Modul sendet Befeh
 
 ## Installation
 
-Über die Modulverwaltung (Kern Instanzen → Modules) die URL dieses Repositories hinzufügen:
+### Über den Module Store (empfohlen)
+
+Das Modul soll über den **IP-Symcon Module Store** angeboten werden. Sobald es dort freigegeben ist, lässt es sich direkt aus IP-Symcon heraus installieren: Module Store öffnen, nach **HeishaMon** suchen und installieren. Updates kommen dann automatisch über den Store.
+
+### Über die Modulverwaltung (URL)
+
+Alternativ (oder bis zur Store-Freigabe) über die Modulverwaltung (Kern Instanzen → Modules) die URL dieses Repositories hinzufügen:
 
 ```
 https://github.com/DG65/HeishaMon
 ```
+
+Hinweis: Eine über URL installierte Bibliothek wird nicht automatisch auf die Store-Version umgestellt. Wer später auf den Module Store wechseln möchte, entfernt die URL-Installation in der Modulverwaltung und installiert das Modul aus dem Store neu — die GUIDs sind identisch, bestehende Instanzen samt Variablen und Archivdaten bleiben dabei erhalten.
 
 ## Einrichtung
 
