@@ -14,7 +14,7 @@
             "Link structure": "Linkstruktur",
             "Creates a grouped category tree (Operation, Heating, DHW, ...) with links to all active datapoints at the selected location. Links of deactivated datapoints are removed automatically.": "Erzeugt am gewählten Zielort einen gruppierten Kategoriebaum (Betrieb, Heizen, Warmwasser, ...) mit Links auf alle aktiven Datenpunkte. Links deaktivierter Datenpunkte werden automatisch entfernt.",
             "Create link structure": "Linkstruktur erzeugen",
-            "Target location": "Zielort",
+            "Target category": "Zielkategorie",
             "Operation": "Betrieb",
             "Heating": "Heizen",
             "Cooling": "Kühlen",

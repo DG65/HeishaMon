@@ -71,9 +71,9 @@
                     "caption": "Create link structure"
                 },
                 {
-                    "type": "SelectLocation",
+                    "type": "SelectCategory",
                     "name": "LinksLocation",
-                    "caption": "Target location"
+                    "caption": "Target category"
                 }
             ]
         },
