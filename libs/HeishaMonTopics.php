@@ -196,6 +196,85 @@ class HeishaMonTopics
     }
 
     /**
+     * Gruppen fuer die optionale Linkstruktur, in Anzeige-Reihenfolge.
+     * Die Namen werden ueber locale.json uebersetzt.
+     */
+    public static function groupOrder(): array
+    {
+        return ['Operation', 'Heating', 'Cooling', 'DHW', 'Power & COP', 'Device values', 'System configuration', 'Optional PCB'];
+    }
+
+    /**
+     * Ordnet ein Topic einer Gruppe zu. Nicht gelistete main-Topics gelten als Geraetewerte.
+     */
+    public static function groupForTopic(string $topic): string
+    {
+        foreach (self::groupMap() as $group => $topics) {
+            if (in_array($topic, $topics, true)) {
+                return $group;
+            }
+        }
+        return strpos($topic, 'optional/') === 0 ? 'Optional PCB' : 'Device values';
+    }
+
+    private static function groupMap(): array
+    {
+        return [
+            'Operation' => [
+                'main/Heatpump_State', 'main/Operating_Mode_State', 'main/Quiet_Mode_Schedule',
+                'main/Quiet_Mode_Level', 'main/Quiet_Mode_Priority', 'main/Powerful_Mode_Time',
+                'main/Holiday_Mode_State', 'main/Main_Schedule_State', 'main/Defrosting_State',
+                'main/Error', 'main/Outside_Temp', 'main/Operations_Hours', 'main/Operations_Counter',
+                'main/ThreeWay_Valve_State', 'main/ThreeWay_Valve_State2', 'main/TwoWay_Valve_State',
+                'main/Zones_State'
+            ],
+            'Heating' => [
+                'main/Main_Inlet_Temp', 'main/Main_Outlet_Temp', 'main/Main_Target_Temp', 'main/Heat_Delta',
+                'main/Z1_Heat_Request_Temp', 'main/Z1_Heat_Curve_Target_High_Temp', 'main/Z1_Heat_Curve_Target_Low_Temp',
+                'main/Z1_Heat_Curve_Outside_High_Temp', 'main/Z1_Heat_Curve_Outside_Low_Temp',
+                'main/Z2_Heat_Request_Temp', 'main/Z2_Heat_Curve_Target_High_Temp', 'main/Z2_Heat_Curve_Target_Low_Temp',
+                'main/Z2_Heat_Curve_Outside_High_Temp', 'main/Z2_Heat_Curve_Outside_Low_Temp',
+                'main/Z1_Water_Temp', 'main/Z2_Water_Temp', 'main/Z1_Water_Target_Temp', 'main/Z2_Water_Target_Temp',
+                'main/Z1_Temp', 'main/Z2_Temp', 'main/Room_Thermostat_Temp', 'main/Second_Room_Thermostat_Temp',
+                'main/Heating_Mode', 'main/Heating_Off_Outdoor_Temp', 'main/Heat_To_Cool_Temp', 'main/Heating_Control',
+                'main/Z1_Pump_State', 'main/Z2_Pump_State', 'main/Z1_Valve_PID', 'main/Z2_Valve_PID',
+                'main/Room_Holiday_Shift_Temp', 'main/Room_Heater_State', 'main/Room_Heater_Operations_Hours'
+            ],
+            'Cooling' => [
+                'main/Cool_Delta', 'main/Z1_Cool_Request_Temp', 'main/Z1_Cool_Curve_Target_High_Temp',
+                'main/Z1_Cool_Curve_Target_Low_Temp', 'main/Z1_Cool_Curve_Outside_High_Temp',
+                'main/Z1_Cool_Curve_Outside_Low_Temp', 'main/Z2_Cool_Request_Temp',
+                'main/Z2_Cool_Curve_Target_High_Temp', 'main/Z2_Cool_Curve_Target_Low_Temp',
+                'main/Z2_Cool_Curve_Outside_High_Temp', 'main/Z2_Cool_Curve_Outside_Low_Temp',
+                'main/Cooling_Mode', 'main/Cool_To_Heat_Temp'
+            ],
+            'DHW' => [
+                'main/Force_DHW_State', 'main/DHW_Target_Temp', 'main/DHW_Temp', 'main/DHW_Heat_Delta',
+                'main/DHW_Holiday_Shift_Temp', 'main/DHW_Heater_State', 'main/DHW_Installed',
+                'main/DHW_Heater_Operations_Hours', 'main/Sterilization_State', 'main/Sterilization_Temp',
+                'main/Sterilization_Max_Time', 'main/Smart_DHW', 'main/DHW_Sensor_Selection'
+            ],
+            'Power & COP' => [
+                'main/Heat_Power_Production', 'main/Heat_Power_Consumption', 'main/Cool_Power_Production',
+                'main/Cool_Power_Consumption', 'main/DHW_Power_Production', 'main/DHW_Power_Consumption'
+            ],
+            'System configuration' => [
+                'main/Buffer_Installed', 'main/Buffer_Tank_Delta', 'main/Solar_Mode', 'main/Solar_On_Delta',
+                'main/Solar_Off_Delta', 'main/Solar_Frost_Protection', 'main/Solar_High_Limit',
+                'main/Pump_Flowrate_Mode', 'main/Max_Pump_Duty', 'main/Liquid_Type', 'main/Alt_External_Sensor',
+                'main/Anti_Freeze_Mode', 'main/Optional_PCB', 'main/Z1_Sensor_Settings', 'main/Z2_Sensor_Settings',
+                'main/External_Pad_Heater', 'main/External_Control', 'main/External_Heat_Cool_Control',
+                'main/External_Error_Signal', 'main/External_Compressor_Control', 'main/Bivalent_Control',
+                'main/Bivalent_Mode', 'main/Bivalent_Start_Temp', 'main/Bivalent_Advanced_Heat',
+                'main/Bivalent_Advanced_DHW', 'main/Bivalent_Advanced_Start_Temp', 'main/Bivalent_Advanced_Stop_Temp',
+                'main/Bivalent_Advanced_Start_Delay', 'main/Bivalent_Advanced_Stop_Delay',
+                'main/Bivalent_Advanced_DHW_Delay', 'main/Heater_Delay_Time', 'main/Heater_Start_Delta',
+                'main/Heater_Stop_Delta', 'main/Heater_On_Outdoor_Temp'
+            ]
+        ];
+    }
+
+    /**
      * Liefert den Variablen-Ident zu einem Topic (relativ zum Basistopic).
      */
     public static function identFromTopic(string $topic): string

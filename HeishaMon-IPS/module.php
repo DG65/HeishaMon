@@ -29,6 +29,10 @@ class HeishaMon extends IPSModule
         $this->RegisterPropertyString('VariableList', '[]');
         $this->RegisterAttributeString('SeenTopics', '[]');
 
+        //Optionale, gruppierte Linkstruktur (nach Vorbild des Tessie-Moduls)
+        $this->RegisterPropertyBoolean('CreateLinks', false);
+        $this->RegisterPropertyInteger('LinksLocation', 0);
+
         //COP / Arbeitszahl: externe Messung ueber Stromzaehler (z.B. Shelly 3EM, Phase der Waermepumpe)
         $this->RegisterPropertyInteger('PowerVariable', 0);
         $this->RegisterPropertyInteger('EnergyVariable', 0);
@@ -163,6 +167,7 @@ class HeishaMon extends IPSModule
 
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->registerExternalMessages();
+            $this->maintainLinkTree();
         } else {
             $this->RegisterMessage(0, IPS_KERNELSTARTED);
         }
@@ -173,6 +178,7 @@ class HeishaMon extends IPSModule
         switch ($Message) {
             case IPS_KERNELSTARTED:
                 $this->registerExternalMessages();
+                $this->maintainLinkTree();
                 break;
             case VM_UPDATE:
                 if ($SenderID == $this->ReadPropertyInteger('PowerVariable')) {
@@ -248,6 +254,112 @@ class HeishaMon extends IPSModule
         if (!in_array($topic, $seen)) {
             $seen[] = $topic;
             $this->WriteAttributeString('SeenTopics', json_encode($seen));
+        }
+    }
+
+    /**
+     * Pflegt die optionale Linkstruktur: <Zielort>/<Instanzname>/<Gruppe>/<Link auf Variable>.
+     * Nur aktivierte, vorhandene Datenpunkte werden verlinkt; Links abgewaehlter
+     * Datenpunkte werden entfernt, leere Gruppen geloescht.
+     */
+    private function maintainLinkTree()
+    {
+        if (!$this->ReadPropertyBoolean('CreateLinks')) {
+            return;
+        }
+        $parentID = $this->ReadPropertyInteger('LinksLocation');
+        if ($parentID <= 0 || !IPS_ObjectExists($parentID)) {
+            return;
+        }
+
+        //Wurzelkategorie pro Instanz
+        $rootIdent = 'HEISHA_LINKROOT_' . $this->InstanceID;
+        $rootID = @IPS_GetObjectIDByIdent($rootIdent, $parentID);
+        if ($rootID === false) {
+            $rootID = IPS_CreateCategory();
+            IPS_SetParent($rootID, $parentID);
+            IPS_SetIdent($rootID, $rootIdent);
+            IPS_SetName($rootID, IPS_GetName($this->InstanceID));
+        }
+
+        //Gewuenschte Links je Gruppe zusammenstellen
+        $selection = $this->getSelectionMap();
+        $desired = [];
+        foreach (HeishaMonTopics::topics() as $topic => $definition) {
+            if (!($selection[$topic] ?? true)) {
+                continue;
+            }
+            $variableID = @$this->GetIDForIdent(HeishaMonTopics::identFromTopic($topic));
+            if ($variableID === false) {
+                continue;
+            }
+            $desired[HeishaMonTopics::groupForTopic($topic)]['HEISHA_LNK_' . HeishaMonTopics::identFromTopic($topic)] = $variableID;
+        }
+        //Modul-eigene Variablen ausserhalb der TopicMap
+        $extraIdents = [
+            'Reachable'          => 'Operation',
+            'COP_Internal'       => 'Power & COP',
+            'COP_Measured'       => 'Power & COP',
+            'Heat_Energy_Today'  => 'Power & COP',
+            'Power_Energy_Today' => 'Power & COP',
+            'COP_Today'          => 'Power & COP'
+        ];
+        foreach ($extraIdents as $ident => $group) {
+            $variableID = @$this->GetIDForIdent($ident);
+            if ($variableID !== false) {
+                $desired[$group]['HEISHA_LNK_' . $ident] = $variableID;
+            }
+        }
+
+        foreach (HeishaMonTopics::groupOrder() as $index => $group) {
+            $groupIdent = 'HEISHA_GRP_' . preg_replace('/[^A-Za-z0-9]/', '', $group);
+            $categoryID = @IPS_GetObjectIDByIdent($groupIdent, $rootID);
+            $links = $desired[$group] ?? [];
+
+            if ($categoryID === false) {
+                if (count($links) == 0) {
+                    continue;
+                }
+                $categoryID = IPS_CreateCategory();
+                IPS_SetParent($categoryID, $rootID);
+                IPS_SetIdent($categoryID, $groupIdent);
+                IPS_SetName($categoryID, $this->Translate($group));
+                IPS_SetPosition($categoryID, $index);
+            }
+
+            //verwaltete Links entfernen, deren Datenpunkt abgewaehlt oder verschwunden ist
+            foreach (IPS_GetChildrenIDs($categoryID) as $childID) {
+                $child = IPS_GetObject($childID);
+                if ($child['ObjectType'] == OBJECTTYPE_LINK && strpos($child['ObjectIdent'], 'HEISHA_LNK_') === 0 && !isset($links[$child['ObjectIdent']])) {
+                    IPS_DeleteLink($childID);
+                }
+            }
+
+            $position = 0;
+            foreach ($links as $linkIdent => $variableID) {
+                $linkID = @IPS_GetObjectIDByIdent($linkIdent, $categoryID);
+                if ($linkID === false) {
+                    $linkID = IPS_CreateLink();
+                    IPS_SetParent($linkID, $categoryID);
+                    IPS_SetIdent($linkID, $linkIdent);
+                }
+                //nur bei Abweichung schreiben, um keine unnoetigen Objekt-Updates auszuloesen
+                if (IPS_GetLink($linkID)['TargetID'] != $variableID) {
+                    IPS_SetLinkTargetID($linkID, $variableID);
+                }
+                if (IPS_GetName($linkID) != IPS_GetName($variableID)) {
+                    IPS_SetName($linkID, IPS_GetName($variableID));
+                }
+                if (IPS_GetObject($linkID)['ObjectPosition'] != $position) {
+                    IPS_SetPosition($linkID, $position);
+                }
+                $position++;
+            }
+
+            //leere Gruppe aufraeumen
+            if (count($links) == 0 && count(IPS_GetChildrenIDs($categoryID)) == 0) {
+                IPS_DeleteCategory($categoryID);
+            }
         }
     }
 
@@ -400,6 +512,8 @@ class HeishaMon extends IPSModule
                 return '';
             }
             $this->maintainTopicVariable($ident, $subTopic, $definition);
+            //neue Variable sofort in die Linkstruktur aufnehmen
+            $this->maintainLinkTree();
         }
 
         switch ($definition['kind']) {

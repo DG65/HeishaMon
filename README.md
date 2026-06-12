@@ -36,6 +36,25 @@ https://github.com/DG65/HeishaMon-IPS
 
 In der Instanz-Konfiguration listet die Tabelle **Datenpunkte** alle bekannten HeishaMon-Topics. Die Spalte **Empfangen** zeigt, welche Topics die eigene Anlage tatsächlich sendet (empfangene stehen oben). Über die Checkbox **Aktiv** lassen sich einzelne Datenpunkte abwählen — deren Variablen werden **ausgeblendet**. Objekt-ID, Wert-Aktualisierung und Archivdaten bleiben dabei erhalten; beim erneuten Aktivieren wird die Variable einfach wieder eingeblendet. Nur Datenpunkte, deren Variable noch gar nicht existiert, werden bei deaktivierter Checkbox auch nicht angelegt.
 
+## Linkstruktur (gruppierte Ansicht)
+
+Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine gruppierte Ansicht (z. B. in der Visualisierung) kann das Modul optional eine **Linkstruktur** pflegen: Im Panel **Linkstruktur** die Option **Linkstruktur erzeugen** aktivieren und einen **Zielort** wählen. Das Modul legt dort einen Kategoriebaum an:
+
+```
+<Zielort>
+└── <Instanzname>
+    ├── Betrieb
+    ├── Heizen
+    ├── Kühlen
+    ├── Warmwasser
+    ├── Leistung & COP
+    ├── Gerätewerte
+    ├── Anlagenkonfiguration
+    └── Optionale Platine
+```
+
+Darin liegen Links auf alle **aktiven** Datenpunkte (inklusive Schaltbarkeit — ein Link auf die Warmwasser-Solltemperatur bleibt z. B. ein Slider). Wird ein Datenpunkt in der Liste abgewählt, verschwindet sein Link automatisch; neu empfangene Datenpunkte werden sofort einsortiert. Leere Gruppen werden entfernt.
+
 ## COP / Arbeitszahl
 
 Das Modul berechnet den COP auf zwei Wegen:

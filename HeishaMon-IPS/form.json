@@ -59,6 +59,26 @@
         },
         {
             "type": "ExpansionPanel",
+            "caption": "Link structure",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Creates a grouped category tree (Operation, Heating, DHW, ...) with links to all active datapoints at the selected location. Links of deactivated datapoints are removed automatically."
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "CreateLinks",
+                    "caption": "Create link structure"
+                },
+                {
+                    "type": "SelectLocation",
+                    "name": "LinksLocation",
+                    "caption": "Target location"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
             "caption": "External energy meter (COP / performance factor)",
             "items": [
                 {
