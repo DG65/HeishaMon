@@ -101,6 +101,10 @@ HEISHA_SetCurves(12345, '{"zone1":{"heat":{"target":{"high":35,"low":25},"outsid
 - Zustands-Topics können laut HeishaMon-Doku in Ausnahmefällen den Wert `-1` (unbekannt) liefern; das Modul behandelt dies bei Schaltzuständen als „Aus".
 - Unbekannte Topics (z. B. `stats`, `1wire`, `s0`) werden ignoriert; mit der Option **Debug: Unbekannte Topics** lassen sie sich im Debug-Fenster anzeigen.
 
+## Changelog
+
+Alle Änderungen sind im [CHANGELOG](CHANGELOG.md) dokumentiert.
+
 ## Lizenz
 
 Dieses Modul steht unter der [MIT-Lizenz](LICENSE).
