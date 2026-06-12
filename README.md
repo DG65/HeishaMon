@@ -34,9 +34,7 @@ https://github.com/DG65/HeishaMon-IPS
 
 ## Datenpunkte auswählen
 
-In der Instanz-Konfiguration listet die Tabelle **Datenpunkte** alle bekannten HeishaMon-Topics. Die Spalte **Empfangen** zeigt, welche Topics die eigene Anlage tatsächlich sendet (empfangene stehen oben). Über die Checkbox **Aktiv** lassen sich einzelne Datenpunkte abwählen — deren Variablen werden entfernt und nicht mehr angelegt. Beim erneuten Aktivieren kommt die Variable mit dem nächsten HeishaMon-Update automatisch zurück.
-
-Hinweis: Beim Entfernen und Wiederanlegen erhält die Variable eine neue Objekt-ID — eine eventuell vorhandene Archiv-Aufzeichnung muss danach neu aktiviert werden.
+In der Instanz-Konfiguration listet die Tabelle **Datenpunkte** alle bekannten HeishaMon-Topics. Die Spalte **Empfangen** zeigt, welche Topics die eigene Anlage tatsächlich sendet (empfangene stehen oben). Über die Checkbox **Aktiv** lassen sich einzelne Datenpunkte abwählen — deren Variablen werden **ausgeblendet**. Objekt-ID, Wert-Aktualisierung und Archivdaten bleiben dabei erhalten; beim erneuten Aktivieren wird die Variable einfach wieder eingeblendet. Nur Datenpunkte, deren Variable noch gar nicht existiert, werden bei deaktivierter Checkbox auch nicht angelegt.
 
 ## COP / Arbeitszahl
 

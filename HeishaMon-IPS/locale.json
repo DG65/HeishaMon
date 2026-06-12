@@ -10,7 +10,7 @@
             "Topic": "Topic",
             "Received": "Empfangen",
             "Yes": "Ja",
-            "Deactivated datapoints are removed and no longer created. Re-activate them at any time - the variable returns with the next HeishaMon update.": "Deaktivierte Datenpunkte werden entfernt und nicht mehr angelegt. Jederzeit wieder aktivierbar - die Variable kommt mit dem nächsten HeishaMon-Update zurück.",
+            "Deactivated datapoints are hidden - object ID and archive data remain. New topics are only created while activated.": "Deaktivierte Datenpunkte werden ausgeblendet - Objekt-ID und Archivdaten bleiben erhalten. Neue Topics werden nur angelegt, solange sie aktiviert sind.",
             "External energy meter (COP / performance factor)": "Externer Stromzähler (COP / Arbeitszahl)",
             "If an external energy meter (e.g. Shelly 3EM) measures the heat pump supply line, select its variables here. The module then calculates the measured COP and the daily performance factor from the meter readings.": "Misst ein externer Stromzähler (z. B. Shelly 3EM) die Zuleitung der Wärmepumpe, hier dessen Variablen auswählen. Das Modul berechnet daraus den gemessenen COP und die Tages-Arbeitszahl.",
             "Energy meter: active power of the heat pump (W)": "Stromzähler: Wirkleistung der Wärmepumpe (W)",

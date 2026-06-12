@@ -131,28 +131,33 @@ class HeishaMon extends IPSModule
             'SUFFIX'       => ' kWh',
             'DIGITS'       => 2
         ];
-        $this->MaintainVariable('COP_Measured', $this->Translate('COP (measured)'), VARIABLETYPE_FLOAT, $copPresentation, 201, $powerID > 0);
-        $this->MaintainVariable('Heat_Energy_Today', $this->Translate('Heat energy today'), VARIABLETYPE_FLOAT, $kwhPresentation, 202, $energyID > 0);
-        $this->MaintainVariable('Power_Energy_Today', $this->Translate('Energy consumption today'), VARIABLETYPE_FLOAT, $kwhPresentation, 203, $energyID > 0);
-        $this->MaintainVariable('COP_Today', $this->Translate('Performance factor today'), VARIABLETYPE_FLOAT, $copPresentation, 204, $energyID > 0);
+        $this->maintainCalculationVariable('COP_Measured', $this->Translate('COP (measured)'), $copPresentation, 201, $powerID > 0);
+        $this->maintainCalculationVariable('Heat_Energy_Today', $this->Translate('Heat energy today'), $kwhPresentation, 202, $energyID > 0);
+        $this->maintainCalculationVariable('Power_Energy_Today', $this->Translate('Energy consumption today'), $kwhPresentation, 203, $energyID > 0);
+        $this->maintainCalculationVariable('COP_Today', $this->Translate('Performance factor today'), $copPresentation, 204, $energyID > 0);
 
         $this->SetTimerInterval('COPUpdate', $energyID > 0 ? 60000 : 0);
 
         $this->SendDebug('VariableList', $this->ReadPropertyString('VariableList'), 0);
 
-        //Praesentationen bestehender Variablen auffrischen (z.B. neue Enum-Optionen nach Modul-Update)
+        //Praesentationen bestehender Variablen auffrischen (z.B. neue Enum-Optionen nach Modul-Update);
+        //geschrieben wird nur bei tatsaechlicher Aenderung, sonst loest jedes Uebernehmen einen
+        //Update-Sturm fuer alle Variablen aus, der die Konsole zum Absturz bringen kann
         $topics = HeishaMonTopics::topics();
         foreach ($topics as $topic => $definition) {
             $this->maintainTopicVariable(HeishaMonTopics::identFromTopic($topic), $topic, $definition, true);
         }
 
-        //Abgewaehlte Datenpunkte entfernen; wieder angehakte entstehen beim naechsten Empfang neu
-        foreach ($this->getSelectionMap() as $topic => $selected) {
-            if (!$selected && array_key_exists($topic, $topics)) {
-                $ident = HeishaMonTopics::identFromTopic($topic);
-                if (@$this->GetIDForIdent($ident) !== false) {
-                    $this->MaintainVariable($ident, '', VARIABLETYPE_INTEGER, '', 0, false);
-                }
+        //Abgewaehlte Datenpunkte ausblenden statt loeschen: Objekt-ID und Archivdaten bleiben erhalten
+        $selection = $this->getSelectionMap();
+        foreach ($topics as $topic => $definition) {
+            $variableID = @$this->GetIDForIdent(HeishaMonTopics::identFromTopic($topic));
+            if ($variableID === false) {
+                continue;
+            }
+            $hidden = !($selection[$topic] ?? true);
+            if (IPS_GetObject($variableID)['ObjectIsHidden'] != $hidden) {
+                IPS_SetHidden($variableID, $hidden);
             }
         }
 
@@ -384,14 +389,18 @@ class HeishaMon extends IPSModule
         }
 
         $this->rememberSeenTopic($subTopic);
-        if (!$this->isTopicSelected($subTopic)) {
-            return '';
-        }
 
         $definition = $topics[$subTopic];
         $ident = HeishaMonTopics::identFromTopic($subTopic);
 
-        $this->maintainTopicVariable($ident, $subTopic, $definition);
+        //Bestehende (auch ausgeblendete) Variablen werden weiter aktualisiert,
+        //neue entstehen nur fuer aktivierte Datenpunkte
+        if (@$this->GetIDForIdent($ident) === false) {
+            if (!$this->isTopicSelected($subTopic)) {
+                return '';
+            }
+            $this->maintainTopicVariable($ident, $subTopic, $definition);
+        }
 
         switch ($definition['kind']) {
             case 'bool':
@@ -475,16 +484,25 @@ class HeishaMon extends IPSModule
 
     private function maintainTopicVariable(string $ident, string $subTopic, array $definition, bool $refreshOnly = false)
     {
-        $exists = @$this->GetIDForIdent($ident) !== false;
+        $variableID = @$this->GetIDForIdent($ident);
         //Im Normalfall (Empfang) nur einmal anlegen, nicht bei jeder Nachricht;
         //beim Auffrischen (ApplyChanges) nur bestehende Variablen aktualisieren
-        if ($exists != $refreshOnly) {
+        if (($variableID !== false) != $refreshOnly) {
             return;
+        }
+
+        $presentation = $this->buildPresentation($definition);
+
+        //Nur schreiben, wenn sich die Darstellung wirklich unterscheidet
+        if ($refreshOnly) {
+            $current = @IPS_GetVariablePresentation($variableID);
+            if (is_array($current) && $this->presentationMatches($current, $presentation)) {
+                return;
+            }
         }
 
         $caption = $this->Translate($definition['cap']);
         $position = array_search($subTopic, array_keys(HeishaMonTopics::topics())) + 10;
-        $presentation = $this->buildPresentation($definition);
 
         switch ($definition['kind']) {
             case 'bool':
@@ -505,6 +523,54 @@ class HeishaMon extends IPSModule
         if (array_key_exists('set', $definition)) {
             $this->EnableAction($ident);
         }
+    }
+
+    /**
+     * Wie MaintainVariable fuer die Berechnungs-Variablen (Float), aber ohne unnoetige
+     * Schreibvorgaenge, wenn die Variable samt Darstellung bereits passt.
+     */
+    private function maintainCalculationVariable(string $ident, string $caption, array $presentation, int $position, bool $keep)
+    {
+        $variableID = @$this->GetIDForIdent($ident);
+        if (!$keep && $variableID === false) {
+            return;
+        }
+        if ($keep && $variableID !== false) {
+            $current = @IPS_GetVariablePresentation($variableID);
+            if (is_array($current) && $this->presentationMatches($current, $presentation)) {
+                return;
+            }
+        }
+        $this->MaintainVariable($ident, $caption, VARIABLETYPE_FLOAT, $presentation, $position, $keep);
+    }
+
+    /**
+     * Vergleicht die Soll-Darstellung mit der vorhandenen. Der Kernel ergaenzt beim Speichern
+     * Default-Parameter, daher werden nur die von uns gesetzten Schluessel verglichen.
+     */
+    private function presentationMatches(array $current, array $target): bool
+    {
+        foreach ($target as $key => $value) {
+            if (!array_key_exists($key, $current)) {
+                return false;
+            }
+            $currentValue = $current[$key];
+            //OPTIONS u.ae. sind JSON-Strings, die der Kernel umformatieren kann
+            if (is_string($currentValue) && is_string($value)) {
+                $decodedCurrent = json_decode($currentValue, true);
+                $decodedTarget = json_decode($value, true);
+                if ($decodedCurrent !== null && $decodedTarget !== null) {
+                    if ($decodedCurrent != $decodedTarget) {
+                        return false;
+                    }
+                    continue;
+                }
+            }
+            if ($currentValue != $value) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private function buildPresentation(array $definition): array

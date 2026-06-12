@@ -55,7 +55,7 @@
         },
         {
             "type": "Label",
-            "caption": "Deactivated datapoints are removed and no longer created. Re-activate them at any time - the variable returns with the next HeishaMon update."
+            "caption": "Deactivated datapoints are hidden - object ID and archive data remain. New topics are only created while activated."
         },
         {
             "type": "ExpansionPanel",
