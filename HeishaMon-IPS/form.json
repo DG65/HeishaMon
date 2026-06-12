@@ -41,7 +41,8 @@
                     "caption": "Topic",
                     "name": "Topic",
                     "width": "320px",
-                    "add": ""
+                    "add": "",
+                    "save": true
                 },
                 {
                     "caption": "Received",

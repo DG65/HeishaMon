@@ -138,6 +138,8 @@ class HeishaMon extends IPSModule
 
         $this->SetTimerInterval('COPUpdate', $energyID > 0 ? 60000 : 0);
 
+        $this->SendDebug('VariableList', $this->ReadPropertyString('VariableList'), 0);
+
         //Praesentationen bestehender Variablen auffrischen (z.B. neue Enum-Optionen nach Modul-Update)
         $topics = HeishaMonTopics::topics();
         foreach ($topics as $topic => $definition) {
