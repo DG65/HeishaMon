@@ -577,6 +577,16 @@ class HeishaMon extends IPSModule
                         'DIGITS'       => $definition['digits'] ?? 0
                     ];
                 }
+                if (array_key_exists('set', $definition)) {
+                    //Schaltbare Werte ohne festen Bereich brauchen die Eingabe-Darstellung;
+                    //die reine Wertedarstellung kann keine Eingabe und laesst die Konsole
+                    //mit "Unexpected presentation when trying to determine minimum" abstuerzen
+                    return [
+                        'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_INPUT,
+                        'SUFFIX'       => $definition['suffix'] ?? '',
+                        'DIGITS'       => $definition['digits'] ?? 0
+                    ];
+                }
                 return [
                     'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
                     'SUFFIX'       => $definition['suffix'] ?? '',
