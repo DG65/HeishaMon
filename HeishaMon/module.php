@@ -300,6 +300,68 @@ class HeishaMon extends IPSModule
     }
 
     /**
+     * Frueher verwendete Standard-Uebersetzungen => Caption-Key.
+     * Wird von UpdateVariableNames genutzt, um nur unveraenderte Standardnamen umzubenennen.
+     */
+    private const RENAMED_CAPTIONS = [
+        'Rohrtemperatur außen'                        => 'Outside pipe temperature',
+        'Rohrtemperatur innen'                        => 'Inside pipe temperature',
+        'Pumpenleistung'                              => 'Pump duty',
+        'Maximale Pumpenleistung'                     => 'Maximum pump duty',
+        'Heizen Delta'                                => 'Heat delta',
+        'Kühlen Delta'                                => 'Cool delta',
+        'Warmwasser Heizdelta'                        => 'DHW heating delta',
+        'Zone 1 Heizanforderung'                      => 'Zone 1 heat request temperature',
+        'Zone 1 Kühlanforderung'                      => 'Zone 1 cool request temperature',
+        'Zone 2 Heizanforderung'                      => 'Zone 2 heat request temperature',
+        'Zone 2 Kühlanforderung'                      => 'Zone 2 cool request temperature',
+        'Raum Urlaubsverschiebung'                    => 'Room holiday shift temperature',
+        'Warmwasser Urlaubsverschiebung'              => 'DHW holiday shift temperature',
+        'Solar Ein-Delta'                             => 'Solar on delta',
+        'Solar Aus-Delta'                             => 'Solar off delta',
+        'Einschaltzyklen'                             => 'Heatpump starts',
+        'Heizstab Warmwasser erlaubt'                 => 'DHW heater allowed',
+        'Heizstab Heizung erlaubt'                    => 'Room heater allowed',
+        'Bivalent erweitert: Heizungs-Steuerung'      => 'Bivalent advanced heat control',
+        'Bivalent erweitert: Warmwasser-Steuerung'    => 'Bivalent advanced DHW control',
+        'Bivalent erweitert: Warmwasser-Verzögerung'  => 'Bivalent advanced DHW delay',
+        'Bivalent erweitert: Startverzögerung'        => 'Bivalent advanced start delay',
+        'Bivalent erweitert: Starttemperatur'         => 'Bivalent advanced start temperature',
+        'Bivalent erweitert: Stoppverzögerung'        => 'Bivalent advanced stop delay',
+        'Bivalent erweitert: Stopptemperatur'         => 'Bivalent advanced stop temperature'
+    ];
+
+    /**
+     * Benennt Variablen mit altem Standardnamen auf die aktuelle Uebersetzung um.
+     * Selbst vergebene Namen werden nicht angefasst.
+     */
+    public function UpdateVariableNames()
+    {
+        $count = 0;
+        foreach (HeishaMonTopics::topics() as $topic => $definition) {
+            $variableID = @$this->GetIDForIdent(HeishaMonTopics::identFromTopic($topic));
+            if ($variableID === false) {
+                continue;
+            }
+            $target = $this->Translate($definition['cap']);
+            $current = IPS_GetName($variableID);
+            if ($current == $target) {
+                continue;
+            }
+            //nur Standardnamen umbenennen: englischer Caption-Key oder bekannte alte Uebersetzung
+            $isOldDefault = ($current == $definition['cap'])
+                || (isset(self::RENAMED_CAPTIONS[$current]) && self::RENAMED_CAPTIONS[$current] == $definition['cap']);
+            if ($isOldDefault) {
+                IPS_SetName($variableID, $target);
+                $count++;
+            }
+        }
+        //Linknamen in der Linkstruktur nachziehen
+        $this->maintainLinkTree();
+        echo sprintf($this->Translate('%d variable names updated'), $count);
+    }
+
+    /**
      * Merkt sich, welche Topics die Anlage tatsaechlich sendet (Spalte "Empfangen" in der Konfiguration).
      */
     private function rememberSeenTopic(string $topic)

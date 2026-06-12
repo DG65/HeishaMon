@@ -115,6 +115,12 @@
     "actions": [
         {
             "type": "Button",
+            "caption": "Update variable names",
+            "confirm": "Renames variables that still carry an old default name to the current translation. Custom names remain untouched.",
+            "onClick": "HEISHA_UpdateVariableNames($id);"
+        },
+        {
+            "type": "Button",
             "caption": "Reset order and selection",
             "confirm": "Really reset the datapoint list to its default order and selection?",
             "onClick": "HEISHA_ResetVariableList($id);"

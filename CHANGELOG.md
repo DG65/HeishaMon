@@ -15,3 +15,4 @@
 - Verfügbarkeitsanzeige über das LWT-Topic
 - Skript-Funktionen `HEISHA_SendSetCommand` und `HEISHA_SetCurves` (Heiz-/Kühlkurven als JSON)
 - Vollständige deutsche Übersetzung
+- Button „Variablennamen aktualisieren“: übernimmt verbesserte Übersetzungen für Variablen mit Standardnamen, selbst vergebene Namen bleiben erhalten
