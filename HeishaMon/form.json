@@ -117,7 +117,7 @@
             "type": "Button",
             "caption": "Reset order and selection",
             "confirm": "Really reset the datapoint list to its default order and selection?",
-            "onClick": "HEISHA_ResetVariableList($_IPS['TARGET']);"
+            "onClick": "HEISHA_ResetVariableList($id);"
         },
         {
             "type": "TestCenter"

@@ -295,6 +295,8 @@ class HeishaMon extends IPSModule
     {
         IPS_SetProperty($this->InstanceID, 'VariableList', '[]');
         IPS_ApplyChanges($this->InstanceID);
+        //geoeffnete Konfiguration neu laden, damit die Liste den Standard zeigt
+        $this->ReloadForm();
     }
 
     /**
