@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — 2026-06-18 — Review-Anpassungen
+
+- Vendor auf „HeishaMon“ gesetzt
+- „Reihenfolge und Auswahl zurücksetzen“ aktualisiert nur noch die offene Konfiguration (UpdateFormField) statt die Eigenschaft direkt zu schreiben; persistiert wird erst beim Übernehmen durch den Nutzer
+
 ## 1.0 — 2026-06-18 — Erstveröffentlichung im Module Store
 
 ### Funktionen

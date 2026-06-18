@@ -79,13 +79,26 @@ class HeishaMon extends IPSModule
     {
         $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
 
-        $seenTopics = json_decode($this->ReadAttributeString('SeenTopics'), true) ?: [];
-        $selection = $this->getSelectionMap();
-        $topics = HeishaMonTopics::topics();
-
         //Zeilen in der gespeicherten (per Drag & Drop sortierten) Reihenfolge
+        foreach ($form['elements'] as &$element) {
+            if (($element['name'] ?? '') == 'VariableList') {
+                $element['values'] = $this->buildVariableListRows($this->getOrderedTopics(), $this->getSelectionMap());
+                break;
+            }
+        }
+        return json_encode($form);
+    }
+
+    /**
+     * Baut die Zeilen der Datenpunkt-Liste in der uebergebenen Reihenfolge.
+     * $selection liefert den Aktiv-Zustand; nicht gelistete Topics gelten als aktiv.
+     */
+    private function buildVariableListRows(array $orderedTopics, array $selection): array
+    {
+        $seenTopics = json_decode($this->ReadAttributeString('SeenTopics'), true) ?: [];
+        $topics = HeishaMonTopics::topics();
         $rows = [];
-        foreach ($this->getOrderedTopics() as $topic) {
+        foreach ($orderedTopics as $topic) {
             $rows[] = [
                 'Selected' => $selection[$topic] ?? true,
                 'Caption'  => $this->Translate($topics[$topic]['cap']),
@@ -94,14 +107,7 @@ class HeishaMon extends IPSModule
                 'Received' => in_array($topic, $seenTopics) ? $this->Translate('Yes') : ''
             ];
         }
-
-        foreach ($form['elements'] as &$element) {
-            if (($element['name'] ?? '') == 'VariableList') {
-                $element['values'] = $rows;
-                break;
-            }
-        }
-        return json_encode($form);
+        return $rows;
     }
 
     public function ApplyChanges()
@@ -289,14 +295,14 @@ class HeishaMon extends IPSModule
     }
 
     /**
-     * Setzt Reihenfolge und Auswahl der Datenpunkte auf den Standard zurueck.
+     * Setzt Reihenfolge und Auswahl der Datenpunkte in der offenen Konfiguration
+     * auf den Standard zurueck (Standard-Reihenfolge, alle aktiv). Persistiert wird
+     * erst, wenn der Nutzer selbst "Aenderungen uebernehmen" klickt.
      */
     public function ResetVariableList()
     {
-        IPS_SetProperty($this->InstanceID, 'VariableList', '[]');
-        IPS_ApplyChanges($this->InstanceID);
-        //geoeffnete Konfiguration neu laden, damit die Liste den Standard zeigt
-        $this->ReloadForm();
+        $rows = $this->buildVariableListRows(HeishaMonTopics::defaultOrder(), []);
+        $this->UpdateFormField('VariableList', 'values', json_encode($rows));
     }
 
     /**
