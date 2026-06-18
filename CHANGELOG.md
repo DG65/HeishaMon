@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0 — Erstveröffentlichung (in Vorbereitung)
+## 1.0 — 2026-06-18 — Erstveröffentlichung im Module Store
 
 ### Funktionen
 

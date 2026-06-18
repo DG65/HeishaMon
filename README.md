@@ -25,11 +25,11 @@ Die Nutzung dieses Moduls erfolgt **auf eigenes Risiko**. Das Modul sendet Befeh
 
 ### Über den Module Store (empfohlen)
 
-Das Modul soll über den **IP-Symcon Module Store** angeboten werden. Sobald es dort freigegeben ist, lässt es sich direkt aus IP-Symcon heraus installieren: Module Store öffnen, nach **HeishaMon** suchen und installieren. Updates kommen dann automatisch über den Store.
+Das Modul ist im **IP-Symcon Module Store** verfügbar und lässt sich direkt aus IP-Symcon heraus installieren: Module Store öffnen, nach **HeishaMon** suchen und installieren. Updates kommen dann automatisch über den Store.
 
 ### Über die Modulverwaltung (URL)
 
-Alternativ (oder bis zur Store-Freigabe) über die Modulverwaltung (Kern Instanzen → Modules) die URL dieses Repositories hinzufügen:
+Alternativ über die Modulverwaltung (Kern Instanzen → Modules) die URL dieses Repositories hinzufügen:
 
 ```
 https://github.com/DG65/HeishaMon
@@ -52,10 +52,10 @@ Die Zeilen lassen sich per **Drag & Drop sortieren** — die Variablen unter der
 
 ## Linkstruktur (gruppierte Ansicht)
 
-Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine gruppierte Ansicht (z. B. in der Visualisierung) kann das Modul optional eine **Linkstruktur** pflegen: Im Panel **Linkstruktur** die Option **Linkstruktur erzeugen** aktivieren und einen **Zielort** wählen. Das Modul legt dort einen Kategoriebaum an:
+Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine gruppierte Ansicht (z. B. in der Visualisierung) kann das Modul optional eine **Linkstruktur** pflegen: Im Panel **Linkstruktur** die Option **Linkstruktur erzeugen** aktivieren und eine **Zielkategorie** wählen. Das Modul legt dort einen Kategoriebaum an:
 
 ```
-<Zielort>
+<Zielkategorie>
 └── <Instanzname>
     ├── Betrieb
     ├── Heizen
@@ -74,9 +74,9 @@ Darin liegen Links auf alle **aktiven** Datenpunkte (inklusive Schaltbarkeit —
 Das Modul berechnet den COP auf zwei Wegen:
 
 - **COP (HeishaMon-Schätzung)** — automatisch aus den HeishaMon-eigenen Werten (thermische Leistung / elektrische Aufnahme über alle Betriebsarten). Keine Konfiguration nötig, aber grob, da Panasonic die Aufnahme nur in ~200-W-Stufen schätzt.
-- **COP (gemessen)** — über einen externen Stromzähler (z. B. Shelly 3EM auf der Wärmepumpen-Phase). Dazu im Konfigurationspanel **COP / Arbeitszahl** die Leistungs-Variable (W) auswählen; der COP wird bei jeder Wertänderung neu berechnet. Unterhalb der **Mindestleistung** (Standard 100 W, gegen Standby-Rauschen) wird 0 ausgegeben.
+- **COP (gemessen)** — über einen externen Stromzähler (z. B. Shelly 3EM auf der Wärmepumpen-Phase). Dazu im Konfigurationspanel **Externer Stromzähler (COP / Arbeitszahl)** die Variable **Stromzähler: Wirkleistung der Wärmepumpe (W)** auswählen; der COP wird bei jeder Wertänderung neu berechnet. Unterhalb der **Mindestleistung** (Standard 100 W, gegen Standby-Rauschen) wird 0 ausgegeben.
 
-Wird zusätzlich die **Energiezähler-Variable (kWh)** ausgewählt, berechnet das Modul Tageswerte:
+Wird zusätzlich die Variable **Stromzähler: Gesamtwirkenergie der Wärmepumpe (kWh)** ausgewählt, berechnet das Modul Tageswerte:
 
 - **Stromverbrauch heute** — exakt aus dem Zählerstand (Basis wird um Mitternacht neu gesetzt, ein Zähler-Reset wird abgefangen)
 - **Wärmemenge heute** — Integration der thermischen Leistung über einen 60-Sekunden-Timer (Zwischenstände überleben einen IPS-Neustart)
