@@ -84,6 +84,26 @@ Wird zusätzlich die Variable **Stromzähler: Gesamtwirkenergie der Wärmepumpe 
 
 Hinweis: Läuft der Heizstab, steckt seine Wärme in der gemessenen thermischen Leistung. Da nur die Wärmepumpen-Phase im Nenner steht, fällt der COP in diesen Phasen optisch zu gut aus — für die reine Verdichter-Bewertung ist das aber genau richtig.
 
+## Elektrische Leistung & Integration in andere Module
+
+Das Modul führt eine Variable **Elektrische Leistung (gesamt)** (W). Sie enthält den gemessenen Wert des externen Stromzählers, sofern konfiguriert — andernfalls die Summe der HeishaMon-Schätzwerte (Heizen + Kühlen + Warmwasser). Damit gibt es unabhängig vom Messaufbau immer eine einzelne, verlässliche Leistungsvariable, z. B. für Visualisierungen, ein Energiemanagement oder eigene Automationen.
+
+Andere Module können die Wärmepumpe automatisch einbinden, ohne dass der Nutzer Variablen von Hand zuweisen muss:
+
+```php
+$functions = HEISHA_GetFunctions(12345);
+// [
+//   [
+//     'Type'     => 'heatpump',
+//     'Caption'  => 'HeishaMon',   // Name der Instanz
+//     'PowerID'  => 34567,         // Variable "Elektrische Leistung (gesamt)" in W
+//     'EnergyID' => 45678          // kWh-Zählerstand des externen Zählers, 0 wenn nicht konfiguriert
+//   ]
+// ]
+```
+
+Hinweis: `EnergyID` verweist bewusst auf den **kumulativen** Zählerstand des externen Stromzählers und nicht auf „Stromverbrauch heute" — letzterer wird um Mitternacht zurückgesetzt und eignet sich daher nicht als Energiezähler für Auswertungen wie eine Sankey-Darstellung.
+
 ## Befehle per Skript
 
 Alle HeishaMon-Befehle (siehe [MQTT-Topics](https://github.com/heishamon/HeishaMon/blob/master/MQTT-Topics.md)) lassen sich auch per Skript senden:

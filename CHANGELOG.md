@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 — 2026-06-18
+
+- Neue Variable **Elektrische Leistung (gesamt)** (W): gemessener Wert des externen Stromzählers, sonst Summe der HeishaMon-Schätzwerte
+- Neue Funktion `HEISHA_GetFunctions()`: meldet Art, Bezeichnung sowie Leistungs- und Energiezähler-Variable, damit andere Module (z. B. Energiefluss-Visualisierungen) die Wärmepumpe ohne manuelle Zuweisung einbinden können
+
 ## 1.0.1 — 2026-06-18 — Review-Anpassungen
 
 - Vendor auf „HeishaMon“ gesetzt

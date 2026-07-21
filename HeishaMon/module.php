@@ -140,10 +140,18 @@ class HeishaMon extends IPSModule
             'SUFFIX'       => ' kWh',
             'DIGITS'       => 2
         ];
+        //Elektrische Gesamtleistung: gemessen, wenn ein Zaehler konfiguriert ist, sonst HeishaMon-Schaetzung.
+        //Wird immer gefuehrt und ist der Anknuepfungspunkt fuer andere Module (siehe GetFunctions).
+        $this->maintainCalculationVariable('Power_Total', $this->Translate('Electrical power (total)'), [
+            'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+            'SUFFIX'       => ' W',
+            'DIGITS'       => 0
+        ], 199, true);
         $this->maintainCalculationVariable('COP_Measured', $this->Translate('COP (measured)'), $copPresentation, 201, $powerID > 0);
         $this->maintainCalculationVariable('Heat_Energy_Today', $this->Translate('Heat energy today'), $kwhPresentation, 202, $energyID > 0);
         $this->maintainCalculationVariable('Power_Energy_Today', $this->Translate('Energy consumption today'), $kwhPresentation, 203, $energyID > 0);
         $this->maintainCalculationVariable('COP_Today', $this->Translate('Performance factor today'), $copPresentation, 204, $energyID > 0);
+        $this->updateTotalPower();
 
         $this->SetTimerInterval('COPUpdate', $energyID > 0 ? 60000 : 0);
 
@@ -194,6 +202,7 @@ class HeishaMon extends IPSModule
             case VM_UPDATE:
                 if ($SenderID == $this->ReadPropertyInteger('PowerVariable')) {
                     $this->updateMeasuredCOP(floatval($Data[0]));
+                    $this->updateTotalPower();
                 } elseif ($SenderID == $this->ReadPropertyInteger('EnergyVariable')) {
                     $this->updateDailyValues();
                 }
@@ -420,6 +429,7 @@ class HeishaMon extends IPSModule
         //Modul-eigene Variablen ausserhalb der TopicMap
         $extraIdents = [
             'Reachable'          => 'Operation',
+            'Power_Total'        => 'Power & COP',
             'COP_Internal'       => 'Power & COP',
             'COP_Measured'       => 'Power & COP',
             'Heat_Energy_Today'  => 'Power & COP',
@@ -661,8 +671,53 @@ class HeishaMon extends IPSModule
             'main/DHW_Power_Production', 'main/DHW_Power_Consumption'
         ])) {
             $this->updateInternalCOP();
+            $this->updateTotalPower();
         }
         return '';
+    }
+
+    /**
+     * Meldet die Funktionen dieser Instanz an andere Module (z.B. Energiefluss-Visualisierungen),
+     * damit die Waermepumpe dort ohne manuelle Zuweisung auftaucht.
+     *
+     * Rueckgabe je Eintrag:
+     *   Type     'heatpump'
+     *   Caption  Name der Instanz
+     *   PowerID  Variable mit der elektrischen Leistung in W (0, falls nicht vorhanden)
+     *   EnergyID Variable mit dem Energiezaehlerstand in kWh, 0 wenn kein externer Zaehler
+     *            konfiguriert ist. Bewusst NICHT "Stromverbrauch heute", da dieser Wert
+     *            taeglich zurueckgesetzt wird und als kumulativer Zaehler ungeeignet ist.
+     */
+    public function GetFunctions(): array
+    {
+        $powerID = @$this->GetIDForIdent('Power_Total');
+        $energyID = $this->ReadPropertyInteger('EnergyVariable');
+
+        return [
+            [
+                'Type'     => 'heatpump',
+                'Caption'  => IPS_GetName($this->InstanceID),
+                'PowerID'  => $powerID === false ? 0 : $powerID,
+                'EnergyID' => ($energyID > 0 && IPS_VariableExists($energyID)) ? $energyID : 0
+            ]
+        ];
+    }
+
+    /**
+     * Fuehrt die elektrische Gesamtleistung nach: gemessener Wert des externen Zaehlers,
+     * andernfalls die Summe der HeishaMon-Schaetzwerte (Heizen + Kuehlen + Warmwasser).
+     */
+    private function updateTotalPower()
+    {
+        if (@$this->GetIDForIdent('Power_Total') === false) {
+            return;
+        }
+        $powerID = $this->ReadPropertyInteger('PowerVariable');
+        if ($powerID > 0 && IPS_VariableExists($powerID)) {
+            $this->SetValue('Power_Total', floatval(GetValue($powerID)));
+            return;
+        }
+        $this->SetValue('Power_Total', $this->getElectricalPower());
     }
 
     public function RequestAction($Ident, $Value)

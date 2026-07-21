@@ -246,7 +246,8 @@
             "Zones": "Zonen",
             "Update variable names": "Variablennamen aktualisieren",
             "Renames variables that still carry an old default name to the current translation. Custom names remain untouched.": "Benennt Variablen um, die noch einen alten Standardnamen tragen, auf die aktuelle Übersetzung. Selbst vergebene Namen bleiben unangetastet.",
-            "%d variable names updated": "%d Variablennamen aktualisiert"
+            "%d variable names updated": "%d Variablennamen aktualisiert",
+            "Electrical power (total)": "Elektrische Leistung (gesamt)"
         }
     }
 }
