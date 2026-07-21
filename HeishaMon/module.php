@@ -687,6 +687,12 @@ class HeishaMon extends IPSModule
      *   EnergyID Variable mit dem Energiezaehlerstand in kWh, 0 wenn kein externer Zaehler
      *            konfiguriert ist. Bewusst NICHT "Stromverbrauch heute", da dieser Wert
      *            taeglich zurueckgesetzt wird und als kumulativer Zaehler ungeeignet ist.
+     *   Measured true  = PowerID stammt aus einer echten Messung
+     *            false = HeishaMon-Schaetzung der Waermepumpe, grob in ~200-W-Stufen.
+     *                    Konsumenten sollten den Wert dann nicht mit Nachkommastellen
+     *                    darstellen, das waere Scheingenauigkeit.
+     *            Nicht aus EnergyID ableitbar: Leistungs- und Energiezaehler lassen sich
+     *            unabhaengig voneinander konfigurieren.
      */
     public function GetFunctions(): array
     {
@@ -698,9 +704,20 @@ class HeishaMon extends IPSModule
                 'Type'     => 'heatpump',
                 'Caption'  => IPS_GetName($this->InstanceID),
                 'PowerID'  => $powerID === false ? 0 : $powerID,
-                'EnergyID' => ($energyID > 0 && IPS_VariableExists($energyID)) ? $energyID : 0
+                'EnergyID' => ($energyID > 0 && IPS_VariableExists($energyID)) ? $energyID : 0,
+                'Measured' => $this->hasMeasuredPower()
             ]
         ];
+    }
+
+    /**
+     * Liegt eine echte Leistungsmessung vor? Einzige Quelle der Wahrheit fuer die
+     * Wertermittlung in updateTotalPower und das Measured-Flag in GetFunctions.
+     */
+    private function hasMeasuredPower(): bool
+    {
+        $powerID = $this->ReadPropertyInteger('PowerVariable');
+        return $powerID > 0 && IPS_VariableExists($powerID);
     }
 
     /**
@@ -712,9 +729,8 @@ class HeishaMon extends IPSModule
         if (@$this->GetIDForIdent('Power_Total') === false) {
             return;
         }
-        $powerID = $this->ReadPropertyInteger('PowerVariable');
-        if ($powerID > 0 && IPS_VariableExists($powerID)) {
-            $this->SetValue('Power_Total', floatval(GetValue($powerID)));
+        if ($this->hasMeasuredPower()) {
+            $this->SetValue('Power_Total', floatval(GetValue($this->ReadPropertyInteger('PowerVariable'))));
             return;
         }
         $this->SetValue('Power_Total', $this->getElectricalPower());

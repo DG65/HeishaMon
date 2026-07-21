@@ -97,12 +97,16 @@ $functions = HEISHA_GetFunctions(12345);
 //     'Type'     => 'heatpump',
 //     'Caption'  => 'HeishaMon',   // Name der Instanz
 //     'PowerID'  => 34567,         // Variable "Elektrische Leistung (gesamt)" in W
-//     'EnergyID' => 45678          // kWh-Zählerstand des externen Zählers, 0 wenn nicht konfiguriert
+//     'EnergyID' => 45678,         // kWh-Zählerstand des externen Zählers, 0 wenn nicht konfiguriert
+//     'Measured' => true           // true = echte Messung, false = HeishaMon-Schätzung
 //   ]
 // ]
 ```
 
-Hinweis: `EnergyID` verweist bewusst auf den **kumulativen** Zählerstand des externen Stromzählers und nicht auf „Stromverbrauch heute" — letzterer wird um Mitternacht zurückgesetzt und eignet sich daher nicht als Energiezähler für Auswertungen wie eine Sankey-Darstellung.
+Hinweise für Konsumenten:
+
+- `EnergyID` verweist bewusst auf den **kumulativen** Zählerstand des externen Stromzählers und nicht auf „Stromverbrauch heute" — letzterer wird um Mitternacht zurückgesetzt und eignet sich daher nicht als Energiezähler für Auswertungen wie eine Sankey-Darstellung. Ist `EnergyID` 0, sollte die Energie **nicht** aus der Leistung hochgerechnet werden.
+- `Measured` unterscheidet echte Messung von der HeishaMon-Schätzung (grob in ~200-W-Stufen). Bei `false` sollte der Wert nicht mit Nachkommastellen dargestellt werden — das wäre Scheingenauigkeit. Das Flag lässt sich **nicht** aus `EnergyID` ableiten, da Leistungs- und Energievariable unabhängig voneinander konfigurierbar sind.
 
 ## Befehle per Skript
 
