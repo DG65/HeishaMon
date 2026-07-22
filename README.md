@@ -25,7 +25,7 @@ Die Nutzung dieses Moduls erfolgt **auf eigenes Risiko**. Das Modul sendet Befeh
 
 ### Über den Module Store (empfohlen)
 
-Das Modul ist im **IP-Symcon Module Store** verfügbar und lässt sich direkt aus IP-Symcon heraus installieren: Module Store öffnen, nach **HeishaMon** suchen und installieren. Updates kommen dann automatisch über den Store.
+Das Modul ist im **IP-Symcon Module Store** verfügbar und lässt sich direkt aus IP-Symcon heraus installieren: Module Store öffnen, nach **HeishaMon** suchen und installieren. Aktualisierungen kommen dann automatisch über den Store.
 
 ### Über die Modulverwaltung (URL)
 
@@ -42,13 +42,13 @@ Hinweis: Eine über URL installierte Bibliothek wird nicht automatisch auf die S
 1. Instanz **HeishaMon** anlegen.
 2. Als übergeordnete Instanz den MQTT Server bzw. MQTT Client auswählen, mit dem der HeishaMon verbunden ist.
 3. **MQTT Basistopic** eintragen (Standard: `panasonic_heat_pump`, muss dem im HeishaMon konfigurierten Basistopic entsprechen).
-4. Übernehmen — die Variablen werden automatisch angelegt, sobald der HeishaMon Daten sendet (spätestens nach dem nächsten Update-Intervall des HeishaMon).
+4. Übernehmen — die Variablen werden automatisch angelegt, sobald der HeishaMon Daten sendet (spätestens beim nächsten Sendeintervall des HeishaMon).
 
 ## Datenpunkte auswählen
 
-In der Instanz-Konfiguration listet die Tabelle **Datenpunkte** alle bekannten HeishaMon-Topics. Die Spalte **Empfangen** zeigt, welche Topics die eigene Anlage tatsächlich sendet. Über die Checkbox **Aktiv** lassen sich einzelne Datenpunkte abwählen — deren Variablen werden **ausgeblendet**. Objekt-ID, Wert-Aktualisierung und Archivdaten bleiben dabei erhalten; beim erneuten Aktivieren wird die Variable einfach wieder eingeblendet. Nur Datenpunkte, deren Variable noch gar nicht existiert, werden bei deaktivierter Checkbox auch nicht angelegt.
+In der Instanz-Konfiguration listet die Tabelle **Datenpunkte** alle bekannten HeishaMon-Topics. Die Spalte **Empfangen** zeigt, welche Topics die eigene Anlage tatsächlich sendet. Über die Spalte **Aktiv** lassen sich einzelne Datenpunkte abwählen — deren Variablen werden **ausgeblendet**. Objekt-ID, Wert-Aktualisierung und Archivdaten bleiben dabei erhalten; beim erneuten Aktivieren wird die Variable einfach wieder eingeblendet. Nur Datenpunkte, deren Variable noch gar nicht existiert, werden bei deaktivierter Auswahl auch nicht angelegt.
 
-Die Zeilen lassen sich durch **Ziehen mit der Maus sortieren** — die Variablen unter der Instanz und die Verknüpfungen in der Verknüpfungsstruktur übernehmen diese Reihenfolge beim Übernehmen. Der Button **Reihenfolge und Auswahl zurücksetzen** stellt den Standard wieder her.
+Die Zeilen lassen sich durch **Ziehen mit der Maus sortieren** — die Variablen unter der Instanz und die Verknüpfungen in der Verknüpfungsstruktur folgen dieser Reihenfolge, sobald die Änderungen übernommen werden. Die Schaltfläche **Reihenfolge und Auswahl zurücksetzen** stellt den Standard wieder her.
 
 ## Verknüpfungsstruktur (gruppierte Ansicht)
 
@@ -67,7 +67,7 @@ Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine g
     └── Optionale Platine
 ```
 
-Darin liegen Verknüpfungen auf alle **aktiven** Datenpunkte (inklusive Schaltbarkeit — eine Verknüpfung auf die Warmwasser-Solltemperatur bleibt z. B. ein Slider). Wird ein Datenpunkt in der Liste abgewählt, verschwindet seine Verknüpfung automatisch; neu empfangene Datenpunkte werden sofort einsortiert. Leere Gruppen werden entfernt.
+Darin liegen Verknüpfungen auf alle **aktiven** Datenpunkte (inklusive Schaltbarkeit — eine Verknüpfung auf die Warmwasser-Solltemperatur bleibt z. B. ein Schieberegler). Wird ein Datenpunkt in der Liste abgewählt, verschwindet seine Verknüpfung automatisch; neu empfangene Datenpunkte werden sofort einsortiert. Leere Gruppen werden entfernt.
 
 ## COP / Arbeitszahl
 
@@ -79,8 +79,8 @@ Das Modul berechnet den COP auf zwei Wegen:
 Wird zusätzlich die Variable **Stromzähler: Gesamtwirkenergie der Wärmepumpe (kWh)** ausgewählt, berechnet das Modul Tageswerte:
 
 - **Stromverbrauch heute** — exakt aus dem Zählerstand (Basis wird um Mitternacht neu gesetzt, ein Zähler-Reset wird abgefangen)
-- **Wärmemenge heute** — Integration der thermischen Leistung über einen 60-Sekunden-Timer (Zwischenstände überleben einen IPS-Neustart)
-- **Arbeitszahl heute** — Verhältnis der beiden; mit Archiv-Logging entsteht daraus die Langzeit-Historie
+- **Wärmemenge heute** — Integration der thermischen Leistung im 60-Sekunden-Takt (Zwischenstände überleben einen IPS-Neustart)
+- **Arbeitszahl heute** — Verhältnis der beiden; mit Aufzeichnung im Archiv entsteht daraus die Langzeit-Historie
 
 Hinweis: Läuft der Heizstab, steckt seine Wärme in der gemessenen thermischen Leistung. Da nur die Wärmepumpen-Phase im Nenner steht, fällt der COP in diesen Phasen optisch zu gut aus — für die reine Verdichter-Bewertung ist das aber genau richtig.
 

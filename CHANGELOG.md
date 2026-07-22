@@ -3,6 +3,7 @@
 ## 1.1.2 — 2026-07-22
 
 - Sprachregel des Modul-Verbunds umgesetzt: „Link/Linkstruktur" heißt jetzt durchgängig „Verknüpfung/Verknüpfungsstruktur", „Drag & Drop" wurde ersetzt. Betrifft nur Anzeigetexte — Idents, Eigenschaften und der `HEISHA_GetFunctions`-Vertrag bleiben unverändert
+- Weitere Anzeigetexte eingedeutscht: Button → Schaltfläche, Slider → Schieberegler, Checkbox → Spalte/Auswahl, Update → Aktualisierung, Logging → Aufzeichnung im Archiv
 - Konventionen in CLAUDE.md festgehalten (Sprachregel, Idents sind API, Zweig-Modell, Stolperfallen)
 
 ## 1.1.1 — 2026-06-18
