@@ -48,11 +48,11 @@ Hinweis: Eine über URL installierte Bibliothek wird nicht automatisch auf die S
 
 In der Instanz-Konfiguration listet die Tabelle **Datenpunkte** alle bekannten HeishaMon-Topics. Die Spalte **Empfangen** zeigt, welche Topics die eigene Anlage tatsächlich sendet. Über die Checkbox **Aktiv** lassen sich einzelne Datenpunkte abwählen — deren Variablen werden **ausgeblendet**. Objekt-ID, Wert-Aktualisierung und Archivdaten bleiben dabei erhalten; beim erneuten Aktivieren wird die Variable einfach wieder eingeblendet. Nur Datenpunkte, deren Variable noch gar nicht existiert, werden bei deaktivierter Checkbox auch nicht angelegt.
 
-Die Zeilen lassen sich per **Drag & Drop sortieren** — die Variablen unter der Instanz und die Links in der Linkstruktur übernehmen diese Reihenfolge beim Übernehmen. Der Button **Reihenfolge und Auswahl zurücksetzen** stellt den Standard wieder her.
+Die Zeilen lassen sich durch **Ziehen mit der Maus sortieren** — die Variablen unter der Instanz und die Verknüpfungen in der Verknüpfungsstruktur übernehmen diese Reihenfolge beim Übernehmen. Der Button **Reihenfolge und Auswahl zurücksetzen** stellt den Standard wieder her.
 
-## Linkstruktur (gruppierte Ansicht)
+## Verknüpfungsstruktur (gruppierte Ansicht)
 
-Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine gruppierte Ansicht (z. B. in der Visualisierung) kann das Modul optional eine **Linkstruktur** pflegen: Im Panel **Linkstruktur** die Option **Linkstruktur erzeugen** aktivieren und eine **Zielkategorie** wählen. Das Modul legt dort einen Kategoriebaum an:
+Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine gruppierte Ansicht (z. B. in der Visualisierung) kann das Modul optional eine **Verknüpfungsstruktur** pflegen: Im Bereich **Verknüpfungsstruktur** die Option **Verknüpfungsstruktur erzeugen** aktivieren und eine **Zielkategorie** wählen. Das Modul legt dort einen Kategoriebaum an:
 
 ```
 <Zielkategorie>
@@ -67,7 +67,7 @@ Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine g
     └── Optionale Platine
 ```
 
-Darin liegen Links auf alle **aktiven** Datenpunkte (inklusive Schaltbarkeit — ein Link auf die Warmwasser-Solltemperatur bleibt z. B. ein Slider). Wird ein Datenpunkt in der Liste abgewählt, verschwindet sein Link automatisch; neu empfangene Datenpunkte werden sofort einsortiert. Leere Gruppen werden entfernt.
+Darin liegen Verknüpfungen auf alle **aktiven** Datenpunkte (inklusive Schaltbarkeit — eine Verknüpfung auf die Warmwasser-Solltemperatur bleibt z. B. ein Slider). Wird ein Datenpunkt in der Liste abgewählt, verschwindet seine Verknüpfung automatisch; neu empfangene Datenpunkte werden sofort einsortiert. Leere Gruppen werden entfernt.
 
 ## COP / Arbeitszahl
 
