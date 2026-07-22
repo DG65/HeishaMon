@@ -6,13 +6,20 @@ Anweisung von Dietmar (22.07.2026), gilt für alle Module des DG65-Verbunds.
 
 **Deutsch** sind: Formularbeschriftungen, Hinweis- und Warntexte, Bestätigungsdialoge, Fehler- und Statusmeldungen, Log-Ausgaben, Variablen- und Profilnamen, README und Changelog. Vermeidbare Anglizismen ersetzen — insbesondere: Link → Verknüpfung, Event → Ereignis, Button → Schaltfläche, Dry-Run → Probelauf, Scan → Suche, Drag & Drop → Ziehen mit der Maus.
 
-**Ausgenommen** (bleibt englisch, sonst brechen Verträge):
+**Ausgenommen** (bleibt englisch, sonst brechen Verträge oder das Verständnis leidet):
 
 - Bezeichner im Code: Klassen-, Methoden-, Eigenschafts- und vor allem **Ident-Namen**
-- feststehende Fachbegriffe: MQTT, Topic, Modbus TCP, SelectVariable, WebFront, Debug, COP
+- Formularelementtypen (`"type": "Button"`, `SelectVariable`, `SelectCategory`) — das ist Code, kein Anzeigetext
 - die MQTT-Topic-Namen der Wärmepumpe (`main/...`) und die Feldnamen von `HEISHA_GetFunctions`
+- feststehende Fachbegriffe — verbindliche Liste für dieses Modul:
+  **COP**, **SG-Ready**, **MQTT**, **Topic**, **Modbus TCP**, **WebFront**, **Debug**, **PID**, **IPM**, **Delta-T**
+- Produktbezeichnungen von Panasonic bzw. HeishaMon, die auf dem Gerät und in dessen Oberfläche so heißen:
+  **Powerful-Modus**, **Smart-Warmwasser**, **Duty** (als Klammer-Erläuterung bei „Pumpenansteuerung (Duty)")
+- etabliertes Lehngut: **Online/Offline** (im Duden)
 
 Neue Texte werden im Code als englischer Schlüssel geschrieben und in `HeishaMon/locale.json` übersetzt.
+
+**Vorgehen bei Umstellungen:** Ganze Sätze neu formulieren, nicht einzelne Wörter tauschen. Suchen-und-Ersetzen erzeugt zuverlässig zwei Fehlerklassen — gebrochene Genus-Kongruenz (aus „einen Portcheck" wird mit dem femininen „Port-Prüfung" ein Fehler) und vertauschte Objektbezüge (englisch „scan" heißt je nach Satz „absuchen" *oder* „finden": man durchsucht nicht die Zähler, die Suche findet sie nicht).
 
 ## Idents sind API
 
