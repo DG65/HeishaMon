@@ -693,6 +693,8 @@ class HeishaMon extends IPSModule
      *                    darstellen, das waere Scheingenauigkeit.
      *            Nicht aus EnergyID ableitbar: Leistungs- und Energiezaehler lassen sich
      *            unabhaengig voneinander konfigurieren.
+     *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
+     *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
     public function GetFunctions(): array
     {
@@ -701,11 +703,12 @@ class HeishaMon extends IPSModule
 
         return [
             [
-                'Type'     => 'heatpump',
-                'Caption'  => IPS_GetName($this->InstanceID),
-                'PowerID'  => $powerID === false ? 0 : $powerID,
-                'EnergyID' => ($energyID > 0 && IPS_VariableExists($energyID)) ? $energyID : 0,
-                'Measured' => $this->hasMeasuredPower()
+                'Type'            => 'heatpump',
+                'Caption'         => IPS_GetName($this->InstanceID),
+                'PowerID'         => $powerID === false ? 0 : $powerID,
+                'EnergyID'        => ($energyID > 0 && IPS_VariableExists($energyID)) ? $energyID : 0,
+                'Measured'        => $this->hasMeasuredPower(),
+                'contractVersion' => '1.0'
             ]
         ];
     }

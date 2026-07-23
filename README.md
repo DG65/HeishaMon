@@ -2,6 +2,8 @@
 
 IP-Symcon Modul zur Anbindung eines [HeishaMon](https://github.com/heishamon/HeishaMon) an eine Panasonic Aquarea Wärmepumpe über MQTT.
 
+Teil der DG65 Energie-Suite — welche Modulstände zusammenpassen: https://github.com/DG65/EMS/blob/main/SUITE.md
+
 ## Haftungsausschluss
 
 Die Nutzung dieses Moduls erfolgt **auf eigenes Risiko**. Das Modul sendet Befehle an den HeishaMon und damit direkt an die Wärmepumpe (z. B. Solltemperaturen, Betriebsarten, Servicemenü-Werte wie die maximale Pumpenleistung). Der Autor übernimmt **keine Verantwortung oder Haftung** für Schäden am HeishaMon, an der Wärmepumpe oder an sonstigen Anlagenteilen sowie für Folgeschäden, die durch die Verwendung dieses Moduls entstehen. Es besteht kein Anspruch auf Support oder Fehlerfreiheit.

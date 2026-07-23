@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0 — 2026-07-23
+
+- `HEISHA_GetFunctions()` liefert additiv `contractVersion` (Vertragsversion `Major.Minor`, Start `1.0`) — Teil der Versionierungskonvention der DG65 Energie-Suite. Ändert die bestehenden Felder nicht
+- README: Verweis auf das Suite-Manifest (welche Modulstände zusammenpassen)
+
 ## 1.1.2 — 2026-07-22
 
 - Sprachregel des Modul-Verbunds umgesetzt: „Link/Linkstruktur" heißt jetzt durchgängig „Verknüpfung/Verknüpfungsstruktur", „Drag & Drop" wurde ersetzt. Betrifft nur Anzeigetexte — Idents, Eigenschaften und der `HEISHA_GetFunctions`-Vertrag bleiben unverändert
