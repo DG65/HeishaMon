@@ -21,6 +21,17 @@ Neue Texte werden im Code als englischer Schlüssel geschrieben und in `HeishaMo
 
 **Vorgehen bei Umstellungen:** Ganze Sätze neu formulieren, nicht einzelne Wörter tauschen. Suchen-und-Ersetzen erzeugt zuverlässig zwei Fehlerklassen — gebrochene Genus-Kongruenz (aus „einen Portcheck" wird mit dem femininen „Port-Prüfung" ein Fehler) und vertauschte Objektbezüge (englisch „scan" heißt je nach Satz „absuchen" *oder* „finden": man durchsucht nicht die Zähler, die Suche findet sie nicht).
 
+## Emojis
+
+Entscheidung Dietmar (23.07.2026), verbundweit — ersetzt jede frühere „keine Emojis"-Vorgabe.
+
+Emojis sind **erwünscht**, wo sie Nutzen stiften:
+
+1. als **Panel-Icon** — ein Zeichen am Anfang einer ExpansionPanel-Überschrift (📖🔌📊), als Ersatz für das fehlende `icon`-Feld;
+2. als **Status-/Aufmerksamkeitssymbol** (✅❌⚠️💡ℹ️) dort, wo etwas beim Lesen Aufmerksamkeit erfordert oder herausgestellt werden soll (Status, Warnungen, wichtige Hinweise).
+
+Faktenlage: Kein Symcon-Store-Review hat Emojis je beanstandet; die frühere Regel war präventiv und ist aufgehoben. **Beobachtungsklausel:** Sollte ein Stable-Review Emojis bemängeln, entscheidet der Verbund neu (Rückfall: gemeinsam emoji-frei).
+
 ## Idents sind API
 
 Variablen-Idents werden **nie** umbenannt — sie sind die Schnittstelle für Skripte, Archiv und andere Module. Änderungen nur additiv. Dasselbe gilt für die Rückgabestruktur von `HEISHA_GetFunctions` (Erweiterung nur durch neue Felder).
