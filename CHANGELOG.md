@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0 — 2026-07-24
+
+- `HEISHA_GetFunctions()` liefert additiv `unit` ('W'): physikalische Einheit von `PowerID`, rein informativ für Konsumenten ohne eigenes Variablenprofil auf der Presentation-basierten Leistungsvariable. Vertragsversion damit `1.1`
+
 ## 1.2.1 — 2026-07-23
 
 - Lizenzwechsel von MIT auf **PolyForm Noncommercial License 1.0.0** (NRG-Stack-weit): private/nicht-kommerzielle Nutzung frei, gewerbliche Nutzung lizenzpflichtig. Gilt ab diesem Stand; ältere, unter MIT veröffentlichte Versionen bleiben MIT. Code und Verträge unverändert

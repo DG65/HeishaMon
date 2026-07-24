@@ -100,7 +100,9 @@ $functions = HEISHA_GetFunctions(12345);
 //     'Caption'  => 'HeishaMon',   // Name der Instanz
 //     'PowerID'  => 34567,         // Variable "Elektrische Leistung (gesamt)" in W
 //     'EnergyID' => 45678,         // kWh-Zählerstand des externen Zählers, 0 wenn nicht konfiguriert
-//     'Measured' => true           // true = echte Messung, false = HeishaMon-Schätzung
+//     'Measured' => true,          // true = echte Messung, false = HeishaMon-Schätzung
+//     'unit'     => 'W',           // physikalische Einheit von PowerID, informativ
+//     'contractVersion' => '1.1'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```

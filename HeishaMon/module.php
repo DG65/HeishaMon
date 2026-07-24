@@ -693,6 +693,8 @@ class HeishaMon extends IPSModule
      *                    darstellen, das waere Scheingenauigkeit.
      *            Nicht aus EnergyID ableitbar: Leistungs- und Energiezaehler lassen sich
      *            unabhaengig voneinander konfigurieren.
+     *   unit     Physikalische Einheit von PowerID, informativ (z.B. fuer Konsumenten ohne
+     *            eigenes Variablenprofil auf der Presentation-basierten Power_Total-Variable).
      *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
      *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
@@ -708,7 +710,8 @@ class HeishaMon extends IPSModule
                 'PowerID'         => $powerID === false ? 0 : $powerID,
                 'EnergyID'        => ($energyID > 0 && IPS_VariableExists($energyID)) ? $energyID : 0,
                 'Measured'        => $this->hasMeasuredPower(),
-                'contractVersion' => '1.0'
+                'unit'            => 'W',
+                'contractVersion' => '1.1'
             ]
         ];
     }
