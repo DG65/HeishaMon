@@ -133,4 +133,8 @@ Alle Änderungen sind im [CHANGELOG](CHANGELOG.md) dokumentiert.
 
 ## Lizenz
 
-Dieses Modul steht unter der [MIT-Lizenz](LICENSE).
+Dieses Modul ist Teil des **NRG-Stack** und steht unter der [PolyForm Noncommercial License 1.0.0](LICENSE):
+
+- Private und nicht-kommerzielle Nutzung ist frei.
+- **Gewerbliche Nutzung** erfordert eine gesonderte Lizenz vom Rechteinhaber (Kontakt: DG65).
+- Spenden sind ausdrücklich willkommen und rein freiwillig (Kanal folgt).

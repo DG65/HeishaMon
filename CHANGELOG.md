@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1 — 2026-07-23
+
+- Lizenzwechsel von MIT auf **PolyForm Noncommercial License 1.0.0** (NRG-Stack-weit): private/nicht-kommerzielle Nutzung frei, gewerbliche Nutzung lizenzpflichtig. Gilt ab diesem Stand; ältere, unter MIT veröffentlichte Versionen bleiben MIT. Code und Verträge unverändert
+
 ## 1.2.0 — 2026-07-23
 
 - `HEISHA_GetFunctions()` liefert additiv `contractVersion` (Vertragsversion `Major.Minor`, Start `1.0`) — Teil der Versionierungskonvention des NRG-Stack. Ändert die bestehenden Felder nicht
