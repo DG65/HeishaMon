@@ -247,7 +247,15 @@
             "Update variable names": "Variablennamen aktualisieren",
             "Renames variables that still carry an old default name to the current translation. Custom names remain untouched.": "Benennt Variablen um, die noch einen alten Standardnamen tragen, auf die aktuelle Übersetzung. Selbst vergebene Namen bleiben unangetastet.",
             "%d variable names updated": "%d Variablennamen aktualisiert",
-            "Electrical power (total)": "Elektrische Leistung (gesamt)"
+            "Electrical power (total)": "Elektrische Leistung (gesamt)",
+            "📖  Documentation & help": "📖  Dokumentation & Hilfe",
+            "Further texts translated to German - e.g. \"Verknuepfung\" instead of \"Link\".": "Weitere Anzeigetexte eingedeutscht - z. B. \"Verknüpfung\" statt \"Link\".",
+            "License change to the PolyForm Noncommercial License 1.0.0 (part of the NRG-Stack).": "Lizenzwechsel auf die PolyForm Noncommercial License 1.0.0 (Teil des NRG-Stack).",
+            "HEISHA_GetFunctions now reports contractVersion and unit - useful for other NRG-Stack modules.": "HEISHA_GetFunctions liefert jetzt contractVersion und unit - nützlich für andere NRG-Stack-Module.",
+            "Understood - do not show again": "Verstanden - nicht mehr anzeigen",
+            "🆕 New in version": "🆕 Neu in Version",
+            "Feedback and suggestions are welcome in the Symcon forum:": "Rückmeldungen und Verbesserungsvorschläge sind im Symcon-Forum willkommen:",
+            "Do not show again": "Nicht mehr anzeigen"
         }
     }
 }

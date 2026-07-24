@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0 — 2026-07-24 (Formular-Optik)
+
+- Konfigurationsmaske auf die einheitliche NRG-Stack-Formular-Optik umgestellt: „📖 Dokumentation & Hilfe“ (eingeklappt, mit Versionsnummer), „🆕 Neu in Version …“ (aufgeklappt, pro Version bestätigbar) und ein einmalig ausblendbarer Forum-Hinweis. Referenzimplementierung: InverterHub
+
 ## 1.3.0 — 2026-07-24
 
 - `HEISHA_GetFunctions()` liefert additiv `unit` ('W'): physikalische Einheit von `PowerID`, rein informativ für Konsumenten ohne eigenes Variablenprofil auf der Presentation-basierten Leistungsvariable. Vertragsversion damit `1.1`

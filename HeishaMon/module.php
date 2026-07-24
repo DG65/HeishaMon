@@ -17,6 +17,18 @@ require_once __DIR__ . '/../libs/HeishaMonTopics.php';
  */
 class HeishaMon extends IPSModule
 {
+    //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
+    //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
+    private const NEWS_VERSION = '1.4.0';
+    private const NEWS_ITEMS = [
+        'Further texts translated to German - e.g. "Verknuepfung" instead of "Link".',
+        'License change to the PolyForm Noncommercial License 1.0.0 (part of the NRG-Stack).',
+        'HEISHA_GetFunctions now reports contractVersion and unit - useful for other NRG-Stack modules.'
+    ];
+    //Verweist derzeit auf die allgemeine Modul-Kategorie im Symcon-Forum, nicht auf einen
+    //bestaetigten HeishaMon-eigenen Thread - bei Bedarf durch den konkreten Thread ersetzen.
+    private const FORUM_URL = 'https://community.symcon.de/c/erweiterungen/php-module-entwicklung/21';
+
     public function Create()
     {
         //Never delete this line!
@@ -24,6 +36,10 @@ class HeishaMon extends IPSModule
 
         $this->RegisterPropertyString('MQTTTopic', 'panasonic_heat_pump');
         $this->RegisterPropertyBoolean('DebugUnknownTopics', false);
+
+        //Formular-Hinweise: "Neu in Version" (pro Version bestaetigt) und Forum-Hinweis (einmalig)
+        $this->RegisterAttributeString('SeenNews', '');
+        $this->RegisterAttributeBoolean('ForumHintDismissed', false);
 
         //Auswahl der gewuenschten Datenpunkte (leer = alle aktiv)
         $this->RegisterPropertyString('VariableList', '[]');
@@ -79,14 +95,94 @@ class HeishaMon extends IPSModule
     {
         $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
 
-        //Zeilen in der gespeicherten (per Drag & Drop sortierten) Reihenfolge
+        //Zeilen in der gespeicherten (per Drag & Drop sortierten) Reihenfolge, Versionsnummer im Doku-Panel
         foreach ($form['elements'] as &$element) {
             if (($element['name'] ?? '') == 'VariableList') {
                 $element['values'] = $this->buildVariableListRows($this->getOrderedTopics(), $this->getSelectionMap());
-                break;
+            }
+            if (($element['name'] ?? '') == 'DocsPanel') {
+                $element['caption'] = $this->Translate('📖  Documentation & help') . ' (' . $this->moduleVersion() . ')';
             }
         }
+        unset($element);
+
+        //Forum-Hinweis am Ende, solange nicht bestaetigt
+        if (!$this->ReadAttributeBoolean('ForumHintDismissed')) {
+            $form['elements'][] = $this->buildForumHint();
+        }
+
+        //"Neu in Version" ganz oben, solange die aktuelle Version nicht bestaetigt wurde
+        $newsPanel = $this->buildNewsPanel();
+        if ($newsPanel !== null) {
+            array_unshift($form['elements'], $newsPanel);
+        }
+
         return json_encode($form);
+    }
+
+    private function moduleVersion(): string
+    {
+        $library = json_decode(file_get_contents(__DIR__ . '/../library.json'), true);
+        return 'v' . ($library['version'] ?? '?');
+    }
+
+    /**
+     * "Neu in Version X.Y"-Panel: aufgeklappt, bis der Nutzer "Verstanden" klickt.
+     * Danach (auch nach einem IPS-Neustart) bleibt es fuer diese Version verborgen.
+     */
+    private function buildNewsPanel(): ?array
+    {
+        if ($this->ReadAttributeString('SeenNews') === self::NEWS_VERSION) {
+            return null;
+        }
+        $items = [];
+        foreach (self::NEWS_ITEMS as $line) {
+            $items[] = ['type' => 'Label', 'caption' => $this->Translate($line)];
+        }
+        $items[] = [
+            'type'    => 'Button',
+            'caption' => $this->Translate('Understood - do not show again'),
+            'onClick' => 'HEISHA_AckNews($id);'
+        ];
+        return [
+            'type'     => 'ExpansionPanel',
+            'name'     => 'NewsPanel',
+            'caption'  => $this->Translate('🆕 New in version') . ' ' . self::NEWS_VERSION,
+            'expanded' => true,
+            'items'    => $items
+        ];
+    }
+
+    public function AckNews()
+    {
+        $this->WriteAttributeString('SeenNews', self::NEWS_VERSION);
+        $this->UpdateFormField('NewsPanel', 'visible', false);
+    }
+
+    /**
+     * Einmaliger Hinweis auf das Symcon-Forum, solange nicht ausgeblendet.
+     */
+    private function buildForumHint(): array
+    {
+        return [
+            'type' => 'RowLayout',
+            'name' => 'ForumHint',
+            'items' => [
+                ['type' => 'Label', 'caption' => $this->Translate('Feedback and suggestions are welcome in the Symcon forum:')],
+                ['type' => 'Label', 'link' => true, 'caption' => self::FORUM_URL],
+                [
+                    'type'    => 'Button',
+                    'caption' => $this->Translate('Do not show again'),
+                    'onClick' => 'HEISHA_DismissForumHint($id);'
+                ]
+            ]
+        ];
+    }
+
+    public function DismissForumHint()
+    {
+        $this->WriteAttributeBoolean('ForumHintDismissed', true);
+        $this->UpdateFormField('ForumHint', 'visible', false);
     }
 
     /**

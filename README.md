@@ -124,6 +124,12 @@ HEISHA_SendSetCommand(12345, 'SetQuietMode', '2');
 HEISHA_SetCurves(12345, '{"zone1":{"heat":{"target":{"high":35,"low":25},"outside":{"high":15,"low":-15}}}}');
 ```
 
+## Hinweise zur Konfigurationsmaske
+
+- **📖 Dokumentation & Hilfe** (eingeklappt): allgemeine Erläuterungen zur Instanz, trägt die aktuelle Modulversion in der Überschrift.
+- **🆕 Neu in Version …** (aufgeklappt): erscheint nach einem Update mit den wichtigsten Neuerungen, bis „Verstanden" geklickt wird — dann erst bei der nächsten Version wieder.
+- **Forum-Hinweis** am Ende der Maske: einmalig, lässt sich dauerhaft ausblenden.
+
 ## Hinweise
 
 - Zustands-Topics können laut HeishaMon-Doku in Ausnahmefällen den Wert `-1` (unbekannt) liefern; das Modul behandelt dies bei Schaltzuständen als „Aus".

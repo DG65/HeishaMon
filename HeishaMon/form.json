@@ -11,10 +11,6 @@
             "caption": "Debug: unknown topics"
         },
         {
-            "type": "Label",
-            "caption": "Variables are created automatically as soon as HeishaMon publishes the corresponding topics."
-        },
-        {
             "type": "List",
             "name": "VariableList",
             "caption": "Datapoints",
@@ -62,8 +58,20 @@
             "values": []
         },
         {
-            "type": "Label",
-            "caption": "Deactivated datapoints are hidden - object ID and archive data remain. New topics are only created while activated. Reorder rows by drag & drop - variables and links follow the order."
+            "type": "ExpansionPanel",
+            "name": "DocsPanel",
+            "caption": "📖  Documentation & help",
+            "expanded": false,
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Variables are created automatically as soon as HeishaMon publishes the corresponding topics."
+                },
+                {
+                    "type": "Label",
+                    "caption": "Deactivated datapoints are hidden - object ID and archive data remain. New topics are only created while activated. Reorder rows by drag & drop - variables and links follow the order."
+                }
+            ]
         },
         {
             "type": "ExpansionPanel",
