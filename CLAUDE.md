@@ -32,6 +32,18 @@ Emojis sind **erwünscht**, wo sie Nutzen stiften:
 
 Faktenlage: Kein Symcon-Store-Review hat Emojis je beanstandet; die frühere Regel war präventiv und ist aufgehoben. **Beobachtungsklausel:** Sollte ein Stable-Review Emojis bemängeln, entscheidet der Verbund neu (Rückfall: gemeinsam emoji-frei).
 
+## Einheitliche Formular-Optik
+
+Konvention Dietmar (24.07.2026), verbundweit, Referenzimplementierung InverterHub, Details in `EMS/SUITE.md`.
+
+Reihenfolge von oben: (1) **🆕 Neu in Version X.Y** — aufgeklappt, pro Version bestätigbar (Attribut `SeenNews` speichert die bestätigte Version), keine Versionsnummer im Panel-Inhalt. (2) **📖 Dokumentation & Hilfe** — ganz oben vor den Funktionsfeldern, eingeklappt, Überschrift trägt die Modulversion. (3) Fachpanels; neue/wichtige Felder mit `🆕`-Präfix im Label. (4) Symcon-Forum-Hinweis nach den Haupteinstellungen, einmalig ausblendbar.
+
+**Pflege ist Pflicht bei jedem Fix/Update, nicht nur bei großen Releases:** Bei jeder Änderung prüfen, ob sie ins Neu-in-Version-Panel gehört — die Antwort darf „nein" sein (z. B. reine interne Umbauten, Testergänzungen), aber die Prüfung selbst darf nicht entfallen.
+
+**Layout-Qualität:** logische Gruppierung (Doku vor Funktionsfeldern, Zusammengehöriges in einem Panel), Step-by-Step ohne Scroll-Zickzack (keine Sprünge zwischen Kernfeldern und Nebenpanels), Feldkanten auf einer Linie statt kreuz und quer.
+
+Aktueller Forum-Link zeigt auf die allgemeine PHP-Module-Kategorie (`community.symcon.de/c/erweiterungen/php-module-entwicklung/21`), da kein bestätigter HeishaMon-eigener Thread existiert — bei Bedarf durch den konkreten Thread ersetzen.
+
 ## Idents sind API
 
 Variablen-Idents werden **nie** umbenannt — sie sind die Schnittstelle für Skripte, Archiv und andere Module. Änderungen nur additiv. Dasselbe gilt für die Rückgabestruktur von `HEISHA_GetFunctions` (Erweiterung nur durch neue Felder).

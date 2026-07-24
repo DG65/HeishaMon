@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1 — 2026-07-24
+
+- Layout-Politur: Doku-Panel steht jetzt an erster Stelle (vor den Funktionsfeldern), passend zur einheitlichen NRG-Stack-Formular-Optik und zur Referenzimplementierung InverterHub
+
 ## 1.4.0 — 2026-07-24 (Formular-Optik)
 
 - Konfigurationsmaske auf die einheitliche NRG-Stack-Formular-Optik umgestellt: „📖 Dokumentation & Hilfe“ (eingeklappt, mit Versionsnummer), „🆕 Neu in Version …“ (aufgeklappt, pro Version bestätigbar) und ein einmalig ausblendbarer Forum-Hinweis. Referenzimplementierung: InverterHub
