@@ -2,7 +2,7 @@
 
 IP-Symcon Modul zur Anbindung eines [HeishaMon](https://github.com/heishamon/HeishaMon) an eine Panasonic Aquarea Wärmepumpe über MQTT.
 
-Teil der DG65 Energie-Suite — welche Modulstände zusammenpassen: https://github.com/DG65/EMS/blob/main/SUITE.md
+Teil des **NRG-Stack** — welche Modulstände zusammenpassen, zeigt das [Suite-Manifest](https://github.com/DG65/EMS/blob/main/SUITE.md).
 
 ## Haftungsausschluss
 
