@@ -15,7 +15,7 @@ require_once __DIR__ . '/../libs/HeishaMonTopics.php';
  * Wichtig: Der Klassenname muss exakt dem "name" in der module.json entsprechen
  * und ein gueltiger PHP-Klassenname sein (keine Bindestriche).
  */
-class NRGHeishaMon extends IPSModule
+class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
