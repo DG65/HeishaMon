@@ -1,10 +1,11 @@
 {
     "id": "{1919151A-3C0F-4C09-B906-291638EC1469}",
-    "name": "HeishaMon",
+    "name": "NRGHeishaMon",
     "type": 3,
     "vendor": "HeishaMon",
     "aliases": [
-        "HeishaMon"
+        "HeishaMon",
+        "NRGHeishaMon"
     ],
     "parentRequirements": [
         "{043EA491-0325-4ADD-8FC2-A30C8EEB4D3F}"
