@@ -52,8 +52,11 @@ Variablen-Idents werden **nie** umbenannt — sie sind die Schnittstelle für Sk
 
 - `beta` — Entwicklung und schnelle Auslieferung an Tester (Installation per GitHub-URL)
 - `main` — geprüfter Stand, den Nutzer über den IP-Symcon Module Store beziehen
+- `ems-integration` — verbundweiter Zweig für die laufende EMS-Integrationsphase, abgezweigt von `beta`
 
-Entwickelt wird auf `beta`. Die Übernahme nach `main` entscheidet Dietmar.
+**Solange die EMS-Integrationsphase läuft (seit 25.07.2026, verbundweite Anweisung):** ausnahmslos alles auf `ems-integration` pushen, keine Ausnahme mehr für „sichere" Fixes direkt auf `beta`. Erst nach Bewährung und Freigabe wandert der Stand von `ems-integration` zurück nach `beta`. Diese Regel endet erst durch eine ausdrückliche neue Ansage — nicht von selbst nach einer gewissen Zeit annehmen, dass sie ausgelaufen ist.
+
+Die Übernahme nach `main` entscheidet Dietmar von sich aus (nicht nachfragen, siehe Feedback-Notiz „beta→main-Freigabe" im Gedächtnis).
 
 ## Tests
 
