@@ -2,7 +2,7 @@
 
 IP-Symcon Modul zur Anbindung eines [HeishaMon](https://github.com/heishamon/HeishaMon) an eine Panasonic Aquarea Wärmepumpe über MQTT.
 
-Teil des **NRG-Stack** — welche Modulstände zusammenpassen, zeigt das [Suite-Manifest](https://github.com/DG65/EMS/blob/main/SUITE.md).
+Teil des **NRG-Stack** — welche Modulstände zusammenpassen, zeigt das [Suite-Manifest](https://github.com/DG65/NRGEMS/blob/main/SUITE.md).
 
 ## Haftungsausschluss
 
@@ -34,7 +34,7 @@ Das Modul ist im **IP-Symcon Module Store** verfügbar und lässt sich direkt au
 Alternativ über die Modulverwaltung (Kern Instanzen → Modules) die URL dieses Repositories hinzufügen:
 
 ```
-https://github.com/DG65/HeishaMon
+https://github.com/DG65/NRGHeishaMon
 ```
 
 Hinweis: Eine über URL installierte Bibliothek wird nicht automatisch auf die Store-Version umgestellt. Wer später auf den Module Store wechseln möchte, entfernt die URL-Installation in der Modulverwaltung und installiert das Modul aus dem Store neu — die GUIDs sind identisch, bestehende Instanzen samt Variablen und Archivdaten bleiben dabei erhalten.
