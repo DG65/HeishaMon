@@ -112,6 +112,26 @@ Hinweise für Konsumenten:
 - `EnergyID` verweist bewusst auf den **kumulativen** Zählerstand des externen Stromzählers und nicht auf „Stromverbrauch heute" — letzterer wird um Mitternacht zurückgesetzt und eignet sich daher nicht als Energiezähler für Auswertungen wie eine Sankey-Darstellung. Ist `EnergyID` 0, sollte die Energie **nicht** aus der Leistung hochgerechnet werden.
 - `Measured` unterscheidet echte Messung von der HeishaMon-Schätzung (grob in ~200-W-Stufen). Bei `false` sollte der Wert nicht mit Nachkommastellen dargestellt werden — das wäre Scheingenauigkeit. Das Flag lässt sich **nicht** aus `EnergyID` ableiten, da Leistungs- und Energievariable unabhängig voneinander konfigurierbar sind.
 
+## §14a-Stellhebel (Lastmanagement / Steuerbox-Anbindung)
+
+Wärmepumpen sind klassische §14a-steuerbare Verbrauchseinrichtungen. Der Verdichter einer Aquarea liegt üblicherweise bereits unter der zulässigen Mindestbezugsgrenze — der eigentliche Lasthebel ist meist der **Heizstab** (typisch 3–9 kW zusätzlich). HeishaMon selbst führt keine §14a-Logik aus (die Signalerfassung ist Aufgabe eines eigenen Moduls, z. B. SteuerboxHub); die folgenden Befehle sind aber der Werkzeugkasten, mit dem ein steuerndes Modul auf eine Dimmierungsanforderung reagieren kann — alle erreichbar über `HEISHA_SendSetCommand($id, $Command, $Value)`:
+
+| Befehl | Wirkung | Rolle |
+| --- | --- | --- |
+| `SetDHWHeaterState` | Heizstab für Warmwasser sperren/freigeben (0/1) | Primärer Lasthebel |
+| `SetRoomHeaterState` | Heizstab für Heizung sperren/freigeben (0/1) | Primärer Lasthebel |
+| `SetQuietMode` | Flüstermodus, reduziert die Verdichterleistung spürbar | Feinstufe |
+| `SetZ1HeatRequestTemperature` / `SetZ2HeatRequestTemperature` | Heizanforderung verschieben | Zusatzhebel |
+| `SetCurves` | Heiz-/Kühlkurven anpassen (auch über `HEISHA_SetCurves`) | Zusatzhebel |
+| `SetForceDHW` / `SetDHWTemp` | Warmwasserbereitung verschieben bzw. deren Solltemperatur senken | Zusatzhebel |
+
+**Schutzbedingungen, die ein steuerndes Modul respektieren sollte** (beide live als Statusvariable lesbar):
+
+- Während `Defrosting_State` = aktiv **nicht eingreifen** — die Abtauung ist kurz und technisch notwendig, ein Eingriff riskiert Vereisung.
+- `Sterilization_State` (Legionellenschutz) darf **verschoben**, aber nicht dauerhaft unterdrückt werden — Hygiene hat Vorrang vor Optimierung.
+
+Hinweis: HeishaMon meldet nicht, wer einen Sollwert zuletzt geändert hat (MQTT kennt keinen Urheber). Ein steuerndes Modul sollte seine eigenen Vorgaben deshalb über einen Soll-/Ist-Abgleich verifizieren statt sie als dauerhaft gesetzt anzunehmen.
+
 ## Befehle per Skript
 
 Alle HeishaMon-Befehle (siehe [MQTT-Topics](https://github.com/heishamon/HeishaMon/blob/master/MQTT-Topics.md)) lassen sich auch per Skript senden:

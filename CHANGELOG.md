@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2 — 2026-07-27
+
+- README: neuer Abschnitt „§14a-Stellhebel" — dokumentiert, welche bestehenden Set-Befehle (Heizstab sperren/freigeben, Quiet Mode, Sollwert-/Kurvenverschiebung) als Lasthebel für eine §14a-Steuerbox-Anbindung dienen, plus die zwei Schutzbedingungen (keine Eingriffe während Abtauung, Sterilisation nur verschieben). Reine Dokumentation, keine Code-Änderung, kein neuer Vertrag
+
 ## 1.4.1 — 2026-07-24
 
 - Layout-Politur: Doku-Panel steht jetzt an erster Stelle (vor den Funktionsfeldern), passend zur einheitlichen NRG-Stack-Formular-Optik und zur Referenzimplementierung InverterHub
