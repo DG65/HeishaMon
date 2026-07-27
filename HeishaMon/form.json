@@ -17,9 +17,27 @@
             ]
         },
         {
-            "type": "ValidationTextBox",
-            "name": "MQTTTopic",
-            "caption": "MQTT base topic"
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "ValidationTextBox",
+                    "name": "MQTTTopic",
+                    "caption": "MQTT base topic"
+                },
+                {
+                    "type": "PopupButton",
+                    "caption": "ℹ️",
+                    "popup": {
+                        "caption": "MQTT base topic",
+                        "items": [
+                            {
+                                "type": "Label",
+                                "caption": "Must match the base topic configured in HeishaMon's own web interface exactly. If it does not match, no data is received - without any error message here."
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "type": "CheckBox",
@@ -112,10 +130,28 @@
                     "caption": "Energy meter: energy counter of the heat pump (kWh)"
                 },
                 {
-                    "type": "NumberSpinner",
-                    "name": "COPMinPower",
-                    "caption": "Minimum power for COP calculation",
-                    "suffix": " W"
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "NumberSpinner",
+                            "name": "COPMinPower",
+                            "caption": "Minimum power for COP calculation",
+                            "suffix": " W"
+                        },
+                        {
+                            "type": "PopupButton",
+                            "caption": "ℹ️",
+                            "popup": {
+                                "caption": "Minimum power for COP calculation",
+                                "items": [
+                                    {
+                                        "type": "Label",
+                                        "caption": "Below this power, COP (measured) reports 0 instead of a misleading ratio - protects against standby noise (typically a few watts)."
+                                    }
+                                ]
+                            }
+                        }
+                    ]
                 }
             ]
         }

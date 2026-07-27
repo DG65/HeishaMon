@@ -249,6 +249,8 @@
             "%d variable names updated": "%d Variablennamen aktualisiert",
             "Electrical power (total)": "Elektrische Leistung (gesamt)",
             "📖  Documentation & help": "📖  Dokumentation & Hilfe",
+            "Must match the base topic configured in HeishaMon's own web interface exactly. If it does not match, no data is received - without any error message here.": "Muss exakt dem Basistopic entsprechen, das in der Weboberfläche des HeishaMon eingestellt ist. Stimmt es nicht überein, kommen keine Daten an - ohne dass hier eine Fehlermeldung erscheint.",
+            "Below this power, COP (measured) reports 0 instead of a misleading ratio - protects against standby noise (typically a few watts).": "Unterhalb dieser Leistung meldet COP (gemessen) 0 statt eines irreführenden Verhältnisses - Schutz vor Standby-Rauschen (typisch wenige Watt).",
             "License change to the PolyForm Noncommercial License 1.0.0 (part of the NRG-Stack).": "Lizenzwechsel auf die PolyForm Noncommercial License 1.0.0 (Teil des NRG-Stack).",
             "New README section on §14a load-shedding commands, for a future controllable-load box.": "Neuer README-Abschnitt zu §14a-Lastabwurf-Befehlen, für eine künftige Steuerbox.",
             "HEISHA_GetFunctions now also reports \"reachable\" - other modules can detect a stale PowerID while the heat pump is offline.": "HEISHA_GetFunctions liefert jetzt zusätzlich \"reachable\" - andere Module erkennen damit einen veralteten PowerID-Wert, während die Wärmepumpe offline ist.",

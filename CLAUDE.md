@@ -44,6 +44,8 @@ Reihenfolge von oben: (1) **🆕 Neu in Version X.Y** — aufgeklappt, pro Versi
 
 Aktueller Forum-Link zeigt auf die allgemeine PHP-Module-Kategorie (`community.symcon.de/c/erweiterungen/php-module-entwicklung/21`), da kein bestätigter HeishaMon-eigener Thread existiert — bei Bedarf durch den konkreten Thread ersetzen.
 
+**Feld-Tooltips:** Symcon kennt keine nativen Mouseover-Tooltips (form.json/Listenspalten haben kein `tooltip`-Attribut). Für erklärungsbedürftige Einzelfelder ein `PopupButton` (Caption `ℹ️`, Klick statt Hover) direkt daneben in einem `RowLayout` — kurze, immer sichtbare Erklärungen bleiben als `Label`. Bereits umgesetzt bei `MQTTTopic` und `COPMinPower`.
+
 ## Idents sind API
 
 Variablen-Idents werden **nie** umbenannt — sie sind die Schnittstelle für Skripte, Archiv und andere Module. Änderungen nur additiv. Dasselbe gilt für die Rückgabestruktur von `HEISHA_GetFunctions` (Erweiterung nur durch neue Felder).

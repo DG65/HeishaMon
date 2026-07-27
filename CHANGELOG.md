@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1 — 2026-07-27
+
+- Zwei ℹ️-Infoschaltflächen ergänzt (PopupButton, Klick statt Hover - Symcon kennt keine nativen Mouseover-Tooltips): beim MQTT-Basistopic (muss exakt zum HeishaMon passen) und bei der Mindestleistung für die COP-Berechnung (Grund/Wirkung des Schwellwerts). Reine Formular-Politur, kein Code-/Vertragsimpact
+
 ## 1.5.0 — 2026-07-27
 
 - `HEISHA_GetFunctions()` liefert additiv `reachable` (bool): meldet, ob die Wärmepumpe gerade erreichbar ist. `PowerID` wird bei Nichterreichbarkeit nicht zurückgesetzt, sondern friert beim letzten bekannten Wert ein — Konsumenten können damit einen veralteten Wert erkennen, statt ihn ungeprüft zu übernehmen. Vertragsversion damit `1.2`. Proaktiv gefunden bei der Prüfung gegen das Verbund-Zielbild (Zuverlässigkeit ohne KI-Krücke)
