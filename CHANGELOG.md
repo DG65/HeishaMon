@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0 — 2026-07-27
+
+- `HEISHA_GetFunctions()` liefert additiv `reachable` (bool): meldet, ob die Wärmepumpe gerade erreichbar ist. `PowerID` wird bei Nichterreichbarkeit nicht zurückgesetzt, sondern friert beim letzten bekannten Wert ein — Konsumenten können damit einen veralteten Wert erkennen, statt ihn ungeprüft zu übernehmen. Vertragsversion damit `1.2`. Proaktiv gefunden bei der Prüfung gegen das Verbund-Zielbild (Zuverlässigkeit ohne KI-Krücke)
+
 ## 1.4.2 — 2026-07-27
 
 - README: neuer Abschnitt „§14a-Stellhebel" — dokumentiert, welche bestehenden Set-Befehle (Heizstab sperren/freigeben, Quiet Mode, Sollwert-/Kurvenverschiebung) als Lasthebel für eine §14a-Steuerbox-Anbindung dienen, plus die zwei Schutzbedingungen (keine Eingriffe während Abtauung, Sterilisation nur verschieben). Reine Dokumentation, keine Code-Änderung, kein neuer Vertrag

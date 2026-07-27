@@ -102,7 +102,8 @@ $functions = HEISHA_GetFunctions(12345);
 //     'EnergyID' => 45678,         // kWh-Zählerstand des externen Zählers, 0 wenn nicht konfiguriert
 //     'Measured' => true,          // true = echte Messung, false = HeishaMon-Schätzung
 //     'unit'     => 'W',           // physikalische Einheit von PowerID, informativ
-//     'contractVersion' => '1.1'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
+//     'reachable' => true,         // false = Wärmepumpe offline, PowerID ggf. veraltet
+//     'contractVersion' => '1.2'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```
@@ -111,6 +112,7 @@ Hinweise für Konsumenten:
 
 - `EnergyID` verweist bewusst auf den **kumulativen** Zählerstand des externen Stromzählers und nicht auf „Stromverbrauch heute" — letzterer wird um Mitternacht zurückgesetzt und eignet sich daher nicht als Energiezähler für Auswertungen wie eine Sankey-Darstellung. Ist `EnergyID` 0, sollte die Energie **nicht** aus der Leistung hochgerechnet werden.
 - `Measured` unterscheidet echte Messung von der HeishaMon-Schätzung (grob in ~200-W-Stufen). Bei `false` sollte der Wert nicht mit Nachkommastellen dargestellt werden — das wäre Scheingenauigkeit. Das Flag lässt sich **nicht** aus `EnergyID` ableiten, da Leistungs- und Energievariable unabhängig voneinander konfigurierbar sind.
+- `reachable` = `false`, wenn die Wärmepumpe gerade nicht erreichbar ist (MQTT-Verbindung verloren). `PowerID` wird in diesem Fall **nicht** zurückgesetzt, sondern friert beim letzten bekannten Wert ein — Konsumenten, die auf den Wert reagieren (z. B. Lastmanagement), sollten ihn bei `reachable = false` als potenziell veraltet behandeln.
 
 ## §14a-Stellhebel (Lastmanagement / Steuerbox-Anbindung)
 

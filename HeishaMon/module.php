@@ -19,11 +19,11 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.4.0';
+    private const NEWS_VERSION = '1.5.0';
     private const NEWS_ITEMS = [
-        'Further texts translated to German - e.g. "Verknuepfung" instead of "Link".',
         'License change to the PolyForm Noncommercial License 1.0.0 (part of the NRG-Stack).',
-        'HEISHA_GetFunctions now reports contractVersion and unit - useful for other NRG-Stack modules.'
+        'New README section on §14a load-shedding commands, for a future controllable-load box.',
+        'HEISHA_GetFunctions now also reports "reachable" - other modules can detect a stale PowerID while the heat pump is offline.'
     ];
     //Verweist derzeit auf die allgemeine Modul-Kategorie im Symcon-Forum, nicht auf einen
     //bestaetigten HeishaMon-eigenen Thread - bei Bedarf durch den konkreten Thread ersetzen.
@@ -798,6 +798,7 @@ class HeishaMon extends IPSModule
     {
         $powerID = @$this->GetIDForIdent('Power_Total');
         $energyID = $this->ReadPropertyInteger('EnergyVariable');
+        $reachableID = @$this->GetIDForIdent('Reachable');
 
         return [
             [
@@ -807,7 +808,11 @@ class HeishaMon extends IPSModule
                 'EnergyID'        => ($energyID > 0 && IPS_VariableExists($energyID)) ? $energyID : 0,
                 'Measured'        => $this->hasMeasuredPower(),
                 'unit'            => 'W',
-                'contractVersion' => '1.1'
+                //Wenn die WP nicht erreichbar ist, friert PowerID beim letzten bekannten Wert ein
+                //(kein aktiver Reset auf 0, um keinen falschen "Anlage aus"-Zustand vorzutaeuschen).
+                //Konsumenten sollten bei reachable=false den Wert als potenziell veraltet behandeln.
+                'reachable'       => $reachableID === false ? true : (bool) GetValue($reachableID),
+                'contractVersion' => '1.2'
             ]
         ];
     }
