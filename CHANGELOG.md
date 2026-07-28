@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.3 — 2026-07-27
+
+- PopupButton-Caption final auf `"?"` gesetzt (statt `"i"`) — Dietmars Entscheidung, `"i"` wirkt bei 70px Breite optisch verloren. Rein optisch, keine inhaltliche Änderung
+
 ## 1.5.2 — 2026-07-27
 
 - PopupButton-Konvention präzisiert (Erkenntnis von InverterHub: unter ~70px hat `width` im WebFront-Skin keinen sichtbaren Effekt, Icon-Größe/Hintergrund nicht änderbar): Caption der beiden Info-Buttons von ℹ️-Emoji auf reinen Buchstaben `i` mit `width: 70px` umgestellt. Rein optisch, keine inhaltliche Änderung
