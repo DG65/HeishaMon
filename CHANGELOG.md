@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2 — 2026-07-27
+
+- PopupButton-Konvention präzisiert (Erkenntnis von InverterHub: unter ~70px hat `width` im WebFront-Skin keinen sichtbaren Effekt, Icon-Größe/Hintergrund nicht änderbar): Caption der beiden Info-Buttons von ℹ️-Emoji auf reinen Buchstaben `i` mit `width: 70px` umgestellt. Rein optisch, keine inhaltliche Änderung
+
 ## 1.5.1 — 2026-07-27
 
 - Zwei ℹ️-Infoschaltflächen ergänzt (PopupButton, Klick statt Hover - Symcon kennt keine nativen Mouseover-Tooltips): beim MQTT-Basistopic (muss exakt zum HeishaMon passen) und bei der Mindestleistung für die COP-Berechnung (Grund/Wirkung des Schwellwerts). Reine Formular-Politur, kein Code-/Vertragsimpact

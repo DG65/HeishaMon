@@ -44,7 +44,7 @@ Reihenfolge von oben: (1) **🆕 Neu in Version X.Y** — aufgeklappt, pro Versi
 
 Aktueller Forum-Link zeigt auf die allgemeine PHP-Module-Kategorie (`community.symcon.de/c/erweiterungen/php-module-entwicklung/21`), da kein bestätigter HeishaMon-eigener Thread existiert — bei Bedarf durch den konkreten Thread ersetzen.
 
-**Feld-Tooltips:** Symcon kennt keine nativen Mouseover-Tooltips (form.json/Listenspalten haben kein `tooltip`-Attribut). Für erklärungsbedürftige Einzelfelder ein `PopupButton` (Caption `ℹ️`, Klick statt Hover) direkt daneben in einem `RowLayout` — kurze, immer sichtbare Erklärungen bleiben als `Label`. Bereits umgesetzt bei `MQTTTopic` und `COPMinPower`.
+**Feld-Tooltips:** Symcon kennt keine nativen Mouseover-Tooltips (form.json/Listenspalten haben kein `tooltip`-Attribut). Für erklärungsbedürftige Einzelfelder ein `PopupButton` direkt daneben in einem `RowLayout` — kurze, immer sichtbare Erklärungen bleiben als `Label`. Caption `"i"` (reiner Buchstabe, kein Emoji) mit `"width": "70px"` für eine quadratisch wirkende Fläche — unter ~70px hat `width` im WebFront-Skin keinen sichtbaren Effekt, Icon-Größe/Hintergrund sind grundsätzlich nicht änderbar (live getestet von InverterHub). Bereits umgesetzt bei `MQTTTopic` und `COPMinPower`.
 
 ## Idents sind API
 

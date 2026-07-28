@@ -26,7 +26,8 @@
                 },
                 {
                     "type": "PopupButton",
-                    "caption": "ℹ️",
+                    "caption": "i",
+                    "width": "70px",
                     "popup": {
                         "caption": "MQTT base topic",
                         "items": [
@@ -140,7 +141,8 @@
                         },
                         {
                             "type": "PopupButton",
-                            "caption": "ℹ️",
+                            "caption": "i",
+                            "width": "70px",
                             "popup": {
                                 "caption": "Minimum power for COP calculation",
                                 "items": [

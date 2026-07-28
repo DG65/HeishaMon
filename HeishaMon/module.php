@@ -19,11 +19,11 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.5.1';
+    private const NEWS_VERSION = '1.5.2';
     private const NEWS_ITEMS = [
         'License change to the PolyForm Noncommercial License 1.0.0 (part of the NRG-Stack).',
         'HEISHA_GetFunctions now also reports "reachable" - other modules can detect a stale PowerID while the heat pump is offline.',
-        'New ℹ️ info buttons for the MQTT base topic and the COP minimum power threshold.'
+        'New info buttons for the MQTT base topic and the COP minimum power threshold.'
     ];
     //Verweist derzeit auf die allgemeine Modul-Kategorie im Symcon-Forum, nicht auf einen
     //bestaetigten HeishaMon-eigenen Thread - bei Bedarf durch den konkreten Thread ersetzen.
