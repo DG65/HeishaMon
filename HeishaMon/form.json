@@ -94,7 +94,7 @@
         },
         {
             "type": "ExpansionPanel",
-            "caption": "Link structure",
+            "caption": "Link structure (optional)",
             "items": [
                 {
                     "type": "Label",
@@ -114,7 +114,7 @@
         },
         {
             "type": "ExpansionPanel",
-            "caption": "External energy meter (COP / performance factor)",
+            "caption": "External energy meter (optional, for measured COP / performance factor)",
             "items": [
                 {
                     "type": "Label",

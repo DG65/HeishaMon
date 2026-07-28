@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.4 — 2026-07-28
+
+- Panel-Titel "Link structure" und "External energy meter" um "(optional)" ergänzt — Fund nach expliziter Prüfung gegen Dietmars EMS-Usability-Befund (Panel wirkte wie Pflichtfeld, war aber optional/Fallback). Beide Panels sind bei uns per Default aus/leer und das Modul funktioniert ohne sie vollständig; das war aus dem Titel allein nicht ersichtlich. Rein optisch, keine inhaltliche Änderung
+
 ## 1.5.3 — 2026-07-27
 
 - PopupButton-Caption final auf `"?"` gesetzt (statt `"i"`) — Dietmars Entscheidung, `"i"` wirkt bei 70px Breite optisch verloren. Rein optisch, keine inhaltliche Änderung
