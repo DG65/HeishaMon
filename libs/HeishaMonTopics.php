@@ -201,7 +201,7 @@ class HeishaMonTopics
      */
     public static function groupOrder(): array
     {
-        return ['Operation', 'Heating', 'Cooling', 'DHW', 'Power & COP', 'Device values', 'System configuration', 'Optional PCB'];
+        return ['Operation', 'Heating', 'Cooling', 'DHW', 'Power & COP', 'Device values', 'System configuration', 'Optional PCB', '1-Wire sensors'];
     }
 
     /**

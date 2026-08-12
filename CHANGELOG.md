@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.0 — 2026-08-12
+
+- Neu: 1-Wire-Temperatursensoren (z. B. DS18B20) am HeishaMon werden automatisch erkannt und angelegt, sobald ein Messwert eintrifft — eigenes Formularpanel "1-Wire-Sensoren (optional)" zur Benennung und Aktivierung. Bisher mussten Nutzer diese Sensoren manuell als eigene MQTT-Client-Variable einbinden (Fund aus einer Nutzerrückmeldung im Symcon-Forum). Erscheinen auch in der optionalen Verknüpfungsstruktur (eigene Gruppe "1-Wire-Sensoren")
+
 ## 1.5.5 — 2026-08-12
 
 - Erklärtext der Verknüpfungsstruktur präzisiert — Fund aus einer echten Nutzerrückmeldung im Symcon-Forum: ohne gewählte Zielkategorie legt das Modul stillschweigend nichts an (kein Fehlerhinweis), und das Ergebnis erscheint nur im Objektbaum der Verwaltungskonsole, nicht im WebFront. Beides steht jetzt explizit im Panel-Text; Feldbeschriftung der Zielkategorie ergänzt um "(erforderlich, damit die Verknüpfungsstruktur angelegt wird)". Rein textlich, keine Verhaltensänderung

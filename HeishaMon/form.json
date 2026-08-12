@@ -94,6 +94,60 @@
         },
         {
             "type": "ExpansionPanel",
+            "caption": "1-Wire sensors (optional)",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Temperature sensors (e.g. DS18B20) connected to the HeishaMon's 1-Wire bus are detected automatically once a reading is received and appear here for naming and activation. Deactivated sensors are hidden - object ID and archive data remain."
+                },
+                {
+                    "type": "List",
+                    "name": "OneWireList",
+                    "caption": "1-Wire sensors",
+                    "rowCount": 5,
+                    "add": false,
+                    "delete": false,
+                    "changeOrder": true,
+                    "loadValuesFromConfiguration": false,
+                    "columns": [
+                        {
+                            "caption": "Active",
+                            "name": "Selected",
+                            "width": "80px",
+                            "add": true,
+                            "edit": {
+                                "type": "CheckBox"
+                            }
+                        },
+                        {
+                            "caption": "Name",
+                            "name": "Name",
+                            "width": "auto",
+                            "add": "",
+                            "edit": {
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "caption": "Address",
+                            "name": "Address",
+                            "width": "220px",
+                            "add": "",
+                            "save": true
+                        },
+                        {
+                            "caption": "Received",
+                            "name": "Received",
+                            "width": "110px",
+                            "add": ""
+                        }
+                    ],
+                    "values": []
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
             "caption": "Link structure (optional)",
             "items": [
                 {

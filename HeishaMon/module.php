@@ -19,11 +19,9 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.5.4';
+    private const NEWS_VERSION = '1.6.0';
     private const NEWS_ITEMS = [
-        'HEISHA_GetFunctions now also reports "reachable" - other modules can detect a stale PowerID while the heat pump is offline.',
-        'New info buttons for the MQTT base topic and the COP minimum power threshold.',
-        '"Link structure" and "External energy meter" panels now clearly marked as optional.'
+        'New: 1-Wire temperature sensors (e.g. DS18B20) connected to the HeishaMon are now detected automatically - no more manual MQTT variable setup needed.'
     ];
     //Verweist derzeit auf die allgemeine Modul-Kategorie im Symcon-Forum, nicht auf einen
     //bestaetigten HeishaMon-eigenen Thread - bei Bedarf durch den konkreten Thread ersetzen.
@@ -48,6 +46,11 @@ class HeishaMon extends IPSModule
         //Optionale, gruppierte Linkstruktur (nach Vorbild des Tessie-Moduls)
         $this->RegisterPropertyBoolean('CreateLinks', false);
         $this->RegisterPropertyInteger('LinksLocation', 0);
+
+        //1-Wire-Temperatursensoren (z.B. DS18B20) am HeishaMon: dynamisches Topic pro
+        //Sensoradresse, daher eigene Erkennungs-/Benennungsliste statt der festen TopicMap
+        $this->RegisterPropertyString('OneWireSensors', '[]');
+        $this->RegisterAttributeString('SeenOneWire', '[]');
 
         //COP / Arbeitszahl: externe Messung ueber Stromzaehler (z.B. Shelly 3EM, Phase der Waermepumpe)
         $this->RegisterPropertyInteger('PowerVariable', 0);
@@ -96,15 +99,15 @@ class HeishaMon extends IPSModule
         $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
 
         //Zeilen in der gespeicherten (per Drag & Drop sortierten) Reihenfolge, Versionsnummer im Doku-Panel
-        foreach ($form['elements'] as &$element) {
-            if (($element['name'] ?? '') == 'VariableList') {
-                $element['values'] = $this->buildVariableListRows($this->getOrderedTopics(), $this->getSelectionMap());
-            }
-            if (($element['name'] ?? '') == 'DocsPanel') {
-                $element['caption'] = $this->Translate('📖  Documentation & help') . ' (' . $this->moduleVersion() . ')';
-            }
-        }
-        unset($element);
+        $this->patchFormElement($form['elements'], 'VariableList', function (&$element) {
+            $element['values'] = $this->buildVariableListRows($this->getOrderedTopics(), $this->getSelectionMap());
+        });
+        $this->patchFormElement($form['elements'], 'OneWireList', function (&$element) {
+            $element['values'] = $this->buildOneWireListRows();
+        });
+        $this->patchFormElement($form['elements'], 'DocsPanel', function (&$element) {
+            $element['caption'] = $this->Translate('📖  Documentation & help') . ' (' . $this->moduleVersion() . ')';
+        });
 
         //Forum-Hinweis am Ende, solange nicht bestaetigt
         if (!$this->ReadAttributeBoolean('ForumHintDismissed')) {
@@ -118,6 +121,23 @@ class HeishaMon extends IPSModule
         }
 
         return json_encode($form);
+    }
+
+    /**
+     * Sucht rekursiv (auch innerhalb von Panels/RowLayouts) das Formularelement mit dem
+     * uebergebenen Namen und wendet den Callback per Referenz darauf an.
+     */
+    private function patchFormElement(array &$elements, string $name, callable $callback)
+    {
+        foreach ($elements as &$element) {
+            if (($element['name'] ?? '') === $name) {
+                $callback($element);
+            }
+            if (isset($element['items']) && is_array($element['items'])) {
+                $this->patchFormElement($element['items'], $name, $callback);
+            }
+        }
+        unset($element);
     }
 
     private function moduleVersion(): string
@@ -277,6 +297,29 @@ class HeishaMon extends IPSModule
             }
             if ($object['ObjectPosition'] != $positions[$topic]) {
                 IPS_SetPosition($variableID, $positions[$topic]);
+            }
+        }
+
+        //1-Wire-Sensoren: Namen/Darstellung bestehender Variablen auffrischen, abgewaehlte
+        //ausblenden statt loeschen, Positionen gemaess der Listen-Reihenfolge nachfuehren
+        $oneWireSelection = [];
+        foreach ($this->getOneWireConfigMap() as $address => $row) {
+            $oneWireSelection[$address] = boolval($row['Selected'] ?? true);
+        }
+        $oneWirePositions = $this->getOneWirePositionMap();
+        foreach ($this->getOrderedOneWireAddresses() as $address) {
+            $this->maintainOneWireVariable($address, true);
+            $variableID = @$this->GetIDForIdent('OneWire_' . $address);
+            if ($variableID === false) {
+                continue;
+            }
+            $object = IPS_GetObject($variableID);
+            $hidden = !($oneWireSelection[$address] ?? true);
+            if ($object['ObjectIsHidden'] != $hidden) {
+                IPS_SetHidden($variableID, $hidden);
+            }
+            if ($object['ObjectPosition'] != $oneWirePositions[$address]) {
+                IPS_SetPosition($variableID, $oneWirePositions[$address]);
             }
         }
 
@@ -538,6 +581,16 @@ class HeishaMon extends IPSModule
                 $desired[$group]['HEISHA_LNK_' . $ident] = $variableID;
             }
         }
+        //1-Wire-Sensoren, ebenfalls nur aktivierte
+        foreach ($this->getOrderedOneWireAddresses() as $address) {
+            if (!$this->isOneWireSelected($address)) {
+                continue;
+            }
+            $variableID = @$this->GetIDForIdent('OneWire_' . $address);
+            if ($variableID !== false) {
+                $desired['1-Wire sensors']['HEISHA_LNK_OneWire_' . $address] = $variableID;
+            }
+        }
 
         foreach (HeishaMonTopics::groupOrder() as $index => $group) {
             $groupIdent = 'HEISHA_GRP_' . preg_replace('/[^A-Za-z0-9]/', '', $group);
@@ -720,6 +773,13 @@ class HeishaMon extends IPSModule
             return '';
         }
 
+        //1-Wire-Sensoren (z.B. DS18B20) senden auf einem dynamischen, adressabhaengigen
+        //Topic statt der festen TopicMap - eigene Erkennung und Variablenpflege.
+        if (preg_match('/^1wire\/([0-9a-fA-F]+)$/', $subTopic, $matches)) {
+            $this->receiveOneWire(strtoupper($matches[1]), $payload);
+            return '';
+        }
+
         $topics = HeishaMonTopics::topics();
         if (!array_key_exists($subTopic, $topics)) {
             if ($this->ReadPropertyBoolean('DebugUnknownTopics')) {
@@ -770,6 +830,160 @@ class HeishaMon extends IPSModule
             $this->updateTotalPower();
         }
         return '';
+    }
+
+    /**
+     * Verarbeitet den Messwert eines 1-Wire-Sensors (z.B. DS18B20). Neue Adressen werden
+     * automatisch in der Sensorliste vermerkt (Formular zeigt sie beim naechsten Oeffnen
+     * zur Benennung an); die Variable entsteht erst, wenn der Sensor aktiv geschaltet ist.
+     */
+    private function receiveOneWire(string $address, string $payload)
+    {
+        $this->rememberSeenOneWire($address);
+
+        $ident = 'OneWire_' . $address;
+        if (@$this->GetIDForIdent($ident) === false) {
+            if (!$this->isOneWireSelected($address)) {
+                return;
+            }
+            $this->maintainOneWireVariable($address);
+            $this->maintainLinkTree();
+        }
+        $this->SetValue($ident, floatval($payload));
+    }
+
+    private function rememberSeenOneWire(string $address)
+    {
+        $seen = json_decode($this->ReadAttributeString('SeenOneWire'), true) ?: [];
+        if (!in_array($address, $seen)) {
+            $seen[] = $address;
+            $this->WriteAttributeString('SeenOneWire', json_encode($seen));
+        }
+    }
+
+    /**
+     * Adresse => Konfigurationszeile (Name/Auswahl), aus der vom Nutzer gepflegten Liste.
+     */
+    private function getOneWireConfigMap(): array
+    {
+        $map = [];
+        $rows = json_decode($this->ReadPropertyString('OneWireSensors'), true);
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
+                if (isset($row['Address'])) {
+                    $map[$row['Address']] = $row;
+                }
+            }
+        }
+        return $map;
+    }
+
+    private function isOneWireSelected(string $address): bool
+    {
+        $config = $this->getOneWireConfigMap();
+        return boolval($config[$address]['Selected'] ?? true);
+    }
+
+    /**
+     * Anzeigename: vom Nutzer vergebener Name, sonst ein generischer Standardname mit den
+     * letzten vier Adressstellen zur Unterscheidung mehrerer Sensoren.
+     */
+    private function oneWireCaption(string $address): string
+    {
+        $config = $this->getOneWireConfigMap();
+        $name = trim($config[$address]['Name'] ?? '');
+        if ($name !== '') {
+            return $name;
+        }
+        return $this->Translate('1-Wire sensor') . ' ' . substr($address, -4);
+    }
+
+    /**
+     * Alle bekannten Adressen in Anzeige-Reihenfolge: zuerst die gespeicherte (per Drag & Drop
+     * sortierte) Liste, danach noch unbekannte, aber bereits empfangene Adressen.
+     */
+    private function getOrderedOneWireAddresses(): array
+    {
+        $seen = json_decode($this->ReadAttributeString('SeenOneWire'), true) ?: [];
+        $saved = [];
+        $rows = json_decode($this->ReadPropertyString('OneWireSensors'), true);
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
+                if (isset($row['Address']) && in_array($row['Address'], $seen, true)) {
+                    $saved[] = $row['Address'];
+                }
+            }
+        }
+        foreach ($seen as $address) {
+            if (!in_array($address, $saved, true)) {
+                $saved[] = $address;
+            }
+        }
+        return $saved;
+    }
+
+    private function getOneWirePositionMap(): array
+    {
+        $map = [];
+        //Bewusst oberhalb des Wertebereichs der festen TopicMap-Positionen (max. rund 1510
+        //bei 151 Topics), damit 1-Wire-Sensoren nicht mit deren Reihenfolge kollidieren.
+        $position = 2000;
+        foreach ($this->getOrderedOneWireAddresses() as $address) {
+            $map[$address] = $position;
+            $position += 10;
+        }
+        return $map;
+    }
+
+    /**
+     * Legt die Variable eines 1-Wire-Sensors an bzw. aktualisiert Name/Darstellung.
+     */
+    private function maintainOneWireVariable(string $address, bool $refreshOnly = false)
+    {
+        $ident = 'OneWire_' . $address;
+        $variableID = @$this->GetIDForIdent($ident);
+        if (($variableID !== false) != $refreshOnly) {
+            return;
+        }
+
+        $presentation = [
+            'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+            'SUFFIX'       => ' °C',
+            'DIGITS'       => 1
+        ];
+        if ($refreshOnly) {
+            $current = @IPS_GetVariablePresentation($variableID);
+            if (!is_array($current) || !$this->presentationMatches($current, $presentation)) {
+                $this->MaintainVariable($ident, $this->oneWireCaption($address), VARIABLETYPE_FLOAT, $presentation, $this->getOneWirePositionMap()[$address] ?? 2000, true);
+            }
+            //Vom Nutzer gepflegten Namen nachfuehren, unabhaengig von der Darstellung
+            if (IPS_GetName($variableID) !== $this->oneWireCaption($address)) {
+                IPS_SetName($variableID, $this->oneWireCaption($address));
+            }
+            return;
+        }
+
+        $this->MaintainVariable($ident, $this->oneWireCaption($address), VARIABLETYPE_FLOAT, $presentation, $this->getOneWirePositionMap()[$address] ?? 2000, true);
+    }
+
+    /**
+     * Baut die Zeilen der 1-Wire-Sensorliste im Formular: alle jemals empfangenen Adressen,
+     * inklusive Name/Auswahl aus der gespeicherten Konfiguration.
+     */
+    private function buildOneWireListRows(): array
+    {
+        $seen = json_decode($this->ReadAttributeString('SeenOneWire'), true) ?: [];
+        $config = $this->getOneWireConfigMap();
+        $rows = [];
+        foreach ($this->getOrderedOneWireAddresses() as $address) {
+            $rows[] = [
+                'Selected' => boolval($config[$address]['Selected'] ?? true),
+                'Name'     => $config[$address]['Name'] ?? '',
+                'Address'  => $address,
+                'Received' => in_array($address, $seen) ? $this->Translate('Yes') : ''
+            ];
+        }
+        return $rows;
     }
 
     /**

@@ -52,6 +52,10 @@ In der Instanz-Konfiguration listet die Tabelle **Datenpunkte** alle bekannten H
 
 Die Zeilen lassen sich durch **Ziehen mit der Maus sortieren** — die Variablen unter der Instanz und die Verknüpfungen in der Verknüpfungsstruktur folgen dieser Reihenfolge, sobald die Änderungen übernommen werden. Die Schaltfläche **Reihenfolge und Auswahl zurücksetzen** stellt den Standard wieder her.
 
+## 1-Wire-Sensoren
+
+Temperatursensoren (z. B. DS18B20) am 1-Wire-Bus des HeishaMon senden auf einem eigenen, adressabhängigen Topic statt der festen Themenliste der Wärmepumpe. Das Modul erkennt sie automatisch, sobald ein erster Messwert eintrifft, und trägt sie im Bereich **1-Wire-Sensoren** mit ihrer Bus-Adresse ein. Dort lässt sich pro Sensor ein sprechender **Name** vergeben (z. B. "Vorlauf Pufferspeicher") und die Aktivierung wie bei den übrigen Datenpunkten steuern. Ohne vergebenen Namen erscheint zunächst ein generischer Platzhalter mit den letzten vier Stellen der Adresse.
+
 ## Verknüpfungsstruktur (gruppierte Ansicht)
 
 Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine gruppierte Ansicht (z. B. in der Visualisierung) kann das Modul optional eine **Verknüpfungsstruktur** pflegen: Im Bereich **Verknüpfungsstruktur** die Option **Verknüpfungsstruktur erzeugen** aktivieren und eine **Zielkategorie** wählen. Das Modul legt dort einen Kategoriebaum an:
@@ -66,7 +70,8 @@ Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine g
     ├── Leistung & COP
     ├── Gerätewerte
     ├── Anlagenkonfiguration
-    └── Optionale Platine
+    ├── Optionale Platine
+    └── 1-Wire-Sensoren
 ```
 
 Darin liegen Verknüpfungen auf alle **aktiven** Datenpunkte (inklusive Schaltbarkeit — eine Verknüpfung auf die Warmwasser-Solltemperatur bleibt z. B. ein Schieberegler). Wird ein Datenpunkt in der Liste abgewählt, verschwindet seine Verknüpfung automatisch; neu empfangene Datenpunkte werden sofort einsortiert. Leere Gruppen werden entfernt.
