@@ -58,7 +58,7 @@ Temperatursensoren (z. B. DS18B20) am 1-Wire-Bus des HeishaMon senden auf einem 
 
 ## Verknüpfungsstruktur (gruppierte Ansicht)
 
-Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen. Für eine gruppierte Ansicht (z. B. in der Visualisierung) kann das Modul optional eine **Verknüpfungsstruktur** pflegen: Im Bereich **Verknüpfungsstruktur** die Option **Verknüpfungsstruktur erzeugen** aktivieren und eine **Zielkategorie** wählen. Das Modul legt dort einen Kategoriebaum an:
+Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen — im WebFront wird daraus schnell eine lange, unübersichtliche Liste. Für eine übersichtliche, gruppierte WebFront-Navigation kann das Modul optional eine **Verknüpfungsstruktur** pflegen: Im Bereich **Verknüpfungsstruktur** die Option **Verknüpfungsstruktur erzeugen** aktivieren und eine **Zielkategorie** wählen (am besten eine, die selbst im WebFront sichtbar ist). Das Modul legt dort einen Kategoriebaum an:
 
 ```
 <Zielkategorie>

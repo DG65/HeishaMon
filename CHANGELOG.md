@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.1 — 2026-08-12
+
+- Erklärtext der Verknüpfungsstruktur korrigiert: der vorige Hinweis "nicht im WebFront sichtbar" (v1.5.5) war falsch — die Verknüpfungsstruktur ist genau dafür gedacht, im WebFront eine übersichtliche gruppierte Navigation statt einer langen flachen Variablenliste zu ergeben. Text stellt das jetzt richtig dar. Rein textlich, keine Verhaltensänderung
+
 ## 1.6.0 — 2026-08-12
 
 - Neu: 1-Wire-Temperatursensoren (z. B. DS18B20) am HeishaMon werden automatisch erkannt und angelegt, sobald ein Messwert eintrifft — eigenes Formularpanel "1-Wire-Sensoren (optional)" zur Benennung und Aktivierung. Bisher mussten Nutzer diese Sensoren manuell als eigene MQTT-Client-Variable einbinden (Fund aus einer Nutzerrückmeldung im Symcon-Forum). Erscheinen auch in der optionalen Verknüpfungsstruktur (eigene Gruppe "1-Wire-Sensoren")
