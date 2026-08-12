@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.5 — 2026-08-12
+
+- Erklärtext der Verknüpfungsstruktur präzisiert — Fund aus einer echten Nutzerrückmeldung im Symcon-Forum: ohne gewählte Zielkategorie legt das Modul stillschweigend nichts an (kein Fehlerhinweis), und das Ergebnis erscheint nur im Objektbaum der Verwaltungskonsole, nicht im WebFront. Beides steht jetzt explizit im Panel-Text; Feldbeschriftung der Zielkategorie ergänzt um "(erforderlich, damit die Verknüpfungsstruktur angelegt wird)". Rein textlich, keine Verhaltensänderung
+
 ## 1.5.4 — 2026-07-28
 
 - Panel-Titel "Link structure" und "External energy meter" um "(optional)" ergänzt — Fund nach expliziter Prüfung gegen Dietmars EMS-Usability-Befund (Panel wirkte wie Pflichtfeld, war aber optional/Fallback). Beide Panels sind bei uns per Default aus/leer und das Modul funktioniert ohne sie vollständig; das war aus dem Titel allein nicht ersichtlich. Rein optisch, keine inhaltliche Änderung

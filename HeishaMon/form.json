@@ -98,7 +98,7 @@
             "items": [
                 {
                     "type": "Label",
-                    "caption": "Creates a grouped category tree (Operation, Heating, DHW, ...) with links to all active datapoints at the selected location. Links of deactivated datapoints are removed automatically."
+                    "caption": "Creates a grouped category tree (Operation, Heating, DHW, ...) with links to all active datapoints in the target category selected below - visible in the management console's object tree, not in WebFront. Without a selected target category, nothing is created. Links of deactivated datapoints are removed automatically."
                 },
                 {
                     "type": "CheckBox",
@@ -108,7 +108,7 @@
                 {
                     "type": "SelectCategory",
                     "name": "LinksLocation",
-                    "caption": "Target category"
+                    "caption": "Target category (required for the link structure to be created)"
                 }
             ]
         },
