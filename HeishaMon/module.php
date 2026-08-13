@@ -1005,6 +1005,13 @@ class HeishaMon extends IPSModule
      *            unabhaengig voneinander konfigurieren.
      *   unit     Physikalische Einheit von PowerID, informativ (z.B. fuer Konsumenten ohne
      *            eigenes Variablenprofil auf der Presentation-basierten Power_Total-Variable).
+     *   *ID      Ab contractVersion 1.3: ausgewaehlte Heizkreislauf-Datenpunkte fuer eine
+     *            Anlagenschema-Visualisierung (z.B. NRGDashboard) - pumpFlowID, pumpSpeedID,
+     *            pumpDutyID, threeWayValveStateID, twoWayValveStateID, mainInletTempID,
+     *            mainOutletTempID, z1WaterTempID, z2WaterTempID, dhwTempID, bufferTempID,
+     *            compressorFreqID, dischargeTempID, defrostingStateID. Jeweils 0, wenn der
+     *            Datenpunkt (noch) nicht empfangen wurde oder abgewaehlt/versteckt ist -
+     *            NICHT abhaengig vom Sichtbarkeitsstatus (analog PowerID/EnergyID).
      *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
      *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
@@ -1025,10 +1032,34 @@ class HeishaMon extends IPSModule
                 //Wenn die WP nicht erreichbar ist, friert PowerID beim letzten bekannten Wert ein
                 //(kein aktiver Reset auf 0, um keinen falschen "Anlage aus"-Zustand vorzutaeuschen).
                 //Konsumenten sollten bei reachable=false den Wert als potenziell veraltet behandeln.
-                'reachable'       => $reachableID === false ? true : (bool) GetValue($reachableID),
-                'contractVersion' => '1.2'
+                'reachable'            => $reachableID === false ? true : (bool) GetValue($reachableID),
+                'pumpFlowID'           => $this->idForIdent('Pump_Flow'),
+                'pumpSpeedID'          => $this->idForIdent('Pump_Speed'),
+                'pumpDutyID'           => $this->idForIdent('Pump_Duty'),
+                'threeWayValveStateID' => $this->idForIdent('ThreeWay_Valve_State'),
+                'twoWayValveStateID'   => $this->idForIdent('TwoWay_Valve_State'),
+                'mainInletTempID'      => $this->idForIdent('Main_Inlet_Temp'),
+                'mainOutletTempID'     => $this->idForIdent('Main_Outlet_Temp'),
+                'z1WaterTempID'        => $this->idForIdent('Z1_Water_Temp'),
+                'z2WaterTempID'        => $this->idForIdent('Z2_Water_Temp'),
+                'dhwTempID'            => $this->idForIdent('DHW_Temp'),
+                'bufferTempID'         => $this->idForIdent('Buffer_Temp'),
+                'compressorFreqID'     => $this->idForIdent('Compressor_Freq'),
+                'dischargeTempID'      => $this->idForIdent('Discharge_Temp'),
+                'defrostingStateID'    => $this->idForIdent('Defrosting_State'),
+                'contractVersion'      => '1.3'
             ]
         ];
+    }
+
+    /**
+     * Variablen-ID zu einem Ident, 0 wenn (noch) nicht vorhanden - unabhaengig vom
+     * Sichtbarkeitsstatus (siehe GetFunctions-Dokumentation).
+     */
+    private function idForIdent(string $ident): int
+    {
+        $variableID = @$this->GetIDForIdent($ident);
+        return $variableID === false ? 0 : $variableID;
     }
 
     /**

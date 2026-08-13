@@ -108,7 +108,16 @@ $functions = HEISHA_GetFunctions(12345);
 //     'Measured' => true,          // true = echte Messung, false = HeishaMon-Schätzung
 //     'unit'     => 'W',           // physikalische Einheit von PowerID, informativ
 //     'reachable' => true,         // false = Wärmepumpe offline, PowerID ggf. veraltet
-//     'contractVersion' => '1.2'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
+//     // Ab contractVersion 1.3: Heizkreislauf-Datenpunkte fuer eine Anlagenschema-
+//     // Visualisierung (z.B. NRGDashboard) - je 0, wenn der Datenpunkt (noch) nicht
+//     // empfangen wurde oder abgewaehlt ist, unabhaengig vom Sichtbarkeitsstatus:
+//     'pumpFlowID' => 34580, 'pumpSpeedID' => 34581, 'pumpDutyID' => 34582,
+//     'threeWayValveStateID' => 34583, 'twoWayValveStateID' => 34584,
+//     'mainInletTempID' => 34585, 'mainOutletTempID' => 34586,
+//     'z1WaterTempID' => 34587, 'z2WaterTempID' => 34588, 'dhwTempID' => 34589,
+//     'bufferTempID' => 34590, 'compressorFreqID' => 34591,
+//     'dischargeTempID' => 34592, 'defrostingStateID' => 34593,
+//     'contractVersion' => '1.3'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```
@@ -118,6 +127,7 @@ Hinweise für Konsumenten:
 - `EnergyID` verweist bewusst auf den **kumulativen** Zählerstand des externen Stromzählers und nicht auf „Stromverbrauch heute" — letzterer wird um Mitternacht zurückgesetzt und eignet sich daher nicht als Energiezähler für Auswertungen wie eine Sankey-Darstellung. Ist `EnergyID` 0, sollte die Energie **nicht** aus der Leistung hochgerechnet werden.
 - `Measured` unterscheidet echte Messung von der HeishaMon-Schätzung (grob in ~200-W-Stufen). Bei `false` sollte der Wert nicht mit Nachkommastellen dargestellt werden — das wäre Scheingenauigkeit. Das Flag lässt sich **nicht** aus `EnergyID` ableiten, da Leistungs- und Energievariable unabhängig voneinander konfigurierbar sind.
 - `reachable` = `false`, wenn die Wärmepumpe gerade nicht erreichbar ist (MQTT-Verbindung verloren). `PowerID` wird in diesem Fall **nicht** zurückgesetzt, sondern friert beim letzten bekannten Wert ein — Konsumenten, die auf den Wert reagieren (z. B. Lastmanagement), sollten ihn bei `reachable = false` als potenziell veraltet behandeln.
+- Alle `*ID`-Felder sind 0, solange der zugehörige Datenpunkt nicht existiert (Anlage hat ihn nie gesendet oder er wurde in der Datenpunkt-Liste abgewählt) — immer auf `0` prüfen, bevor die Variable gelesen wird.
 
 ## §14a-Stellhebel (Lastmanagement / Steuerbox-Anbindung)
 

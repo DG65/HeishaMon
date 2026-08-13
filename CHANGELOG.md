@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0 — 2026-08-12
+
+- `HEISHA_GetFunctions()` um 14 Heizkreislauf-Felder erweitert (contractVersion 1.2 → 1.3): `pumpFlowID`, `pumpSpeedID`, `pumpDutyID`, `threeWayValveStateID`, `twoWayValveStateID`, `mainInletTempID`, `mainOutletTempID`, `z1WaterTempID`, `z2WaterTempID`, `dhwTempID`, `bufferTempID`, `compressorFreqID`, `dischargeTempID`, `defrostingStateID` — abgestimmt mit WPHub/NRGDashboard für eine Anlagenschema-Visualisierung. Rein additiv, kein Formular-Feld betroffen
+
 ## 1.6.1 — 2026-08-12
 
 - Erklärtext der Verknüpfungsstruktur korrigiert: der vorige Hinweis "nicht im WebFront sichtbar" (v1.5.5) war falsch — die Verknüpfungsstruktur ist genau dafür gedacht, im WebFront eine übersichtliche gruppierte Navigation statt einer langen flachen Variablenliste zu ergeben. Text stellt das jetzt richtig dar. Rein textlich, keine Verhaltensänderung
