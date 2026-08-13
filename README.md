@@ -117,7 +117,12 @@ $functions = HEISHA_GetFunctions(12345);
 //     'z1WaterTempID' => 34587, 'z2WaterTempID' => 34588, 'dhwTempID' => 34589,
 //     'bufferTempID' => 34590, 'compressorFreqID' => 34591,
 //     'dischargeTempID' => 34592, 'defrostingStateID' => 34593,
-//     'contractVersion' => '1.3'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
+//     // Ab contractVersion 1.4: externe Heizkreispumpe/-Mischventil an der optionalen
+//     // 2. Steuerplatine (getrennt von der internen Pumpe oben). Mischventil liefert eine
+//     // Stellrichtung (0=Aus, 1=Zu, 2=Auf), keine absolute Position:
+//     'z1PumpID' => 34594, 'z1MixingValveID' => 34595,
+//     'z2PumpID' => 0, 'z2MixingValveID' => 0,   // 0 = keine Zone 2 vorhanden
+//     'contractVersion' => '1.4'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```
@@ -128,6 +133,8 @@ Hinweise für Konsumenten:
 - `Measured` unterscheidet echte Messung von der HeishaMon-Schätzung (grob in ~200-W-Stufen). Bei `false` sollte der Wert nicht mit Nachkommastellen dargestellt werden — das wäre Scheingenauigkeit. Das Flag lässt sich **nicht** aus `EnergyID` ableiten, da Leistungs- und Energievariable unabhängig voneinander konfigurierbar sind.
 - `reachable` = `false`, wenn die Wärmepumpe gerade nicht erreichbar ist (MQTT-Verbindung verloren). `PowerID` wird in diesem Fall **nicht** zurückgesetzt, sondern friert beim letzten bekannten Wert ein — Konsumenten, die auf den Wert reagieren (z. B. Lastmanagement), sollten ihn bei `reachable = false` als potenziell veraltet behandeln.
 - Alle `*ID`-Felder sind 0, solange der zugehörige Datenpunkt nicht existiert (Anlage hat ihn nie gesendet oder er wurde in der Datenpunkt-Liste abgewählt) — immer auf `0` prüfen, bevor die Variable gelesen wird.
+- `pumpFlowID`/`pumpSpeedID`/`pumpDutyID`/`twoWayValveStateID` betreffen die **interne** Pumpe/das interne Ventil im Innengerät. `z1PumpID`/`z1MixingValveID`/`z2PumpID`/`z2MixingValveID` betreffen die davon getrennte **externe** Heizkreispumpe/-Mischventil an der optionalen 2. Steuerplatine — physikalisch unterschiedliche Komponenten, nicht verwechseln.
+- `z1MixingValveID`/`z2MixingValveID` liefern eine **Stellrichtung** (0=Aus, 1=Zu, 2=Auf), **keine absolute Position** — der Wert 0 ist daher zweideutig zwischen „kein Mischventil vorhanden" und „Ventil steht gerade still". Wer das unterscheiden muss, sollte zusätzlich `IPS_VariableExists()` auf die ID prüfen.
 
 ## §14a-Stellhebel (Lastmanagement / Steuerbox-Anbindung)
 

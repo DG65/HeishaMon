@@ -1019,6 +1019,20 @@ class HeishaMon extends IPSModule
      *            compressorFreqID, dischargeTempID, defrostingStateID. Jeweils 0, wenn der
      *            Datenpunkt (noch) nicht empfangen wurde oder abgewaehlt/versteckt ist -
      *            NICHT abhaengig vom Sichtbarkeitsstatus (analog PowerID/EnergyID).
+     *            WICHTIG: pumpFlowID/pumpSpeedID/pumpDutyID/twoWayValveStateID betreffen die
+     *            INTERNE Pumpe/das interne Ventil im Innengeraet (main/...-Kernprotokoll).
+     *            Fuer eine externe, von der optionalen 2. Steuerplatine angesteuerte
+     *            Heizkreis-Pumpe/-Mischventil siehe z1PumpID/z1MixingValveID unten - das ist
+     *            physikalisch etwas anderes, nicht dieselbe Pumpe an anderer Stelle im Vertrag.
+     *   z1PumpID/z2PumpID Ab contractVersion 1.4: externe Zone-1/2-Heizkreispumpe an der
+     *            optionalen 2. Steuerplatine (optional/Z1_Water_Pump bzw. .../Z2_Water_Pump).
+     *            Boolean-Variable (An/Aus). 0, wenn keine optionale Platine verbaut ist/sendet.
+     *   z1MixingValveID/z2MixingValveID Ab contractVersion 1.4: externes Zone-1/2-Mischventil
+     *            an der optionalen 2. Steuerplatine. Integer-Variable mit STELLRICHTUNG, KEINER
+     *            absoluten Position: 0=Aus, 1=Zu (Decrease), 2=Auf (Increase). 0-Wert also
+     *            zweideutig zwischen "kein Datenpunkt vorhanden" und "Ventil steht gerade still"
+     *            - Konsumenten, die das unterscheiden muessen, sollten zusaetzlich pruefen, ob
+     *            die Variable ueberhaupt existiert (IPS_VariableExists), nicht nur den Wert.
      *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
      *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
@@ -1054,7 +1068,11 @@ class HeishaMon extends IPSModule
                 'compressorFreqID'     => $this->idForIdent('Compressor_Freq'),
                 'dischargeTempID'      => $this->idForIdent('Discharge_Temp'),
                 'defrostingStateID'    => $this->idForIdent('Defrosting_State'),
-                'contractVersion'      => '1.3'
+                'z1PumpID'             => $this->idForIdent('Optional_Z1_Water_Pump'),
+                'z1MixingValveID'      => $this->idForIdent('Optional_Z1_Mixing_Valve'),
+                'z2PumpID'             => $this->idForIdent('Optional_Z2_Water_Pump'),
+                'z2MixingValveID'      => $this->idForIdent('Optional_Z2_Mixing_Valve'),
+                'contractVersion'      => '1.4'
             ]
         ];
     }

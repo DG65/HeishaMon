@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0 — 2026-08-13
+
+- `HEISHA_GetFunctions()` um 4 weitere Felder erweitert (contractVersion 1.3 → 1.4): `z1PumpID`, `z1MixingValveID`, `z2PumpID`, `z2MixingValveID` — externe Heizkreispumpe/-Mischventil an der optionalen 2. Steuerplatine (physikalisch getrennt von der bereits vorhandenen internen Pumpe `pumpFlowID`/`pumpSpeedID`/`pumpDutyID`). Mit WPHub/Dashboard/EMS abgestimmt. Mischventil liefert eine Stellrichtung (Zu/Auf/Aus), keine absolute Position. Rein additiv
+
 ## 1.7.1 — 2026-08-12
 
 - Doku (Code-Kommentar in `GetFunctions()` und README) klargestellt: die Heizkreislauf-Felder sind Teil des gemeinsamen, herstellerneutralen `heatpump`-Vertragstyps (von EMS final abgestimmt), nicht HeishaMon-spezifisch. Rein dokumentarisch, keine Verhaltens- oder Feldnamensänderung
