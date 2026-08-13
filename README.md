@@ -95,7 +95,7 @@ Hinweis: Läuft der Heizstab, steckt seine Wärme in der gemessenen thermischen 
 
 Das Modul führt eine Variable **Elektrische Leistung (gesamt)** (W). Sie enthält den gemessenen Wert des externen Stromzählers, sofern konfiguriert — andernfalls die Summe der HeishaMon-Schätzwerte (Heizen + Kühlen + Warmwasser). Damit gibt es unabhängig vom Messaufbau immer eine einzelne, verlässliche Leistungsvariable, z. B. für Visualisierungen, ein Energiemanagement oder eigene Automationen.
 
-Andere Module können die Wärmepumpe automatisch einbinden, ohne dass der Nutzer Variablen von Hand zuweisen muss:
+Andere Module können die Wärmepumpe automatisch einbinden, ohne dass der Nutzer Variablen von Hand zuweisen muss. `HEISHA_GetFunctions()` implementiert dazu den gemeinsamen, herstellerneutralen `heatpump`-Vertragstyp des NRG-Stack (z. B. auch von WPHub für die Panasonic-Comfort-Cloud genutzt) — Konsumenten wie NRGDashboard rendern generisch anhand der tatsächlich vorhandenen Felder, unabhängig davon, welches Wärmepumpen-Modul sie liefert:
 
 ```php
 $functions = HEISHA_GetFunctions(12345);

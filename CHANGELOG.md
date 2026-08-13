@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.1 — 2026-08-12
+
+- Doku (Code-Kommentar in `GetFunctions()` und README) klargestellt: die Heizkreislauf-Felder sind Teil des gemeinsamen, herstellerneutralen `heatpump`-Vertragstyps (von EMS final abgestimmt), nicht HeishaMon-spezifisch. Rein dokumentarisch, keine Verhaltens- oder Feldnamensänderung
+
 ## 1.7.0 — 2026-08-12
 
 - `HEISHA_GetFunctions()` um 14 Heizkreislauf-Felder erweitert (contractVersion 1.2 → 1.3): `pumpFlowID`, `pumpSpeedID`, `pumpDutyID`, `threeWayValveStateID`, `twoWayValveStateID`, `mainInletTempID`, `mainOutletTempID`, `z1WaterTempID`, `z2WaterTempID`, `dhwTempID`, `bufferTempID`, `compressorFreqID`, `dischargeTempID`, `defrostingStateID` — abgestimmt mit WPHub/NRGDashboard für eine Anlagenschema-Visualisierung. Rein additiv, kein Formular-Feld betroffen

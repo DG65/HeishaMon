@@ -990,6 +990,13 @@ class HeishaMon extends IPSModule
      * Meldet die Funktionen dieser Instanz an andere Module (z.B. Energiefluss-Visualisierungen),
      * damit die Waermepumpe dort ohne manuelle Zuweisung auftaucht.
      *
+     * Teil des gemeinsamen, herstellerneutralen 'heatpump'-Vertragstyps (NRG-Stack-Konvention,
+     * von EMS final abgestimmt): jedes Waermepumpen-Modul (z.B. auch WPHub fuer die Panasonic-
+     * Comfort-Cloud) implementiert denselben Feldsatz additiv, fuellt aber nur, was seine
+     * eigene Datenquelle tatsaechlich hergibt - fehlende Felder bleiben 0. Konsumenten (z.B.
+     * NRGDashboard) sollten generisch je nach vorhandenem Feld rendern, nicht HeishaMon-
+     * spezifisch wissen, welche Quelle welche Felder liefert.
+     *
      * Rueckgabe je Eintrag:
      *   Type     'heatpump'
      *   Caption  Name der Instanz
