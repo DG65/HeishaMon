@@ -1033,6 +1033,9 @@ class HeishaMon extends IPSModule
      *            zweideutig zwischen "kein Datenpunkt vorhanden" und "Ventil steht gerade still"
      *            - Konsumenten, die das unterscheiden muessen, sollten zusaetzlich pruefen, ob
      *            die Variable ueberhaupt existiert (IPS_VariableExists), nicht nur den Wert.
+     *   fan1SpeedID/fan2SpeedID Ab contractVersion 1.5: Luefterdrehzahl des Aussengeraets in
+     *            U/min (main/Fan1_Motor_Speed bzw. main/Fan2_Motor_Speed - Fan2 nur bei
+     *            groesseren Geraeten mit zwei Lueftern). 0, wenn nicht empfangen.
      *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
      *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
@@ -1072,7 +1075,9 @@ class HeishaMon extends IPSModule
                 'z1MixingValveID'      => $this->idForIdent('Optional_Z1_Mixing_Valve'),
                 'z2PumpID'             => $this->idForIdent('Optional_Z2_Water_Pump'),
                 'z2MixingValveID'      => $this->idForIdent('Optional_Z2_Mixing_Valve'),
-                'contractVersion'      => '1.4'
+                'fan1SpeedID'          => $this->idForIdent('Fan1_Motor_Speed'),
+                'fan2SpeedID'          => $this->idForIdent('Fan2_Motor_Speed'),
+                'contractVersion'      => '1.5'
             ]
         ];
     }

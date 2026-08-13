@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.0 — 2026-08-13
+
+- `HEISHA_GetFunctions()` um Lüfterdrehzahl erweitert (contractVersion 1.4 → 1.5): `fan1SpeedID`, `fan2SpeedID` (U/min, 0 wenn nicht empfangen) — für Dashboards Anlagenschema-Animation des Außengeräts (Lüfter-Rotation statt Ersatzkopplung an die Verdichterfrequenz). Mit EMS abgestimmt. Rein additiv
+
 ## 1.8.0 — 2026-08-13
 
 - `HEISHA_GetFunctions()` um 4 weitere Felder erweitert (contractVersion 1.3 → 1.4): `z1PumpID`, `z1MixingValveID`, `z2PumpID`, `z2MixingValveID` — externe Heizkreispumpe/-Mischventil an der optionalen 2. Steuerplatine (physikalisch getrennt von der bereits vorhandenen internen Pumpe `pumpFlowID`/`pumpSpeedID`/`pumpDutyID`). Mit WPHub/Dashboard/EMS abgestimmt. Mischventil liefert eine Stellrichtung (Zu/Auf/Aus), keine absolute Position. Rein additiv

@@ -122,7 +122,9 @@ $functions = HEISHA_GetFunctions(12345);
 //     // Stellrichtung (0=Aus, 1=Zu, 2=Auf), keine absolute Position:
 //     'z1PumpID' => 34594, 'z1MixingValveID' => 34595,
 //     'z2PumpID' => 0, 'z2MixingValveID' => 0,   // 0 = keine Zone 2 vorhanden
-//     'contractVersion' => '1.4'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
+//     // Ab contractVersion 1.5: Luefterdrehzahl Aussengeraet in U/min:
+//     'fan1SpeedID' => 34596, 'fan2SpeedID' => 0,   // 0 = nur ein Luefter verbaut
+//     'contractVersion' => '1.5'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```
