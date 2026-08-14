@@ -210,6 +210,48 @@
                     ]
                 }
             ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "🆕 Extra commands (optional, requires large HeishaMon board / heat pump \"Optional PCB\" setting)",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "These are write-only commands - the heat pump does not report their state back, so the displayed value only reflects the last command sent, not a confirmation."
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "EnableExtraCommands",
+                    "caption": "Show extra command variables"
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Label",
+                            "caption": "SmartGrid mode digitally replicates the heat pump's native SG ready function (normally switched via physical dry contacts at the outdoor unit)."
+                        },
+                        {
+                            "type": "PopupButton",
+                            "caption": "?",
+                            "width": "70px",
+                            "popup": {
+                                "caption": "SmartGrid mode",
+                                "items": [
+                                    {
+                                        "type": "Label",
+                                        "caption": "Only takes effect if the heat pump's own service setting \"Optional PCB\" is set to Yes with the appropriate function selected - a different setting than the native \"SG ready\" service menu."
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "caption": "The two relays on the large HeishaMon board switch up to 230V/5A - typically used for an external thermostat contact, a pump, or similar low-power devices."
+                }
+            ]
         }
     ],
     "actions": [

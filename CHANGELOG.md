@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.10.0 — 2026-08-13
+
+- Neuer optionaler Bereich "Zusätzliche Befehle": Relais 1/2 der großen HeishaMon-Platine (`gpio/relay/one`/`two`) sowie SmartGrid-Modus (`SetSmartGridMode`) als digitaler Ersatz für die native SG-Ready-Funktion, die sonst nur über physische Trockenkontakte am Außengerät geschaltet werden kann (erfordert an der Wärmepumpe selbst die Service-Einstellung "Optional PCB" = Ja). Beides reine Schreibbefehle ohne Rückmeldung von der Anlage — Fund aus einer Nutzerrückmeldung im Symcon-Forum. Standardmäßig deaktiviert (Checkbox)
+
 ## 1.9.0 — 2026-08-13
 
 - `HEISHA_GetFunctions()` um Lüfterdrehzahl erweitert (contractVersion 1.4 → 1.5): `fan1SpeedID`, `fan2SpeedID` (U/min, 0 wenn nicht empfangen) — für Dashboards Anlagenschema-Animation des Außengeräts (Lüfter-Rotation statt Ersatzkopplung an die Verdichterfrequenz). Mit EMS abgestimmt. Rein additiv

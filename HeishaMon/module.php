@@ -19,9 +19,9 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.6.0';
+    private const NEWS_VERSION = '1.10.0';
     private const NEWS_ITEMS = [
-        'New: 1-Wire temperature sensors (e.g. DS18B20) connected to the HeishaMon are now detected automatically - no more manual MQTT variable setup needed.'
+        'New: optional extra commands (large board relays, SmartGrid mode as a digital SG ready replacement) - see "Extra commands" panel.'
     ];
     //Verweist derzeit auf die allgemeine Modul-Kategorie im Symcon-Forum, nicht auf einen
     //bestaetigten HeishaMon-eigenen Thread - bei Bedarf durch den konkreten Thread ersetzen.
@@ -51,6 +51,10 @@ class HeishaMon extends IPSModule
         //Sensoradresse, daher eigene Erkennungs-/Benennungsliste statt der festen TopicMap
         $this->RegisterPropertyString('OneWireSensors', '[]');
         $this->RegisterAttributeString('SeenOneWire', '[]');
+
+        //Zusaetzliche, reine Schreibbefehle ohne Rueckmeldung von der Waermepumpe (SmartGrid-
+        //Modus, Relais der grossen Platine) - optional, da nicht jede Anlage das unterstuetzt
+        $this->RegisterPropertyBoolean('EnableExtraCommands', false);
 
         //COP / Arbeitszahl: externe Messung ueber Stromzaehler (z.B. Shelly 3EM, Phase der Waermepumpe)
         $this->RegisterPropertyInteger('PowerVariable', 0);
@@ -322,6 +326,12 @@ class HeishaMon extends IPSModule
                 IPS_SetPosition($variableID, $oneWirePositions[$address]);
             }
         }
+
+        //Zusaetzliche Schreibbefehle: nur anlegen, wenn ausdruecklich aktiviert
+        $extraEnabled = $this->ReadPropertyBoolean('EnableExtraCommands');
+        $this->maintainSmartGridModeVariable($extraEnabled);
+        $this->maintainRelayVariable('GpioRelay1', $this->Translate('Relay 1 (large board)'), 260, $extraEnabled);
+        $this->maintainRelayVariable('GpioRelay2', $this->Translate('Relay 2 (large board)'), 261, $extraEnabled);
 
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->registerExternalMessages();
@@ -1120,6 +1130,23 @@ class HeishaMon extends IPSModule
 
     public function RequestAction($Ident, $Value)
     {
+        //Zusaetzliche Schreibbefehle liegen ausserhalb der TopicMap (keine Rueckmeldung von
+        //der Waermepumpe, daher kein passender Eintrag in getDefinitionByIdent)
+        if ($Ident === 'SmartGridMode') {
+            $this->SetValue($Ident, intval($Value));
+            $this->SendSetCommand('SetSmartGridMode', strval(intval($Value)));
+            return;
+        }
+        if ($Ident === 'GpioRelay1' || $Ident === 'GpioRelay2') {
+            $this->SetValue($Ident, boolval($Value));
+            $baseTopic = $this->ReadPropertyString('MQTTTopic');
+            if ($baseTopic !== '') {
+                $relayNumber = $Ident === 'GpioRelay1' ? 'one' : 'two';
+                $this->sendMQTT($baseTopic . '/gpio/relay/' . $relayNumber, boolval($Value) ? '1' : '0');
+            }
+            return;
+        }
+
         $definition = $this->getDefinitionByIdent($Ident);
         if ($definition === null) {
             throw new Exception($this->Translate('Unknown Ident: ') . $Ident);
@@ -1231,6 +1258,76 @@ class HeishaMon extends IPSModule
             }
         }
         $this->MaintainVariable($ident, $caption, VARIABLETYPE_FLOAT, $presentation, $position, $keep);
+    }
+
+    /**
+     * SmartGrid-Modus (HeishaMon-Befehl SetSmartGridMode) - reiner Schreibbefehl ohne
+     * Rueckmeldung von der Waermepumpe: setzt digital dieselben vier Betriebsarten, die
+     * sonst ueber physische Trockenkontakte am Aussengeraet (natives "SG ready") geschaltet
+     * werden. Voraussetzung an der Waermepumpe selbst: Service-Einstellung "Optional PCB" auf
+     * Ja. Angezeigter Wert spiegelt nur den zuletzt gesendeten Befehl, keine Bestaetigung.
+     */
+    private function maintainSmartGridModeVariable(bool $enabled)
+    {
+        $ident = 'SmartGridMode';
+        $variableID = @$this->GetIDForIdent($ident);
+        $options = [];
+        foreach ([
+            0 => 'Normal',
+            1 => 'Increased capacity 1',
+            2 => 'Heat pump and heater off',
+            3 => 'Increased capacity 2'
+        ] as $value => $optionCaption) {
+            $options[] = [
+                'Value'       => $value,
+                'Caption'     => $this->Translate($optionCaption),
+                'IconActive'  => false,
+                'Icon'        => '',
+                'ColorActive' => false,
+                'ColorValue'  => -1
+            ];
+        }
+        $presentation = ['PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION, 'OPTIONS' => json_encode($options)];
+        if ($enabled && $variableID !== false) {
+            $current = @IPS_GetVariablePresentation($variableID);
+            if (is_array($current) && $this->presentationMatches($current, $presentation)) {
+                return;
+            }
+        }
+        if (!$enabled && $variableID === false) {
+            return;
+        }
+        $this->MaintainVariable($ident, $this->Translate('SmartGrid mode'), VARIABLETYPE_INTEGER, $presentation, 259, $enabled);
+        if ($enabled) {
+            $this->EnableAction($ident);
+        }
+    }
+
+    /**
+     * Relais der grossen HeishaMon-Platine (gpio/relay/one bzw. .../two) - ebenfalls ein
+     * reiner Schreibbefehl ohne Rueckmeldung, unabhaengig vom SmartGrid-Modus.
+     */
+    private function maintainRelayVariable(string $ident, string $caption, int $position, bool $enabled)
+    {
+        $variableID = @$this->GetIDForIdent($ident);
+        $presentation = [
+            'PRESENTATION' => VARIABLE_PRESENTATION_SWITCH,
+            'CAPTION_ON'   => $this->Translate('On'),
+            'CAPTION_OFF'  => $this->Translate('Off')
+        ];
+        if ($enabled && $variableID !== false) {
+            $current = @IPS_GetVariablePresentation($variableID);
+            if (is_array($current) && $this->presentationMatches($current, $presentation)) {
+                return;
+            }
+        }
+        if (!$enabled && $variableID === false) {
+            return;
+        }
+        $this->MaintainVariable($ident, $caption, VARIABLETYPE_BOOLEAN, $presentation, $position, $enabled);
+        if ($enabled) {
+            $this->EnableAction($ident);
+        }
     }
 
     /**

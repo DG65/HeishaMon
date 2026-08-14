@@ -150,6 +150,7 @@ Wärmepumpen sind klassische §14a-steuerbare Verbrauchseinrichtungen. Der Verdi
 | `SetZ1HeatRequestTemperature` / `SetZ2HeatRequestTemperature` | Heizanforderung verschieben | Zusatzhebel |
 | `SetCurves` | Heiz-/Kühlkurven anpassen (auch über `HEISHA_SetCurves`) | Zusatzhebel |
 | `SetForceDHW` / `SetDHWTemp` | Warmwasserbereitung verschieben bzw. deren Solltemperatur senken | Zusatzhebel |
+| `SetSmartGridMode` | Digitaler SG-Ready-Ersatz — Normal/Überhöhung 1+2/WP+Heizstab aus (0-3), s. u. | Primärer Lasthebel (Alternative) |
 
 **Schutzbedingungen, die ein steuerndes Modul respektieren sollte** (beide live als Statusvariable lesbar):
 
@@ -157,6 +158,13 @@ Wärmepumpen sind klassische §14a-steuerbare Verbrauchseinrichtungen. Der Verdi
 - `Sterilization_State` (Legionellenschutz) darf **verschoben**, aber nicht dauerhaft unterdrückt werden — Hygiene hat Vorrang vor Optimierung.
 
 Hinweis: HeishaMon meldet nicht, wer einen Sollwert zuletzt geändert hat (MQTT kennt keinen Urheber). Ein steuerndes Modul sollte seine eigenen Vorgaben deshalb über einen Soll-/Ist-Abgleich verifizieren statt sie als dauerhaft gesetzt anzunehmen.
+
+## Zusätzliche Befehle (optional)
+
+Im Bereich **Zusätzliche Befehle** lassen sich zwei reine Schreibfunktionen als schaltbare Variablen aktivieren — die Wärmepumpe meldet ihren Zustand dabei **nicht zurück**, die Anzeige spiegelt nur den zuletzt gesendeten Befehl:
+
+- **SmartGrid-Modus**: bildet digital dieselben vier Betriebsarten nach, die sonst nur über physische Trockenkontakte am Außengerät geschaltet werden (natives "SG ready", Servicepunkt 16 in der Wärmepumpen-Bedienung). Wirkt nur, wenn an der Wärmepumpe selbst die Service-Einstellung **Optional PCB** auf **Ja** steht (ein anderer Menüpunkt als "SG ready" selbst) — sonst passiert nichts, ohne Fehlermeldung.
+- **Relais 1/2**: die beiden fest verbauten Relais der *großen* HeishaMon-Platine (`gpio/relay/one`/`two`), bis 230V/5A schaltbar — z. B. für einen externen Thermostatkontakt oder eine Pumpe. Nur vorhanden, wenn tatsächlich die große Platine verbaut ist; bei der kleinen Platine schalten diese Variablen ins Leere.
 
 ## Befehle per Skript
 
