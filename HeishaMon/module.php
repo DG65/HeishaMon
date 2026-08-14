@@ -327,6 +327,14 @@ class HeishaMon extends IPSModule
             }
         }
 
+        //Vereinheitlichte Betriebsart (Verbund-Enum, siehe SUITE.md) aus der Panasonic-
+        //Betriebsart ableiten - immer gefuehrt, analog Power_Total
+        $this->maintainOperatingModeNormVariable();
+        $rawModeID = @$this->GetIDForIdent('Operating_Mode_State');
+        if ($rawModeID !== false) {
+            $this->SetValue('Operating_Mode_Norm', $this->normalizeOperatingMode(intval(GetValue($rawModeID))));
+        }
+
         //Zusaetzliche Schreibbefehle: nur anlegen, wenn ausdruecklich aktiviert
         $extraEnabled = $this->ReadPropertyBoolean('EnableExtraCommands');
         $this->maintainSmartGridModeVariable($extraEnabled);
@@ -577,7 +585,8 @@ class HeishaMon extends IPSModule
         }
         //Modul-eigene Variablen ausserhalb der TopicMap
         $extraIdents = [
-            'Reachable'          => 'Operation',
+            'Reachable'           => 'Operation',
+            'Operating_Mode_Norm' => 'Operation',
             'Power_Total'        => 'Power & COP',
             'COP_Internal'       => 'Power & COP',
             'COP_Measured'       => 'Power & COP',
@@ -830,6 +839,11 @@ class HeishaMon extends IPSModule
                 break;
         }
 
+        //Vereinheitlichte Betriebsart (Verbund-Enum) nachfuehren
+        if ($subTopic == 'main/Operating_Mode_State' && @$this->GetIDForIdent('Operating_Mode_Norm') !== false) {
+            $this->SetValue('Operating_Mode_Norm', $this->normalizeOperatingMode(intval($payload)));
+        }
+
         //COP aus den HeishaMon-Schaetzwerten nachfuehren
         if (in_array($subTopic, [
             'main/Heat_Power_Production', 'main/Heat_Power_Consumption',
@@ -1062,9 +1076,19 @@ class HeishaMon extends IPSModule
      *            (main/Operating_Mode_State), Integer/Enum: 0=Nur Heizen, 1=Nur Kuehlen,
      *            2=Auto(Heizen), 3=Nur Warmwasser, 4=Heizen+WW, 5=Kuehlen+WW,
      *            6=Auto(Heizen)+WW, 7=Auto(Kuehlen), 8=Auto(Kuehlen)+WW, -1=unbekannt.
+     *            ROHER Panasonic-Enum, nur fuer Diagnose - Konsumenten sollten stattdessen
+     *            operatingModeNormID ablesen (herstellerneutral).
      *            Das ist die KONFIGURIERTE Betriebsart - ob gerade tatsaechlich gelaufen
      *            wird, zeigen compressorFreqID/PowerID; ob gerade Warmwasser bereitet wird,
      *            threeWayValveStateID.
+     *   operatingModeNormID Ab contractVersion 1.8: VEREINHEITLICHTE Betriebsart mit dem
+     *            Verbund-Enum des heatpump-Vertrags (SUITE.md): 0=standby, 1=heating,
+     *            2=cooling, 3=dhw, 4=heating+dhw, 5=cooling+dhw, -1=unbekannt. Zeigt auf
+     *            eine modul-gepflegte, abgeleitete Variable (Praezedenzfall Power_Total) -
+     *            jedes heatpump-Modul mappt seinen Hersteller-Enum selbst auf diese Werte,
+     *            Konsumenten muessen keine Herstellersemantik nachbauen. Auto-Modi werden
+     *            auf die aktuell aktive Richtung abgebildet; standby (0) liefert HeishaMon
+     *            nie (Panasonic kennt keine leere Betriebsart), andere Hersteller schon.
      *   z1MixingValvePositionID/z2MixingValvePositionID Ab contractVersion 1.7: absolute
      *            Position des Zone-1/2-Mischventils in Prozent (0-100, Float-Variable,
      *            main/Z1_Valve_PID bzw. Z2) - aussagekraeftiger als die Stellrichtungs-Felder
@@ -1117,10 +1141,11 @@ class HeishaMon extends IPSModule
                 'fan2SpeedID'          => $this->idForIdent('Fan2_Motor_Speed'),
                 'suctionTempID'        => $this->idForIdent('Eva_Outlet_Temp'),
                 'operatingModeID'      => $this->idForIdent('Operating_Mode_State'),
+                'operatingModeNormID'  => $this->idForIdent('Operating_Mode_Norm'),
                 'z1MixingValvePositionID' => $this->idForIdent('Z1_Valve_PID'),
                 'z2MixingValvePositionID' => $this->idForIdent('Z2_Valve_PID'),
                 'indoorPipeTempID'     => $this->idForIdent('Inside_Pipe_Temp'),
-                'contractVersion'      => '1.7'
+                'contractVersion'      => '1.8'
             ]
         ];
     }
@@ -1315,6 +1340,71 @@ class HeishaMon extends IPSModule
      * werden. Voraussetzung an der Waermepumpe selbst: Service-Einstellung "Optional PCB" auf
      * Ja. Angezeigter Wert spiegelt nur den zuletzt gesendeten Befehl, keine Bestaetigung.
      */
+    /**
+     * Vereinheitlichte Betriebsart mit dem VERBUND-Enum des heatpump-Vertrags (SUITE.md):
+     * 0=standby, 1=heating, 2=cooling, 3=dhw, 4=heating+dhw, 5=cooling+dhw, -1=unbekannt.
+     * Modul-gepflegte, abgeleitete Variable (Praezedenzfall Power_Total) - jedes
+     * Waermepumpen-Modul mappt seinen Hersteller-Enum selbst auf diese Werte, damit
+     * Konsumenten (z.B. NRGDashboard) keine Herstellersemantik nachbauen muessen.
+     */
+    private function maintainOperatingModeNormVariable()
+    {
+        $options = [];
+        foreach ([
+            -1 => 'Unknown',
+            0  => 'Standby',
+            1  => 'Heating',
+            2  => 'Cooling',
+            3  => 'Hot water',
+            4  => 'Heating + hot water',
+            5  => 'Cooling + hot water'
+        ] as $value => $optionCaption) {
+            $options[] = [
+                'Value'       => $value,
+                'Caption'     => $this->Translate($optionCaption),
+                'IconActive'  => false,
+                'Icon'        => '',
+                'ColorActive' => false,
+                'ColorValue'  => -1
+            ];
+        }
+        $presentation = ['PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION, 'OPTIONS' => json_encode($options)];
+        $variableID = @$this->GetIDForIdent('Operating_Mode_Norm');
+        if ($variableID !== false) {
+            $current = @IPS_GetVariablePresentation($variableID);
+            if (is_array($current) && $this->presentationMatches($current, $presentation)) {
+                return;
+            }
+        }
+        $this->MaintainVariable('Operating_Mode_Norm', $this->Translate('Operating mode (standardized)'), VARIABLETYPE_INTEGER, $presentation, 1, true);
+    }
+
+    /**
+     * Uebersetzt die Panasonic-Betriebsart (Operating_Mode_State, 0-8) in den Verbund-Enum.
+     * Auto-Modi werden auf ihre aktuell aktive Richtung (Heizen/Kuehlen) abgebildet.
+     */
+    private function normalizeOperatingMode(int $raw): int
+    {
+        switch ($raw) {
+            case 0: //Heat only
+            case 2: //Auto (Heat)
+                return 1;
+            case 1: //Cool only
+            case 7: //Auto (Cool)
+                return 2;
+            case 3: //DHW only
+                return 3;
+            case 4: //Heat + DHW
+            case 6: //Auto (Heat) + DHW
+                return 4;
+            case 5: //Cool + DHW
+            case 8: //Auto (Cool) + DHW
+                return 5;
+            default:
+                return -1;
+        }
+    }
+
     private function maintainSmartGridModeVariable(bool $enabled)
     {
         $ident = 'SmartGridMode';

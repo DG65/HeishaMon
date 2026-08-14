@@ -128,13 +128,16 @@ $functions = HEISHA_GetFunctions(12345);
 //     // bei Panasonic die beste verfuegbare Messstelle Eva_Outlet_Temp (Verdampferaustritt):
 //     'suctionTempID' => 34597,
 //     // Ab contractVersion 1.7: Betriebsart, Mischventil-Position und Innenrohr-Temperatur:
-//     'operatingModeID' => 34598,           // Enum 0-8 (0=Nur Heizen, 1=Nur Kuehlen, 2=Auto(Heizen),
-//                                           // 3=Nur WW, 4=Heizen+WW, 5=Kuehlen+WW, 6=Auto(Heizen)+WW,
-//                                           // 7=Auto(Kuehlen), 8=Auto(Kuehlen)+WW, -1=unbekannt)
+//     'operatingModeID' => 34598,           // ROHER Panasonic-Enum 0-8, nur fuer Diagnose -
+//                                           // zum Ablesen operatingModeNormID verwenden!
 //     'z1MixingValvePositionID' => 34599,   // Mischventil-Position 0-100 % (absolute Position,
 //     'z2MixingValvePositionID' => 0,       // im Gegensatz zur Stellrichtung in z1/z2MixingValveID)
 //     'indoorPipeTempID' => 34600,          // im Kuehlbetrieb die tatsaechlich kalte Kaeltemittelseite
-//     'contractVersion' => '1.7'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
+//     // Ab contractVersion 1.8: vereinheitlichte Betriebsart, herstellerneutraler Verbund-Enum
+//     // (SUITE.md): 0=standby, 1=heating, 2=cooling, 3=dhw, 4=heating+dhw, 5=cooling+dhw,
+//     // -1=unbekannt. Vom Modul aus dem Panasonic-Enum abgeleitet (Auto-Modi -> aktive Richtung):
+//     'operatingModeNormID' => 34601,
+//     'contractVersion' => '1.8'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```

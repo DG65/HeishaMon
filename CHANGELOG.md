@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.13.0 — 2026-08-14
+
+- Neue Variable **Betriebsart (vereinheitlicht)** + Vertragsfeld `operatingModeNormID` (contractVersion 1.7 → 1.8): herstellerneutraler Verbund-Enum (0=standby, 1=heating, 2=cooling, 3=dhw, 4=heating+dhw, 5=cooling+dhw, in SUITE.md festgeschrieben), vom Modul aus der Panasonic-Betriebsart abgeleitet — Konsumenten wie NRGDashboard müssen den rohen Hersteller-Enum nicht mehr selbst interpretieren (Einwand von Dashboard, Entscheid von EMS). `operatingModeID` (Rohwert) bleibt für Diagnose. Erscheint auch in der Verknüpfungsstruktur (Gruppe Betrieb)
+
 ## 1.12.0 — 2026-08-14
 
 - `HEISHA_GetFunctions()` erweitert (contractVersion 1.6 → 1.7, mit EMS/Dashboard abgestimmt, ausgelöst durch zwei Live-Funde auf Dietmars Anlage):
