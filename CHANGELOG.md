@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.12.0 — 2026-08-14
+
+- `HEISHA_GetFunctions()` erweitert (contractVersion 1.6 → 1.7, mit EMS/Dashboard abgestimmt, ausgelöst durch zwei Live-Funde auf Dietmars Anlage):
+  - `operatingModeID` — konfigurierte Betriebsart (Enum 0–8: Heizen/Kühlen/Auto/WW-Kombinationen); Konsumenten mussten den Kühlbetrieb bisher aus dem Vorzeichen der Spreizung ableiten
+  - `z1MixingValvePositionID`/`z2MixingValvePositionID` — absolute Mischventil-Position in Prozent (`Z1/Z2_Valve_PID`), aussagekräftiger als die bestehenden Stellrichtungs-Felder (die unverändert bleiben)
+  - `indoorPipeTempID` — Rohrtemperatur Inneneinheit, im Kühlbetrieb die tatsächlich kalte Kältemittelseite
+  - Quellenverbesserung `z1PumpID`/`z2PumpID`: bevorzugt jetzt `main/Z1/Z2_Pump_State` aus dem Kernprotokoll (meldet auch eine echte, physisch verbaute CZ-NS4P — die bisherigen `optional/...`-Emulations-Topics blieben bei echter Platine stumm), Emulations-Variablen als Fallback. Semantik unverändert
+
 ## 1.11.0 — 2026-08-14
 
 - `HEISHA_GetFunctions()` um `suctionTempID` erweitert (contractVersion 1.5 → 1.6): Sauggas-/Kaltgastemperatur als Gegenstück zur Heißgastemperatur, für Dashboards Kältekreis-Darstellung. Funktional-herstellerneutral benannt — bei Panasonic gibt es keinen expliziten Sauggas-Sensor, geliefert wird die beste verfügbare Messstelle `Eva_Outlet_Temp` (Verdampferaustritt, direkt vor dem Verdichter). Mit EMS/Dashboard abgestimmt. Rein additiv

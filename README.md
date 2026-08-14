@@ -127,7 +127,14 @@ $functions = HEISHA_GetFunctions(12345);
 //     // Ab contractVersion 1.6: Sauggas-/Kaltgastemperatur (Gegenstueck zu dischargeTempID);
 //     // bei Panasonic die beste verfuegbare Messstelle Eva_Outlet_Temp (Verdampferaustritt):
 //     'suctionTempID' => 34597,
-//     'contractVersion' => '1.6'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
+//     // Ab contractVersion 1.7: Betriebsart, Mischventil-Position und Innenrohr-Temperatur:
+//     'operatingModeID' => 34598,           // Enum 0-8 (0=Nur Heizen, 1=Nur Kuehlen, 2=Auto(Heizen),
+//                                           // 3=Nur WW, 4=Heizen+WW, 5=Kuehlen+WW, 6=Auto(Heizen)+WW,
+//                                           // 7=Auto(Kuehlen), 8=Auto(Kuehlen)+WW, -1=unbekannt)
+//     'z1MixingValvePositionID' => 34599,   // Mischventil-Position 0-100 % (absolute Position,
+//     'z2MixingValvePositionID' => 0,       // im Gegensatz zur Stellrichtung in z1/z2MixingValveID)
+//     'indoorPipeTempID' => 34600,          // im Kuehlbetrieb die tatsaechlich kalte Kaeltemittelseite
+//     'contractVersion' => '1.7'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```
@@ -139,6 +146,7 @@ Hinweise für Konsumenten:
 - `reachable` = `false`, wenn die Wärmepumpe gerade nicht erreichbar ist (MQTT-Verbindung verloren). `PowerID` wird in diesem Fall **nicht** zurückgesetzt, sondern friert beim letzten bekannten Wert ein — Konsumenten, die auf den Wert reagieren (z. B. Lastmanagement), sollten ihn bei `reachable = false` als potenziell veraltet behandeln.
 - Alle `*ID`-Felder sind 0, solange der zugehörige Datenpunkt nicht existiert (Anlage hat ihn nie gesendet oder er wurde in der Datenpunkt-Liste abgewählt) — immer auf `0` prüfen, bevor die Variable gelesen wird.
 - `pumpFlowID`/`pumpSpeedID`/`pumpDutyID`/`twoWayValveStateID` betreffen die **interne** Pumpe/das interne Ventil im Innengerät. `z1PumpID`/`z1MixingValveID`/`z2PumpID`/`z2MixingValveID` betreffen die davon getrennte **externe** Heizkreispumpe/-Mischventil an der optionalen 2. Steuerplatine — physikalisch unterschiedliche Komponenten, nicht verwechseln.
+- `z1PumpID`/`z2PumpID` speisen sich seit contractVersion 1.7 bevorzugt aus dem **Kernprotokoll** (`main/Z1/Z2_Pump_State`) — das meldet auch den Zustand einer **echten, physisch verbauten** CZ-NS4P, nicht nur der HeishaMon-eigenen Platinen-Emulation. Die `optional/...`-Emulations-Variablen bleiben als Fallback.
 - `z1MixingValveID`/`z2MixingValveID` liefern eine **Stellrichtung** (0=Aus, 1=Zu, 2=Auf), **keine absolute Position** — der Wert 0 ist daher zweideutig zwischen „kein Mischventil vorhanden" und „Ventil steht gerade still". Wer das unterscheiden muss, sollte zusätzlich `IPS_VariableExists()` auf die ID prüfen.
 
 ## §14a-Stellhebel (Lastmanagement / Steuerbox-Anbindung)

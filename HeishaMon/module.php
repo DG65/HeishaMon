@@ -1034,9 +1034,12 @@ class HeishaMon extends IPSModule
      *            Fuer eine externe, von der optionalen 2. Steuerplatine angesteuerte
      *            Heizkreis-Pumpe/-Mischventil siehe z1PumpID/z1MixingValveID unten - das ist
      *            physikalisch etwas anderes, nicht dieselbe Pumpe an anderer Stelle im Vertrag.
-     *   z1PumpID/z2PumpID Ab contractVersion 1.4: externe Zone-1/2-Heizkreispumpe an der
-     *            optionalen 2. Steuerplatine (optional/Z1_Water_Pump bzw. .../Z2_Water_Pump).
-     *            Boolean-Variable (An/Aus). 0, wenn keine optionale Platine verbaut ist/sendet.
+     *   z1PumpID/z2PumpID Ab contractVersion 1.4: externe Zone-1/2-Heizkreispumpe (An/Aus,
+     *            Boolean-Variable). Quelle seit contractVersion 1.7 priorisiert: bevorzugt
+     *            main/Z1_Pump_State bzw. main/Z2_Pump_State (Kernprotokoll - meldet auch den
+     *            Zustand einer ECHTEN, physisch verbauten CZ-NS4P), Fallback auf die
+     *            optional/...-Emulations-Variablen, falls nur diese existieren. Semantik
+     *            unveraendert. 0, wenn keine der Quellen Daten liefert.
      *   z1MixingValveID/z2MixingValveID Ab contractVersion 1.4: externes Zone-1/2-Mischventil
      *            an der optionalen 2. Steuerplatine. Integer-Variable mit STELLRICHTUNG, KEINER
      *            absoluten Position: 0=Aus, 1=Zu (Decrease), 2=Auf (Increase). 0-Wert also
@@ -1052,7 +1055,24 @@ class HeishaMon extends IPSModule
      *            der Sauggasseite - bei HeishaMon/Panasonic ist das main/Eva_Outlet_Temp
      *            (Verdampferaustritt, direkt vor dem Verdichter-Saugstutzen; einen explizit
      *            "Suction" benannten Sensor gibt es im Panasonic-Protokoll nicht).
-     *            0, wenn nicht empfangen.
+     *            0, wenn nicht empfangen. Achtung: gilt fuer den HEIZbetrieb - im
+     *            Kuehlbetrieb kehrt sich der Kaeltekreis um, dann ist indoorPipeTempID die
+     *            tatsaechlich kalte Seite.
+     *   operatingModeID Ab contractVersion 1.7: konfigurierte Betriebsart
+     *            (main/Operating_Mode_State), Integer/Enum: 0=Nur Heizen, 1=Nur Kuehlen,
+     *            2=Auto(Heizen), 3=Nur Warmwasser, 4=Heizen+WW, 5=Kuehlen+WW,
+     *            6=Auto(Heizen)+WW, 7=Auto(Kuehlen), 8=Auto(Kuehlen)+WW, -1=unbekannt.
+     *            Das ist die KONFIGURIERTE Betriebsart - ob gerade tatsaechlich gelaufen
+     *            wird, zeigen compressorFreqID/PowerID; ob gerade Warmwasser bereitet wird,
+     *            threeWayValveStateID.
+     *   z1MixingValvePositionID/z2MixingValvePositionID Ab contractVersion 1.7: absolute
+     *            Position des Zone-1/2-Mischventils in Prozent (0-100, Float-Variable,
+     *            main/Z1_Valve_PID bzw. Z2) - aussagekraeftiger als die Stellrichtungs-Felder
+     *            z1/z2MixingValveID, die unveraendert bestehen bleiben.
+     *   indoorPipeTempID Ab contractVersion 1.7: Rohrtemperatur der Inneneinheit in °C
+     *            (main/Inside_Pipe_Temp) - im Kuehlbetrieb die tatsaechlich kalte
+     *            Kaeltemittelseite am Waermetauscher (suctionTempID liegt dann auf der
+     *            warmen Verfluessigerseite).
      *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
      *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
@@ -1088,14 +1108,19 @@ class HeishaMon extends IPSModule
                 'compressorFreqID'     => $this->idForIdent('Compressor_Freq'),
                 'dischargeTempID'      => $this->idForIdent('Discharge_Temp'),
                 'defrostingStateID'    => $this->idForIdent('Defrosting_State'),
-                'z1PumpID'             => $this->idForIdent('Optional_Z1_Water_Pump'),
+                //Kernprotokoll bevorzugt (meldet auch eine echte CZ-NS4P), Emulation als Fallback
+                'z1PumpID'             => $this->firstIdForIdents(['Z1_Pump_State', 'Optional_Z1_Water_Pump']),
                 'z1MixingValveID'      => $this->idForIdent('Optional_Z1_Mixing_Valve'),
-                'z2PumpID'             => $this->idForIdent('Optional_Z2_Water_Pump'),
+                'z2PumpID'             => $this->firstIdForIdents(['Z2_Pump_State', 'Optional_Z2_Water_Pump']),
                 'z2MixingValveID'      => $this->idForIdent('Optional_Z2_Mixing_Valve'),
                 'fan1SpeedID'          => $this->idForIdent('Fan1_Motor_Speed'),
                 'fan2SpeedID'          => $this->idForIdent('Fan2_Motor_Speed'),
                 'suctionTempID'        => $this->idForIdent('Eva_Outlet_Temp'),
-                'contractVersion'      => '1.6'
+                'operatingModeID'      => $this->idForIdent('Operating_Mode_State'),
+                'z1MixingValvePositionID' => $this->idForIdent('Z1_Valve_PID'),
+                'z2MixingValvePositionID' => $this->idForIdent('Z2_Valve_PID'),
+                'indoorPipeTempID'     => $this->idForIdent('Inside_Pipe_Temp'),
+                'contractVersion'      => '1.7'
             ]
         ];
     }
@@ -1108,6 +1133,21 @@ class HeishaMon extends IPSModule
     {
         $variableID = @$this->GetIDForIdent($ident);
         return $variableID === false ? 0 : $variableID;
+    }
+
+    /**
+     * Erste existierende Variable aus einer Prioritaetenliste von Idents, 0 wenn keine
+     * vorhanden ist (z.B. Kernprotokoll bevorzugt, Emulations-Topic als Fallback).
+     */
+    private function firstIdForIdents(array $idents): int
+    {
+        foreach ($idents as $ident) {
+            $variableID = $this->idForIdent($ident);
+            if ($variableID !== 0) {
+                return $variableID;
+            }
+        }
+        return 0;
     }
 
     /**
