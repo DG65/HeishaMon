@@ -124,7 +124,10 @@ $functions = HEISHA_GetFunctions(12345);
 //     'z2PumpID' => 0, 'z2MixingValveID' => 0,   // 0 = keine Zone 2 vorhanden
 //     // Ab contractVersion 1.5: Luefterdrehzahl Aussengeraet in U/min:
 //     'fan1SpeedID' => 34596, 'fan2SpeedID' => 0,   // 0 = nur ein Luefter verbaut
-//     'contractVersion' => '1.5'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
+//     // Ab contractVersion 1.6: Sauggas-/Kaltgastemperatur (Gegenstueck zu dischargeTempID);
+//     // bei Panasonic die beste verfuegbare Messstelle Eva_Outlet_Temp (Verdampferaustritt):
+//     'suctionTempID' => 34597,
+//     'contractVersion' => '1.6'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```

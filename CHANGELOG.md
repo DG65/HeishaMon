@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.11.0 — 2026-08-14
+
+- `HEISHA_GetFunctions()` um `suctionTempID` erweitert (contractVersion 1.5 → 1.6): Sauggas-/Kaltgastemperatur als Gegenstück zur Heißgastemperatur, für Dashboards Kältekreis-Darstellung. Funktional-herstellerneutral benannt — bei Panasonic gibt es keinen expliziten Sauggas-Sensor, geliefert wird die beste verfügbare Messstelle `Eva_Outlet_Temp` (Verdampferaustritt, direkt vor dem Verdichter). Mit EMS/Dashboard abgestimmt. Rein additiv
+
 ## 1.10.0 — 2026-08-13
 
 - Neuer optionaler Bereich "Zusätzliche Befehle": Relais 1/2 der großen HeishaMon-Platine (`gpio/relay/one`/`two`) sowie SmartGrid-Modus (`SetSmartGridMode`) als digitaler Ersatz für die native SG-Ready-Funktion, die sonst nur über physische Trockenkontakte am Außengerät geschaltet werden kann (erfordert an der Wärmepumpe selbst die Service-Einstellung "Optional PCB" = Ja). Beides reine Schreibbefehle ohne Rückmeldung von der Anlage — Fund aus einer Nutzerrückmeldung im Symcon-Forum. Standardmäßig deaktiviert (Checkbox)

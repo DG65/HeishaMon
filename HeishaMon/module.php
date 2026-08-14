@@ -1046,6 +1046,13 @@ class HeishaMon extends IPSModule
      *   fan1SpeedID/fan2SpeedID Ab contractVersion 1.5: Luefterdrehzahl des Aussengeraets in
      *            U/min (main/Fan1_Motor_Speed bzw. main/Fan2_Motor_Speed - Fan2 nur bei
      *            groesseren Geraeten mit zwei Lueftern). 0, wenn nicht empfangen.
+     *   suctionTempID Ab contractVersion 1.6: Sauggas-/Kaltgastemperatur in °C, Gegenstueck
+     *            zur Heissgastemperatur (dischargeTempID). Funktional-herstellerneutral
+     *            benannt: jedes heatpump-Modul liefert seine beste verfuegbare Messstelle
+     *            der Sauggasseite - bei HeishaMon/Panasonic ist das main/Eva_Outlet_Temp
+     *            (Verdampferaustritt, direkt vor dem Verdichter-Saugstutzen; einen explizit
+     *            "Suction" benannten Sensor gibt es im Panasonic-Protokoll nicht).
+     *            0, wenn nicht empfangen.
      *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
      *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
@@ -1087,7 +1094,8 @@ class HeishaMon extends IPSModule
                 'z2MixingValveID'      => $this->idForIdent('Optional_Z2_Mixing_Valve'),
                 'fan1SpeedID'          => $this->idForIdent('Fan1_Motor_Speed'),
                 'fan2SpeedID'          => $this->idForIdent('Fan2_Motor_Speed'),
-                'contractVersion'      => '1.5'
+                'suctionTempID'        => $this->idForIdent('Eva_Outlet_Temp'),
+                'contractVersion'      => '1.6'
             ]
         ];
     }
