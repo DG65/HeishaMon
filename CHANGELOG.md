@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.13.1 — 2026-08-15
+
+- Mobile-App-Absturz behoben ("Invalid Configuration: type 'Null' is not a subtype of type 'int'" auf iPad/iPhone, z. B. bei der SmartGrid-Modus-Kachel) — Fund aus einer Nutzerrückmeldung im Symcon-Forum: alle Options-Darstellungen (Enums, Online/Offline-Status) nutzten den falschen Schlüssel `ColorValue` statt `Color`. Die Web-/Konsolen-Darstellung tolerierte das, die Mobile-App nicht (von Symcon im Community-Forum bestätigtes Muster). Bestehende Variablen werden beim Übernehmen der Konfiguration bzw. Modul-Update automatisch einmalig migriert
+
 ## 1.13.0 — 2026-08-14
 
 - Neue Variable **Betriebsart (vereinheitlicht)** + Vertragsfeld `operatingModeNormID` (contractVersion 1.7 → 1.8): herstellerneutraler Verbund-Enum (0=standby, 1=heating, 2=cooling, 3=dhw, 4=heating+dhw, 5=cooling+dhw, in SUITE.md festgeschrieben), vom Modul aus der Panasonic-Betriebsart abgeleitet — Konsumenten wie NRGDashboard müssen den rohen Hersteller-Enum nicht mehr selbst interpretieren (Einwand von Dashboard, Entscheid von EMS). `operatingModeID` (Rohwert) bleibt für Diagnose. Erscheint auch in der Verknüpfungsstruktur (Gruppe Betrieb)

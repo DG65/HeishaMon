@@ -69,7 +69,12 @@ class HeishaMon extends IPSModule
 
         $this->RegisterTimer('COPUpdate', 0, 'HEISHA_UpdateCOPCalculation($_IPS[\'TARGET\']);');
 
-        $this->RegisterVariableBoolean('Reachable', $this->Translate('Reachable'), [
+        $this->RegisterVariableBoolean('Reachable', $this->Translate('Reachable'), $this->reachablePresentation(), 0);
+    }
+
+    private function reachablePresentation(): array
+    {
+        return [
             'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
             'OPTIONS'      => json_encode([
                 [
@@ -77,19 +82,34 @@ class HeishaMon extends IPSModule
                     'Caption'     => 'Online',
                     'IconActive'  => false,
                     'Icon'        => '',
-                    'ColorActive' => true,
-                    'ColorValue'  => 65280
+                    'Color'       => 65280
                 ],
                 [
                     'Value'       => false,
                     'Caption'     => 'Offline',
                     'IconActive'  => false,
                     'Icon'        => '',
-                    'ColorActive' => true,
-                    'ColorValue'  => 16711680
+                    'Color'       => 16711680
                 ]
             ])
-        ], 0);
+        ];
+    }
+
+    /**
+     * Frischt die Reachable-Darstellung bestehender Installationen auf (nur bei Abweichung).
+     */
+    private function maintainReachablePresentation()
+    {
+        $variableID = @$this->GetIDForIdent('Reachable');
+        if ($variableID === false) {
+            return;
+        }
+        $presentation = $this->reachablePresentation();
+        $current = @IPS_GetVariablePresentation($variableID);
+        if (is_array($current) && $this->presentationMatches($current, $presentation)) {
+            return;
+        }
+        $this->MaintainVariable('Reachable', $this->Translate('Reachable'), VARIABLETYPE_BOOLEAN, $presentation, 0, true);
     }
 
     public function Destroy()
@@ -326,6 +346,11 @@ class HeishaMon extends IPSModule
                 IPS_SetPosition($variableID, $oneWirePositions[$address]);
             }
         }
+
+        //Reachable-Darstellung bestehender Installationen auffrischen (Migration des frueheren
+        //falschen Options-Schluessels "ColorValue" -> "Color"; die Variable entsteht in Create(),
+        //dort greift die Korrektur fuer Bestandsanlagen nie)
+        $this->maintainReachablePresentation();
 
         //Vereinheitlichte Betriebsart (Verbund-Enum, siehe SUITE.md) aus der Panasonic-
         //Betriebsart ableiten - immer gefuehrt, analog Power_Total
@@ -1364,8 +1389,7 @@ class HeishaMon extends IPSModule
                 'Caption'     => $this->Translate($optionCaption),
                 'IconActive'  => false,
                 'Icon'        => '',
-                'ColorActive' => false,
-                'ColorValue'  => -1
+                'Color'       => -1
             ];
         }
         $presentation = ['PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION, 'OPTIONS' => json_encode($options)];
@@ -1421,8 +1445,7 @@ class HeishaMon extends IPSModule
                 'Caption'     => $this->Translate($optionCaption),
                 'IconActive'  => false,
                 'Icon'        => '',
-                'ColorActive' => false,
-                'ColorValue'  => -1
+                'Color'       => -1
             ];
         }
         $presentation = ['PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION, 'OPTIONS' => json_encode($options)];
@@ -1516,16 +1539,14 @@ class HeishaMon extends IPSModule
                             'Caption'     => $this->Translate($definition['on'] ?? 'On'),
                             'IconActive'  => false,
                             'Icon'        => '',
-                            'ColorActive' => false,
-                            'ColorValue'  => -1
+                            'Color'       => -1
                         ],
                         [
                             'Value'       => false,
                             'Caption'     => $this->Translate($definition['off'] ?? 'Off'),
                             'IconActive'  => false,
                             'Icon'        => '',
-                            'ColorActive' => false,
-                            'ColorValue'  => -1
+                            'Color'       => -1
                         ]
                     ])
                 ];
@@ -1537,8 +1558,7 @@ class HeishaMon extends IPSModule
                     'Caption'     => $this->Translate('Unknown'),
                     'IconActive'  => false,
                     'Icon'        => '',
-                    'ColorActive' => false,
-                    'ColorValue'  => -1
+                    'Color'       => -1
                 ]];
                 foreach ($definition['options'] as $value => $optionCaption) {
                     $options[] = [
@@ -1546,8 +1566,7 @@ class HeishaMon extends IPSModule
                         'Caption'     => $this->Translate($optionCaption),
                         'IconActive'  => false,
                         'Icon'        => '',
-                        'ColorActive' => false,
-                        'ColorValue'  => -1
+                        'Color'       => -1
                     ];
                 }
                 return [
