@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.13.2 — 2026-08-16
+
+- Mischventil-Positionsvariablen verbessert (Beitrag der NRGDashboard-Sitzung, ausgelöst durch Dietmars Frage zum Prozentwert im Anlagenschema): `Z1/Z2_Valve_PID` zeigen jetzt das Suffix " %" und heißen "Mischventil Zone 1/2 Stellung" statt des Implementierungsdetails "Zone 1/2 Ventil PID". Bestehende Installationen: Suffix kommt automatisch beim Übernehmen; die Umbenennung über die Schaltfläche "Variablennamen aktualisieren" (erkennt den alten deutschen UND englischen Standardnamen, eigene Namen bleiben unangetastet)
+
 ## 1.13.1 — 2026-08-15
 
 - Mobile-App-Absturz behoben ("Invalid Configuration: type 'Null' is not a subtype of type 'int'" auf iPad/iPhone, z. B. bei der SmartGrid-Modus-Kachel) — Fund aus einer Nutzerrückmeldung im Symcon-Forum: alle Options-Darstellungen (Enums, Online/Offline-Status) nutzten den falschen Schlüssel `ColorValue` statt `Color`. Die Web-/Konsolen-Darstellung tolerierte das, die Mobile-App nicht (von Symcon im Community-Forum bestätigtes Muster). Bestehende Variablen werden beim Übernehmen der Konfiguration bzw. Modul-Update automatisch einmalig migriert

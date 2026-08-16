@@ -525,7 +525,13 @@ class HeishaMon extends IPSModule
         'Bivalent erweitert: Startverzögerung'        => 'Bivalent advanced start delay',
         'Bivalent erweitert: Starttemperatur'         => 'Bivalent advanced start temperature',
         'Bivalent erweitert: Stoppverzögerung'        => 'Bivalent advanced stop delay',
-        'Bivalent erweitert: Stopptemperatur'         => 'Bivalent advanced stop temperature'
+        'Bivalent erweitert: Stopptemperatur'         => 'Bivalent advanced stop temperature',
+        //Cap-Umbenennung v1.13.2 ("valve PID" -> "mixing valve position"): sowohl der alte
+        //deutsche als auch der alte englische Standardname muessen erkannt werden
+        'Zone 1 Ventil PID'                           => 'Zone 1 mixing valve position',
+        'Zone 2 Ventil PID'                           => 'Zone 2 mixing valve position',
+        'Zone 1 valve PID'                            => 'Zone 1 mixing valve position',
+        'Zone 2 valve PID'                            => 'Zone 2 mixing valve position'
     ];
 
     /**

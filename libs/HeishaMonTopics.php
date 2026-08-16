@@ -159,8 +159,8 @@ class HeishaMonTopics
             'main/Z2_Pump_State'                   => ['cap' => 'Zone 2 pump', 'kind' => 'bool', 'on' => 'Active', 'off' => 'Inactive'],
             'main/TwoWay_Valve_State'              => ['cap' => '2-way valve', 'kind' => 'bool', 'on' => 'On', 'off' => 'Off'],
             'main/ThreeWay_Valve_State2'           => ['cap' => '3-way valve (2nd definition)', 'kind' => 'enum', 'options' => [0 => 'Room', 1 => 'DHW']],
-            'main/Z1_Valve_PID'                    => ['cap' => 'Zone 1 valve PID', 'kind' => 'float', 'digits' => 1],
-            'main/Z2_Valve_PID'                    => ['cap' => 'Zone 2 valve PID', 'kind' => 'float', 'digits' => 1],
+            'main/Z1_Valve_PID'                    => ['cap' => 'Zone 1 mixing valve position', 'kind' => 'float', 'digits' => 1, 'suffix' => ' %'],
+            'main/Z2_Valve_PID'                    => ['cap' => 'Zone 2 mixing valve position', 'kind' => 'float', 'digits' => 1, 'suffix' => ' %'],
             'main/Bivalent_Control'                => ['cap' => 'Bivalent control', 'kind' => 'bool', 'on' => 'Enabled', 'off' => 'Disabled', 'set' => 'SetBivalentControl'],
             'main/Bivalent_Mode'                   => ['cap' => 'Bivalent mode', 'kind' => 'enum', 'set' => 'SetBivalentMode', 'options' => [
                 0 => 'Alternative', 1 => 'Parallel', 2 => 'Advanced parallel']],
