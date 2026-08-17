@@ -19,8 +19,9 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.17.0';
+    private const NEWS_VERSION = '1.18.0';
     private const NEWS_ITEMS = [
+        'New: energy saving rulesets - the module can deploy a parameterized short-cycle guard directly to the HeishaMon board, where it keeps running even without WiFi/IP-Symcon. See "Energy saving rulesets" panel.',
         'New: energy saving check - the module assesses the received unit settings (DHW target, backup heater enables, heating curve, cycling) against reference values. See "Energy saving check" panel.',
         'New: monitoring datapoints (power, temperatures, COP, defrost, compressor starts) are now archived automatically for time-series tiles - see "Archiving" panel to opt out.',
         'New: optional extra commands (large board relays, SmartGrid mode as a digital SG ready replacement) - see "Extra commands" panel.'
@@ -63,6 +64,12 @@ class HeishaMon extends IPSModule
         //eine spaetere Nutzer-Abwahl im Archiv-Handler nicht wieder ueberschrieben wird.
         $this->RegisterPropertyBoolean('ArchiveMonitoring', true);
         $this->RegisterAttributeString('ArchivedIdents', '[]');
+
+        //Energiespar-Regelwerke: Upload kuratierter Vorlagen auf die HeishaMon-Platine
+        //(laufen dort autonom weiter, auch wenn WLAN/IPS ausfallen)
+        $this->RegisterPropertyString('DeviceIP', '');
+        $this->RegisterPropertyInteger('GuardOffMinutes', 45);
+        $this->RegisterPropertyInteger('GuardMinOutsideTemp', 2);
 
         //COP / Arbeitszahl: externe Messung ueber Stromzaehler (z.B. Shelly 3EM, Phase der Waermepumpe)
         $this->RegisterPropertyInteger('PowerVariable', 0);
@@ -756,6 +763,67 @@ class HeishaMon extends IPSModule
             }
         }
         return $sum;
+    }
+
+    /**
+     * Erzeugt das parametrisierte Taktschutz-Regelwerk (Vorlage: Compressor-Short-Cycle-Guard
+     * aus dem HeishaMon-Repo, Examples/Rules/). Nach einem Verdichterstopp wird der
+     * Wiederanlauf fuer die konfigurierte Zeit unterdrueckt (Heizanforderung -5 als Sentinel),
+     * nur bei mildem Wetter und nicht waehrend einer Abtauung; faellt die Aussentemperatur
+     * unter die Schwelle, endet die Sperre sofort. Ein einziger Restore-Pfad (timer=1).
+     */
+    private function buildShortCycleGuardRules(int $offMinutes, int $minOutsideTemp): string
+    {
+        $seconds = max(60, $offMinutes * 60);
+        return "on System#Boot then\n" .
+            "   setTimer(1, 60);\n" .
+            "end\n\n" .
+            "on @Compressor_Freq then\n" .
+            "   if @Compressor_Freq == 0 && @Defrosting_State == 0 && @Outside_Temp >= $minOutsideTemp && @Z1_Heat_Request_Temp == 0 then\n" .
+            "      @SetZ1HeatRequestTemperature = -5;\n" .
+            "      setTimer(1, $seconds);\n" .
+            "   end\n" .
+            "end\n\n" .
+            "on timer=1 then\n" .
+            "   if @Z1_Heat_Request_Temp == -5 then\n" .
+            "      @SetZ1HeatRequestTemperature = 0;\n" .
+            "   end\n" .
+            "end\n\n" .
+            "on @Outside_Temp then\n" .
+            "   if @Outside_Temp < $minOutsideTemp && @Z1_Heat_Request_Temp == -5 then\n" .
+            "      setTimer(1, 1);\n" .
+            "   end\n" .
+            "end\n";
+    }
+
+    /**
+     * Spielt das parametrisierte Taktschutz-Regelwerk auf die HeishaMon-Platine
+     * (POST /saverules, gleiches Format wie deren eigene Weboberflaeche). ACHTUNG:
+     * ersetzt das komplette dort gespeicherte Regelwerk - die Firmware validiert den
+     * Upload selbst und behaelt bei Fehlern das alte Regelwerk.
+     */
+    public function DeployShortCycleGuard()
+    {
+        $deviceIP = trim($this->ReadPropertyString('DeviceIP'));
+        if ($deviceIP == '') {
+            echo $this->Translate('Please enter the HeishaMon IP address first.');
+            return;
+        }
+        $rules = $this->buildShortCycleGuardRules(
+            $this->ReadPropertyInteger('GuardOffMinutes'),
+            $this->ReadPropertyInteger('GuardMinOutsideTemp')
+        );
+        $result = @Sys_GetURLContentEx('http://' . $deviceIP . '/saverules', [
+            'Method'  => 'POST',
+            'Header'  => ['Content-Type: application/x-www-form-urlencoded'],
+            'Content' => http_build_query(['rules' => $rules]),
+            'Timeout' => 5000
+        ]);
+        if ($result === false) {
+            echo sprintf($this->Translate('Upload failed - HeishaMon at %s is not reachable via HTTP.'), $deviceIP);
+            return;
+        }
+        echo $this->Translate('Ruleset uploaded. HeishaMon validates it itself - an invalid ruleset is discarded and the previous one stays active (see the HeishaMon console for details).');
     }
 
     /**

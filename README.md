@@ -95,6 +95,14 @@ Hinweis: Läuft der Heizstab, steckt seine Wärme in der gemessenen thermischen 
 
 Der Bereich **💡 Energiespar-Prüfung** in der Instanz-Konfiguration bewertet die von der Anlage empfangenen Einstellwerte anhand von Richtwerten aus den dokumentierten [HeishaMon-Beispielregelwerken](https://github.com/heishamon/HeishaMon/tree/main/Examples/Rules) und dem Panasonic-Servicehandbuch: Taktverhalten (mittlere Laufzeit je Verdichterstart), Warmwasser-Sollwert und -Nachheizdelta, Heizstab-Freigabetemperatur und -Verzögerung, Heizgrenze, Heizkurven-Sollwert und Pumpenansteuerung. Die Prüfung ist **reine Anzeige** — es wird nichts verändert. Die bewerteten Werte sind Service-Einstellungen der Wärmepumpe: Änderungen bewusst vornehmen, im Zweifel mit dem Fachbetrieb.
 
+## Energiespar-Regelwerke (auf der Platine)
+
+Der Bereich **⚙️ Energiespar-Regelwerke** kann kuratierte Regelwerke direkt auf die HeishaMon-Platine spielen — sie laufen dort autonom weiter, auch wenn WLAN oder IP-Symcon ausfallen. Erste Vorlage ist der **Taktschutz** (nach dem dokumentierten [`Compressor-Short-Cycle-Guard`](https://github.com/heishamon/HeishaMon/tree/main/Examples/Rules/Compressor-Short-Cycle-Guard)): Nach jedem Verdichterstopp wird der Wiederanlauf für eine einstellbare Zeit (Standard 45 min) unterdrückt, sofern es draußen mild ist (Standard ≥ 2 °C) — weniger Starts bedeuten bessere Effizienz und längere Verdichter-Lebensdauer; bei Kälte endet die Sperre sofort.
+
+**Wichtig:** Das Aufspielen **ersetzt das komplette** auf der Platine gespeicherte Regelwerk. Wer dort eigene Regeln pflegt (z. B. das umfangreiche [Referenz-Regelwerk](https://github.com/heishamon/HeishaMon/tree/main/Examples/Rules/Jeisha-DHW-Radiators-Rowbuffer)), sollte diese Funktion nicht nutzen. Die HeishaMon-Firmware validiert jeden Upload selbst — ein ungültiges Regelwerk wird verworfen, das bisherige bleibt aktiv.
+
+Abgrenzung im NRG-Stack (mit EMS abgestimmt): Platinen-Regelwerke bilden die autonome **Schutz-Schicht** (Taktschutz, Rampen); die energetische **Planung** (wann Warmwasser, SmartGrid-Modus, Pausen) bleibt bei EMS/IP-Symcon — die Vorlagen enthalten deshalb bewusst keine Zeitplan-Blöcke.
+
 ## Elektrische Leistung & Integration in andere Module
 
 Das Modul führt eine Variable **Elektrische Leistung (gesamt)** (W). Sie enthält den gemessenen Wert des externen Stromzählers, sofern konfiguriert — andernfalls die Summe der HeishaMon-Schätzwerte (Heizen + Kühlen + Warmwasser). Damit gibt es unabhängig vom Messaufbau immer eine einzelne, verlässliche Leistungsvariable, z. B. für Visualisierungen, ein Energiemanagement oder eigene Automationen.

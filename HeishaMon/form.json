@@ -219,6 +219,66 @@
         },
         {
             "type": "ExpansionPanel",
+            "caption": "⚙️ Energy saving rulesets (optional, runs on the HeishaMon board)",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Curated rulesets are uploaded to the HeishaMon board and keep running there autonomously - even if WiFi or IP-Symcon fail. The firmware validates every upload itself; an invalid ruleset is discarded and the previous one stays active."
+                },
+                {
+                    "type": "Label",
+                    "caption": "⚠️ Deploying REPLACES the entire ruleset currently stored on the board. If you maintain your own rules there, do not use this."
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "DeviceIP",
+                    "caption": "HeishaMon IP address or hostname"
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "NumberSpinner",
+                            "name": "GuardOffMinutes",
+                            "caption": "Restart suppression after compressor stop",
+                            "suffix": " min",
+                            "minimum": 5,
+                            "maximum": 180
+                        },
+                        {
+                            "type": "NumberSpinner",
+                            "name": "GuardMinOutsideTemp",
+                            "caption": "Only above outside temperature",
+                            "suffix": " °C",
+                            "minimum": -10,
+                            "maximum": 15
+                        },
+                        {
+                            "type": "PopupButton",
+                            "caption": "?",
+                            "width": "70px",
+                            "popup": {
+                                "caption": "Short-cycle guard",
+                                "items": [
+                                    {
+                                        "type": "Label",
+                                        "caption": "After each compressor stop, the heat request is lowered for the configured time so the compressor does not restart immediately - fewer starts mean better efficiency and longer compressor life. Below the outside temperature threshold the suppression ends immediately (cold weather takes priority). Template: Compressor-Short-Cycle-Guard from the HeishaMon repository."
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "Button",
+                    "caption": "Deploy short-cycle guard to HeishaMon",
+                    "confirm": "This REPLACES the complete ruleset currently stored on the HeishaMon board with the short-cycle guard. The firmware validates the upload; an invalid ruleset is discarded. Continue?",
+                    "onClick": "HEISHA_DeployShortCycleGuard($id);"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
             "caption": "📊 Archiving (for monitoring tiles)",
             "items": [
                 {
