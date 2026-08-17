@@ -19,8 +19,9 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.16.0';
+    private const NEWS_VERSION = '1.17.0';
     private const NEWS_ITEMS = [
+        'New: energy saving check - the module assesses the received unit settings (DHW target, backup heater enables, heating curve, cycling) against reference values. See "Energy saving check" panel.',
         'New: monitoring datapoints (power, temperatures, COP, defrost, compressor starts) are now archived automatically for time-series tiles - see "Archiving" panel to opt out.',
         'New: optional extra commands (large board relays, SmartGrid mode as a digital SG ready replacement) - see "Extra commands" panel.'
     ];
@@ -138,6 +139,16 @@ class HeishaMon extends IPSModule
         });
         $this->patchFormElement($form['elements'], 'DocsPanel', function (&$element) {
             $element['caption'] = $this->Translate('📖  Documentation & help') . ' (' . $this->moduleVersion() . ')';
+        });
+        $this->patchFormElement($form['elements'], 'EnergyCheckPanel', function (&$element) {
+            $items = [[
+                'type'    => 'Label',
+                'caption' => $this->Translate('Assessment of the received unit settings against reference values from the documented HeishaMon example rulesets and the Panasonic service manual. Display only - nothing is changed. These are service settings of the heat pump: adjust them deliberately, when in doubt with your installer.')
+            ]];
+            foreach ($this->buildEnergySavingFindings() as $finding) {
+                $items[] = ['type' => 'Label', 'caption' => $finding[0] . ' ' . $finding[1]];
+            }
+            $element['items'] = $items;
         });
 
         //Forum-Hinweis am Ende, solange nicht bestaetigt
@@ -745,6 +756,86 @@ class HeishaMon extends IPSModule
             }
         }
         return $sum;
+    }
+
+    /**
+     * Energiespar-Pruefung: bewertet die von der Anlage empfangenen Einstellwerte gegen
+     * Richtwerte aus den dokumentierten HeishaMon-Beispielregelwerken (Examples/Rules/)
+     * und dem Panasonic-Servicehandbuch. Reine Anzeige - es wird nichts veraendert.
+     * Liefert Zeilen als [Symbol, Text]; Pruefungen ohne Datenbasis entfallen still.
+     */
+    private function buildEnergySavingFindings(): array
+    {
+        $value = function (string $ident) {
+            $variableID = @$this->GetIDForIdent($ident);
+            return $variableID === false ? null : GetValue($variableID);
+        };
+        $findings = [];
+
+        //Takt-Analyse aus den echten Zaehlern - der aussagekraeftigste Einzelbefund
+        $starts = $value('Operations_Counter');
+        $hours = $value('Operations_Hours');
+        if ($starts !== null && $hours !== null && $starts > 100 && $hours > 100) {
+            $hoursPerStart = $hours / $starts;
+            if ($hoursPerStart < 0.5) {
+                $findings[] = ['⚠️', sprintf($this->Translate('The unit short-cycles: on average %.1f minutes of runtime per compressor start. Frequent starts cost efficiency and compressor lifetime - consider the short-cycle guard ruleset and a flatter heating curve.'), $hoursPerStart * 60)];
+            } elseif ($hoursPerStart < 1.0) {
+                $findings[] = ['💡', sprintf($this->Translate('On average %.1f minutes of runtime per compressor start - acceptable, but longer runtimes would improve efficiency.'), $hoursPerStart * 60)];
+            } else {
+                $findings[] = ['✅', sprintf($this->Translate('Good runtime per compressor start (%.1f hours on average).'), $hoursPerStart)];
+            }
+        }
+
+        //Warmwasser-Sollwert
+        $dhwTarget = $value('DHW_Target_Temp');
+        if ($dhwTarget !== null && $dhwTarget > 0) {
+            if ($dhwTarget > 52) {
+                $findings[] = ['⚠️', sprintf($this->Translate('DHW target temperature %d °C is high - each degree less improves the COP noticeably. The reference ruleset uses 43-50 °C depending on outside temperature; legionella protection is covered by the sterilization program.'), $dhwTarget)];
+            } elseif ($dhwTarget > 50) {
+                $findings[] = ['💡', sprintf($this->Translate('DHW target temperature %d °C - a small reduction usually goes unnoticed and saves energy.'), $dhwTarget)];
+            } else {
+                $findings[] = ['✅', sprintf($this->Translate('DHW target temperature %d °C is in the efficient range.'), $dhwTarget)];
+            }
+        }
+
+        //Warmwasser-Nachheiz-Hysterese (negativ; kleiner Betrag = springt oft an)
+        $dhwDelta = $value('DHW_Heat_Delta');
+        if ($dhwDelta !== null && $dhwDelta < 0 && $dhwDelta > -5) {
+            $findings[] = ['💡', sprintf($this->Translate('DHW reheat delta %d K is narrow - the tank reheats often. A wider delta (e.g. -8 K) means fewer, longer DHW runs.'), $dhwDelta)];
+        }
+
+        //Heizstab-Freigaben
+        $heaterOutdoor = $value('Heater_On_Outdoor_Temp');
+        if ($heaterOutdoor !== null && $heaterOutdoor > -5) {
+            $findings[] = ['💡', sprintf($this->Translate('Backup heater is allowed from %d °C outside temperature - the electric heater is the most expensive heat source. If the heat pump covers the load on its own, a lower enable temperature saves money.'), $heaterOutdoor)];
+        }
+        $heaterDelay = $value('Heater_Delay_Time');
+        if ($heaterDelay !== null && $heaterDelay > 0 && $heaterDelay < 60) {
+            $findings[] = ['💡', sprintf($this->Translate('Backup heater delay is only %d minutes - a longer delay gives the compressor more time before the expensive heater kicks in.'), $heaterDelay)];
+        }
+
+        //Heizgrenze
+        $heatingOff = $value('Heating_Off_Outdoor_Temp');
+        if ($heatingOff !== null && $heatingOff > 17) {
+            $findings[] = ['💡', sprintf($this->Translate('Heating stays enabled up to %d °C outside temperature - lowering the heating-off threshold shortens the heating season.'), $heatingOff)];
+        }
+
+        //Vorlauf-Solltemperatur der Heizkurve
+        $curveHigh = $value('Z1_Heat_Curve_Target_High_Temp');
+        if ($curveHigh !== null && $curveHigh > 50) {
+            $findings[] = ['⚠️', sprintf($this->Translate('Heating curve target of %d °C flow temperature is very high - every degree of flow temperature costs roughly 2-3%% efficiency. Check whether a flatter curve still keeps the rooms warm.'), $curveHigh)];
+        }
+
+        //Pumpenansteuerung
+        $maxDuty = $value('Max_Pump_Duty');
+        if ($maxDuty !== null && $maxDuty > 200) {
+            $findings[] = ['💡', sprintf($this->Translate('Maximum pump duty %d is close to the limit - the reference ruleset caps it at 112 (quiet) / 170 (boost). A lower cap saves pump energy and noise; make sure the flow stays sufficient.'), $maxDuty)];
+        }
+
+        if (count($findings) == 0) {
+            $findings[] = ['✅', $this->Translate('No findings - either the settings look efficient or the relevant datapoints have not been received yet.')];
+        }
+        return $findings;
     }
 
     /**

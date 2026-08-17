@@ -91,6 +91,10 @@ Wird zusätzlich die Variable **Stromzähler: Gesamtwirkenergie der Wärmepumpe 
 
 Hinweis: Läuft der Heizstab, steckt seine Wärme in der gemessenen thermischen Leistung. Da nur die Wärmepumpen-Phase im Nenner steht, fällt der COP in diesen Phasen optisch zu gut aus — für die reine Verdichter-Bewertung ist das aber genau richtig.
 
+## Energiespar-Prüfung
+
+Der Bereich **💡 Energiespar-Prüfung** in der Instanz-Konfiguration bewertet die von der Anlage empfangenen Einstellwerte anhand von Richtwerten aus den dokumentierten [HeishaMon-Beispielregelwerken](https://github.com/heishamon/HeishaMon/tree/main/Examples/Rules) und dem Panasonic-Servicehandbuch: Taktverhalten (mittlere Laufzeit je Verdichterstart), Warmwasser-Sollwert und -Nachheizdelta, Heizstab-Freigabetemperatur und -Verzögerung, Heizgrenze, Heizkurven-Sollwert und Pumpenansteuerung. Die Prüfung ist **reine Anzeige** — es wird nichts verändert. Die bewerteten Werte sind Service-Einstellungen der Wärmepumpe: Änderungen bewusst vornehmen, im Zweifel mit dem Fachbetrieb.
+
 ## Elektrische Leistung & Integration in andere Module
 
 Das Modul führt eine Variable **Elektrische Leistung (gesamt)** (W). Sie enthält den gemessenen Wert des externen Stromzählers, sofern konfiguriert — andernfalls die Summe der HeishaMon-Schätzwerte (Heizen + Kühlen + Warmwasser). Damit gibt es unabhängig vom Messaufbau immer eine einzelne, verlässliche Leistungsvariable, z. B. für Visualisierungen, ein Energiemanagement oder eigene Automationen.

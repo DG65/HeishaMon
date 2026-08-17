@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.17.0 — 2026-08-17
+
+- Neuer Bereich **💡 Energiespar-Prüfung** (Dietmars Auftrag, Ebene B des Energiespar-Konzepts): bewertet die von der Anlage empfangenen Einstellwerte gegen Richtwerte aus den dokumentierten HeishaMon-Beispielregelwerken (`Examples/Rules/`) und dem Panasonic-Servicehandbuch — Takt-Analyse (Laufzeit je Verdichterstart aus den echten Zählern), Warmwasser-Sollwert und -Nachheizdelta, Heizstab-Freigabetemperatur und -Verzögerung, Heizgrenze, Heizkurven-Sollwert, Pumpenansteuerung. Reine Anzeige mit ✅/💡/⚠️-Befunden, es wird nichts verändert; Prüfungen ohne empfangene Datenbasis entfallen still. Regelwerk-Vorlagen-Verwaltung (Ebene A/C) folgt nach EMS-Abstimmung separat
+
 ## 1.16.0 — 2026-08-17
 
 - Automatische Archivierung der Monitoring-Datenpunkte (Anfrage der HeatMonitor-Kachel, nach Dietmars Test "Kachel zeigt nichts": ohne Archivdaten bleiben alle Zeitreihen-Ansichten leer). Neues Panel "📊 Archivierung": aktiviert per Standard das Logging für elektrische/thermische Leistung, Vorlauf/Rücklauf/Außentemperatur, COP (3×), Abtaustatus sowie Verdichter-Starts/-Betriebsstunden (letztere mit Zähler-Aggregation → Starts/Stunden je Periode). Nutzer-Hoheit gewahrt: jede Variable wird nur EINMAL aktiviert — eine spätere manuelle Abwahl im Archiv-Handler bleibt dauerhaft erhalten; die Checkbox stoppt künftige Aktivierungen, deaktiviert aber nichts rückwirkend

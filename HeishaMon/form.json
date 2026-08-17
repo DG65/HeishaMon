@@ -213,6 +213,12 @@
         },
         {
             "type": "ExpansionPanel",
+            "name": "EnergyCheckPanel",
+            "caption": "💡 Energy saving check",
+            "items": []
+        },
+        {
+            "type": "ExpansionPanel",
             "caption": "📊 Archiving (for monitoring tiles)",
             "items": [
                 {
