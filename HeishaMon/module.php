@@ -19,8 +19,9 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.10.0';
+    private const NEWS_VERSION = '1.16.0';
     private const NEWS_ITEMS = [
+        'New: monitoring datapoints (power, temperatures, COP, defrost, compressor starts) are now archived automatically for time-series tiles - see "Archiving" panel to opt out.',
         'New: optional extra commands (large board relays, SmartGrid mode as a digital SG ready replacement) - see "Extra commands" panel.'
     ];
     //Verweist derzeit auf die allgemeine Modul-Kategorie im Symcon-Forum, nicht auf einen
@@ -55,6 +56,12 @@ class HeishaMon extends IPSModule
         //Zusaetzliche, reine Schreibbefehle ohne Rueckmeldung von der Waermepumpe (SmartGrid-
         //Modus, Relais der grossen Platine) - optional, da nicht jede Anlage das unterstuetzt
         $this->RegisterPropertyBoolean('EnableExtraCommands', false);
+
+        //Automatische Archivierung der Monitoring-Datenpunkte (fuer Zeitreihen-Kacheln wie
+        //NRGDashboardHeatMonitor). Attribut merkt sich einmal aktivierte Variablen, damit
+        //eine spaetere Nutzer-Abwahl im Archiv-Handler nicht wieder ueberschrieben wird.
+        $this->RegisterPropertyBoolean('ArchiveMonitoring', true);
+        $this->RegisterAttributeString('ArchivedIdents', '[]');
 
         //COP / Arbeitszahl: externe Messung ueber Stromzaehler (z.B. Shelly 3EM, Phase der Waermepumpe)
         $this->RegisterPropertyInteger('PowerVariable', 0);
@@ -367,6 +374,9 @@ class HeishaMon extends IPSModule
         if ($rawModeID !== false) {
             $this->SetValue('Operating_Mode_Norm', $this->normalizeOperatingMode(intval(GetValue($rawModeID))));
         }
+
+        //Archivierung der Monitoring-Datenpunkte nachziehen (nur einmal je Variable)
+        $this->maintainMonitoringArchive();
 
         //Zusaetzliche Schreibbefehle: nur anlegen, wenn ausdruecklich aktiviert
         $extraEnabled = $this->ReadPropertyBoolean('EnableExtraCommands');
@@ -738,6 +748,67 @@ class HeishaMon extends IPSModule
     }
 
     /**
+     * Monitoring-Datenpunkte, die fuer Zeitreihen-Kacheln archiviert werden sollen.
+     * true = kumulativer Zaehler (Archiv-Aggregation "Zaehler": liefert den Zuwachs je
+     * Periode, z.B. Starts pro Tag), false = Momentanwert (Standard-Aggregation).
+     */
+    private const ARCHIVE_IDENTS = [
+        'Power_Total'        => false,
+        'Heat_Output_Total'  => false,
+        'Main_Inlet_Temp'    => false,
+        'Main_Outlet_Temp'   => false,
+        'Outside_Temp'       => false,
+        'Defrosting_State'   => false,
+        'COP_Measured'       => false,
+        'COP_Internal'       => false,
+        'COP_Today'          => false,
+        'Operations_Counter' => true,
+        'Operations_Hours'   => true
+    ];
+
+    /**
+     * Aktiviert die Archivierung der Monitoring-Datenpunkte - je Variable nur EINMAL
+     * (Attribut ArchivedIdents), damit eine spaetere manuelle Abwahl des Nutzers im
+     * Archiv-Handler erhalten bleibt (gleiche Nutzer-Hoheits-Logik wie bei Profilen).
+     * Das Abwaehlen der Formular-Option stoppt nur kuenftige Aktivierungen, bereits
+     * aktives Logging bleibt unangetastet.
+     */
+    private function maintainMonitoringArchive()
+    {
+        if (!$this->ReadPropertyBoolean('ArchiveMonitoring')) {
+            return;
+        }
+        $archives = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}');
+        if (count($archives) == 0) {
+            return;
+        }
+        $archiveID = $archives[0];
+        $done = json_decode($this->ReadAttributeString('ArchivedIdents'), true) ?: [];
+        $changed = false;
+        foreach (self::ARCHIVE_IDENTS as $ident => $isCounter) {
+            if (in_array($ident, $done)) {
+                continue;
+            }
+            $variableID = @$this->GetIDForIdent($ident);
+            if ($variableID === false) {
+                continue; //Variable existiert noch nicht - naechster Versuch bei Neuanlage
+            }
+            if (!AC_GetLoggingStatus($archiveID, $variableID)) {
+                AC_SetLoggingStatus($archiveID, $variableID, true);
+                if ($isCounter) {
+                    AC_SetAggregationType($archiveID, $variableID, 1);
+                }
+                $changed = true;
+            }
+            $done[] = $ident;
+        }
+        if ($changed) {
+            IPS_ApplyChanges($archiveID);
+        }
+        $this->WriteAttributeString('ArchivedIdents', json_encode($done));
+    }
+
+    /**
      * Fuehrt die thermische Gesamtleistung (Summe der Erzeugungswerte) als Variable nach.
      */
     private function updateHeatOutputTotal()
@@ -871,6 +942,10 @@ class HeishaMon extends IPSModule
             $this->maintainTopicVariable($ident, $subTopic, $definition);
             //neue Variable sofort in die Linkstruktur aufnehmen
             $this->maintainLinkTree();
+            //Monitoring-Datenpunkte direkt bei Neuanlage archivieren
+            if (array_key_exists($ident, self::ARCHIVE_IDENTS)) {
+                $this->maintainMonitoringArchive();
+            }
         }
 
         switch ($definition['kind']) {

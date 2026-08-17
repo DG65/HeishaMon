@@ -213,6 +213,21 @@
         },
         {
             "type": "ExpansionPanel",
+            "caption": "📊 Archiving (for monitoring tiles)",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Automatically archives the monitoring datapoints (power, flow/return/outside temperature, COP, defrost, compressor starts/hours) so time-series tiles like the NRG-Stack heat pump monitor can show day/week/month/year charts. Each variable is only activated once - if you later disable logging for a variable in the archive handler, it stays disabled."
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ArchiveMonitoring",
+                    "caption": "Archive monitoring datapoints automatically"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
             "caption": "🆕 Extra commands (optional, requires large HeishaMon board / heat pump \"Optional PCB\" setting)",
             "items": [
                 {

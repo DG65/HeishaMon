@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.16.0 — 2026-08-17
+
+- Automatische Archivierung der Monitoring-Datenpunkte (Anfrage der HeatMonitor-Kachel, nach Dietmars Test "Kachel zeigt nichts": ohne Archivdaten bleiben alle Zeitreihen-Ansichten leer). Neues Panel "📊 Archivierung": aktiviert per Standard das Logging für elektrische/thermische Leistung, Vorlauf/Rücklauf/Außentemperatur, COP (3×), Abtaustatus sowie Verdichter-Starts/-Betriebsstunden (letztere mit Zähler-Aggregation → Starts/Stunden je Periode). Nutzer-Hoheit gewahrt: jede Variable wird nur EINMAL aktiviert — eine spätere manuelle Abwahl im Archiv-Handler bleibt dauerhaft erhalten; die Checkbox stoppt künftige Aktivierungen, deaktiviert aber nichts rückwirkend
+
 ## 1.15.0 — 2026-08-17
 
 - Vertragsfelder für WP-Monitoring-Seiten (contractVersion 1.9 → 1.10, für die geplante Monitoring-Kachel im NRGDashboard nach OpenEnergyMonitor-Vorbild): `heatOutputPowerID` (neue Summenvariable **Thermische Leistung (gesamt)** = Heizen+Kühlen+WW-Erzeugung), `outsideTempID` (Außenfühler der WP), `compressorStartsID` (Starts-Zähler, für Takt-Analysen), `operationsHoursID` (Betriebsstunden). Rein additiv
