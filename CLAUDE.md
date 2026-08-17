@@ -50,6 +50,8 @@ Aktueller Forum-Link zeigt auf die allgemeine PHP-Module-Kategorie (`community.s
 
 Variablen-Idents werden **nie** umbenannt — sie sind die Schnittstelle für Skripte, Archiv und andere Module. Änderungen nur additiv. Dasselbe gilt für die Rückgabestruktur von `HEISHA_GetFunctions` (Erweiterung nur durch neue Felder).
 
+**Pflicht vor jeder neuen `HEISHA_GetFunctions`-Erweiterung (EMS-Anweisung, 17.08.2026):** Zuerst das „Kanonische Feldregister: Type=>'heatpump'-Vertrag" in `EMS/SUITE.md` prüfen (führt alle Felder mit Bedeutung, seit-Version und liefernden Modulen) und den neuen Feldnamen dort eintragen lassen (Meldung an EMS), BEVOR gebaut wird. Hintergrund: `outsideTempID` (wir) vs. `outdoorTemperatureID` (WPHub) war dieselbe Größe unter zwei Namen — die Drift entstand, weil niemand den Feld-Gesamtbestand beider Wärmepumpen-Module sah. Kanonisch ist seither `outsideTempID`; WPHub liefert übergangsweise beide.
+
 ## Zweige
 
 - `beta` — Entwicklung und schnelle Auslieferung an Tester (Installation per GitHub-URL)
