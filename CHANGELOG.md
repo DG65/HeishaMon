@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.15.0 — 2026-08-17
+
+- Vertragsfelder für WP-Monitoring-Seiten (contractVersion 1.9 → 1.10, für die geplante Monitoring-Kachel im NRGDashboard nach OpenEnergyMonitor-Vorbild): `heatOutputPowerID` (neue Summenvariable **Thermische Leistung (gesamt)** = Heizen+Kühlen+WW-Erzeugung), `outsideTempID` (Außenfühler der WP), `compressorStartsID` (Starts-Zähler, für Takt-Analysen), `operationsHoursID` (Betriebsstunden). Rein additiv
+
 ## 1.14.0 — 2026-08-17
 
 - `HEISHA_GetFunctions()` um COP/Arbeitszahl erweitert (contractVersion 1.8 → 1.9, mit EMS/Dashboard abgestimmt): `copEstimateID` (WP-eigene Schätzung), `copMeasuredID` (echte Messung via externem Zähler), `dailyPerformanceFactorID` (Tages-Arbeitszahl) — jeweils 0, wenn die Datenquelle nicht konfiguriert ist. Monats-/Jahres-Arbeitszahlen bewusst NICHT im Vertrag (EMS-Entscheid): Zeitraum-Aggregation über die kumulativen Werte ist Sache der Konsumenten (Archiv/GleitenderMittelwert). Rein additiv

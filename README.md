@@ -143,7 +143,13 @@ $functions = HEISHA_GetFunctions(12345);
 //     'copEstimateID' => 34602,            // WP-eigene Schaetzung (~200-W-Stufen, grob)
 //     'copMeasuredID' => 34603,            // echte Messung via externem Zaehler
 //     'dailyPerformanceFactorID' => 34604, // Tages-Arbeitszahl ab Mitternacht
-//     'contractVersion' => '1.9'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
+//     // Ab contractVersion 1.10: Felder fuer Monitoring-Seiten (Leistungs-/Temperatur-
+//     // Zeitreihen, Takt-Analyse):
+//     'heatOutputPowerID' => 34605,        // thermische Gesamtleistung in W (Summe Erzeugung)
+//     'outsideTempID' => 34606,            // Aussenfuehler der WP in °C
+//     'compressorStartsID' => 34607,       // kumulierte Verdichter-Starts
+//     'operationsHoursID' => 34608,        // kumulierte Betriebsstunden
+//     'contractVersion' => '1.10'  // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```

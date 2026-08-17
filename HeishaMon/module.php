@@ -287,6 +287,14 @@ class HeishaMon extends IPSModule
             'SUFFIX'       => ' W',
             'DIGITS'       => 0
         ], 199, true);
+        //Thermische Gesamtleistung (Heizen+Kuehlen+WW-Erzeugung) - fuer Monitoring-Seiten,
+        //die elektrische und thermische Leistung uebereinanderlegen (siehe GetFunctions)
+        $this->maintainCalculationVariable('Heat_Output_Total', $this->Translate('Thermal output (total)'), [
+            'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+            'SUFFIX'       => ' W',
+            'DIGITS'       => 0
+        ], 198, true);
+        $this->updateHeatOutputTotal();
         $this->maintainCalculationVariable('COP_Measured', $this->Translate('COP (measured)'), $copPresentation, 201, $powerID > 0);
         $this->maintainCalculationVariable('Heat_Energy_Today', $this->Translate('Heat energy today'), $kwhPresentation, 202, $energyID > 0);
         $this->maintainCalculationVariable('Power_Energy_Today', $this->Translate('Energy consumption today'), $kwhPresentation, 203, $energyID > 0);
@@ -618,6 +626,7 @@ class HeishaMon extends IPSModule
         $extraIdents = [
             'Reachable'           => 'Operation',
             'Operating_Mode_Norm' => 'Operation',
+            'Heat_Output_Total'   => 'Power & COP',
             'Power_Total'        => 'Power & COP',
             'COP_Internal'       => 'Power & COP',
             'COP_Measured'       => 'Power & COP',
@@ -726,6 +735,16 @@ class HeishaMon extends IPSModule
             }
         }
         return $sum;
+    }
+
+    /**
+     * Fuehrt die thermische Gesamtleistung (Summe der Erzeugungswerte) als Variable nach.
+     */
+    private function updateHeatOutputTotal()
+    {
+        if (@$this->GetIDForIdent('Heat_Output_Total') !== false) {
+            $this->SetValue('Heat_Output_Total', $this->getThermalPower());
+        }
     }
 
     private function getElectricalPower(): float
@@ -883,6 +902,7 @@ class HeishaMon extends IPSModule
         ])) {
             $this->updateInternalCOP();
             $this->updateTotalPower();
+            $this->updateHeatOutputTotal();
         }
         return '';
     }
@@ -1140,6 +1160,17 @@ class HeishaMon extends IPSModule
      *            Energiezaehler konfiguriert ist. Monats-/Jahres-Arbeitszahlen liefert der
      *            Vertrag BEWUSST nicht (EMS-Entscheid): Zeitraum-Aggregation ueber die
      *            kumulativen Werte ist Sache der Konsumenten (Archiv/GleitenderMittelwert).
+     *   heatOutputPowerID Ab contractVersion 1.10: thermische Gesamtleistung in W
+     *            (Heizen + Kuehlen + WW-Erzeugung, modul-gepflegte Summenvariable aus den
+     *            WP-eigenen Schaetzwerten, ~200-W-Stufen). Fuer Monitoring-Seiten, die
+     *            elektrische (PowerID) und thermische Leistung uebereinanderlegen.
+     *   outsideTempID Ab contractVersion 1.10: Aussentemperatur in °C (main/Outside_Temp,
+     *            Fuehler der Waermepumpe).
+     *   compressorStartsID Ab contractVersion 1.10: kumulierter Starts-Zaehler des
+     *            Verdichters (main/Operations_Counter) - fuer Takt-Analysen (Starts/Tag).
+     *   operationsHoursID Ab contractVersion 1.10: kumulierte Betriebsstunden
+     *            (main/Operations_Hours) - zusammen mit compressorStartsID ergibt sich die
+     *            mittlere Laufzeit je Start.
      *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
      *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
@@ -1191,7 +1222,11 @@ class HeishaMon extends IPSModule
                 'copEstimateID'        => $this->idForIdent('COP_Internal'),
                 'copMeasuredID'        => $this->idForIdent('COP_Measured'),
                 'dailyPerformanceFactorID' => $this->idForIdent('COP_Today'),
-                'contractVersion'      => '1.9'
+                'heatOutputPowerID'    => $this->idForIdent('Heat_Output_Total'),
+                'outsideTempID'        => $this->idForIdent('Outside_Temp'),
+                'compressorStartsID'   => $this->idForIdent('Operations_Counter'),
+                'operationsHoursID'    => $this->idForIdent('Operations_Hours'),
+                'contractVersion'      => '1.10'
             ]
         ];
     }
