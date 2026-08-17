@@ -137,7 +137,13 @@ $functions = HEISHA_GetFunctions(12345);
 //     // (SUITE.md): 0=standby, 1=heating, 2=cooling, 3=dhw, 4=heating+dhw, 5=cooling+dhw,
 //     // -1=unbekannt. Vom Modul aus dem Panasonic-Enum abgeleitet (Auto-Modi -> aktive Richtung):
 //     'operatingModeNormID' => 34601,
-//     'contractVersion' => '1.8'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
+//     // Ab contractVersion 1.9: COP/Arbeitszahl (je 0, wenn die Datenquelle fehlt).
+//     // Monats-/Jahreswerte bewusst nicht im Vertrag - Zeitraum-Aggregation ist
+//     // Konsumentensache (Archiv/GleitenderMittelwert):
+//     'copEstimateID' => 34602,            // WP-eigene Schaetzung (~200-W-Stufen, grob)
+//     'copMeasuredID' => 34603,            // echte Messung via externem Zaehler
+//     'dailyPerformanceFactorID' => 34604, // Tages-Arbeitszahl ab Mitternacht
+//     'contractVersion' => '1.9'   // Vertragsversion (NRG-Stack-Konvention, siehe SUITE.md)
 //   ]
 // ]
 ```

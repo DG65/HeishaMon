@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.14.0 — 2026-08-17
+
+- `HEISHA_GetFunctions()` um COP/Arbeitszahl erweitert (contractVersion 1.8 → 1.9, mit EMS/Dashboard abgestimmt): `copEstimateID` (WP-eigene Schätzung), `copMeasuredID` (echte Messung via externem Zähler), `dailyPerformanceFactorID` (Tages-Arbeitszahl) — jeweils 0, wenn die Datenquelle nicht konfiguriert ist. Monats-/Jahres-Arbeitszahlen bewusst NICHT im Vertrag (EMS-Entscheid): Zeitraum-Aggregation über die kumulativen Werte ist Sache der Konsumenten (Archiv/GleitenderMittelwert). Rein additiv
+
 ## 1.13.2 — 2026-08-16
 
 - Mischventil-Positionsvariablen verbessert (Beitrag der NRGDashboard-Sitzung, ausgelöst durch Dietmars Frage zum Prozentwert im Anlagenschema): `Z1/Z2_Valve_PID` zeigen jetzt das Suffix " %" und heißen "Mischventil Zone 1/2 Stellung" statt des Implementierungsdetails "Zone 1/2 Ventil PID". Bestehende Installationen: Suffix kommt automatisch beim Übernehmen; die Umbenennung über die Schaltfläche "Variablennamen aktualisieren" (erkennt den alten deutschen UND englischen Standardnamen, eigene Namen bleiben unangetastet)

@@ -1128,6 +1128,18 @@ class HeishaMon extends IPSModule
      *            (main/Inside_Pipe_Temp) - im Kuehlbetrieb die tatsaechlich kalte
      *            Kaeltemittelseite am Waermetauscher (suctionTempID liegt dann auf der
      *            warmen Verfluessigerseite).
+     *   copEstimateID Ab contractVersion 1.9: momentaner COP aus den WP-eigenen
+     *            Leistungs-Schaetzwerten (~200-W-Stufen, entsprechend grob - nicht mit
+     *            Nachkommastellen-Genauigkeit interpretieren). 0, wenn noch keine
+     *            Leistungswerte empfangen wurden.
+     *   copMeasuredID Ab contractVersion 1.9: momentaner COP aus Waermeleistung geteilt
+     *            durch den EXTERN gemessenen Stromverbrauch (konfigurierter Zaehler,
+     *            z.B. Shelly). 0, wenn kein externer Leistungszaehler konfiguriert ist.
+     *   dailyPerformanceFactorID Ab contractVersion 1.9: Tages-Arbeitszahl (Waermemenge
+     *            heute / Stromverbrauch heute, ab Mitternacht). 0, wenn kein externer
+     *            Energiezaehler konfiguriert ist. Monats-/Jahres-Arbeitszahlen liefert der
+     *            Vertrag BEWUSST nicht (EMS-Entscheid): Zeitraum-Aggregation ueber die
+     *            kumulativen Werte ist Sache der Konsumenten (Archiv/GleitenderMittelwert).
      *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
      *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
@@ -1176,7 +1188,10 @@ class HeishaMon extends IPSModule
                 'z1MixingValvePositionID' => $this->idForIdent('Z1_Valve_PID'),
                 'z2MixingValvePositionID' => $this->idForIdent('Z2_Valve_PID'),
                 'indoorPipeTempID'     => $this->idForIdent('Inside_Pipe_Temp'),
-                'contractVersion'      => '1.8'
+                'copEstimateID'        => $this->idForIdent('COP_Internal'),
+                'copMeasuredID'        => $this->idForIdent('COP_Measured'),
+                'dailyPerformanceFactorID' => $this->idForIdent('COP_Today'),
+                'contractVersion'      => '1.9'
             ]
         ];
     }
