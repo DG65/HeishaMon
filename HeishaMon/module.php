@@ -19,8 +19,9 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.18.0';
+    private const NEWS_VERSION = '1.19.0';
     private const NEWS_ITEMS = [
+        'New: reboot watchdog - after a prolonged MQTT outage the module can restart the HeishaMon board via its /reboot endpoint. See "Reboot watchdog" panel.',
         'New: energy saving rulesets - the module can deploy a parameterized short-cycle guard directly to the HeishaMon board, where it keeps running even without WiFi/IP-Symcon. See "Energy saving rulesets" panel.',
         'New: energy saving check - the module assesses the received unit settings (DHW target, backup heater enables, heating curve, cycling) against reference values. See "Energy saving check" panel.',
         'New: monitoring datapoints (power, temperatures, COP, defrost, compressor starts) are now archived automatically for time-series tiles - see "Archiving" panel to opt out.',
@@ -70,6 +71,16 @@ class HeishaMon extends IPSModule
         $this->RegisterPropertyString('DeviceIP', '');
         $this->RegisterPropertyInteger('GuardOffMinutes', 45);
         $this->RegisterPropertyInteger('GuardMinOutsideTemp', 2);
+
+        //Neustart-Watchdog: stoesst nach laengerem MQTT-Ausfall einen Platinen-Neustart
+        //ueber den /reboot-Endpunkt der Firmware an (hilft, wenn MQTT haengt, aber der
+        //Webserver noch antwortet - bei komplettem Netzverlust greift die Firmware-eigene
+        //Reconnect-Logik). Cooldown gegen Neustart-Schleifen.
+        $this->RegisterPropertyBoolean('RebootWatchdog', false);
+        $this->RegisterPropertyInteger('RebootWatchdogMinutes', 10);
+        $this->RegisterAttributeInteger('OfflineSince', 0);
+        $this->RegisterAttributeInteger('LastRebootAttempt', 0);
+        $this->RegisterTimer('RebootWatchdog', 0, 'HEISHA_CheckRebootWatchdog($_IPS[\'TARGET\']);');
 
         //COP / Arbeitszahl: externe Messung ueber Stromzaehler (z.B. Shelly 3EM, Phase der Waermepumpe)
         $this->RegisterPropertyInteger('PowerVariable', 0);
@@ -327,6 +338,10 @@ class HeishaMon extends IPSModule
         $this->updateTotalPower();
 
         $this->SetTimerInterval('COPUpdate', $energyID > 0 ? 60000 : 0);
+
+        //Neustart-Watchdog nur mit aktivierter Option und eingetragener Platinen-IP
+        $watchdogActive = $this->ReadPropertyBoolean('RebootWatchdog') && trim($this->ReadPropertyString('DeviceIP')) != '';
+        $this->SetTimerInterval('RebootWatchdog', $watchdogActive ? 60000 : 0);
 
         $this->SendDebug('VariableList', $this->ReadPropertyString('VariableList'), 0);
 
@@ -822,6 +837,53 @@ class HeishaMon extends IPSModule
     }
 
     /**
+     * Neustart-Watchdog (Timer, minuetlich): Ist die Waermepumpe laenger als konfiguriert
+     * per MQTT offline, wird ueber den /reboot-Endpunkt der Firmware ein Platinen-Neustart
+     * angestossen. Hilft im haeufigsten Haenger-Fall (MQTT tot, Webserver antwortet noch);
+     * ist die Platine komplett vom Netz, greift die Firmware-eigene Reconnect-Logik.
+     * 30 Minuten Cooldown zwischen Versuchen, gegen Neustart-Schleifen.
+     */
+    public function CheckRebootWatchdog()
+    {
+        $reachableID = @$this->GetIDForIdent('Reachable');
+        if ($reachableID !== false && (bool) GetValue($reachableID)) {
+            $this->WriteAttributeInteger('OfflineSince', 0);
+            return;
+        }
+        $offlineSince = $this->ReadAttributeInteger('OfflineSince');
+        if ($offlineSince == 0) {
+            //offline ohne bekannten Beginn (z.B. IPS-Neustart wahrend Offline-Phase)
+            $this->WriteAttributeInteger('OfflineSince', time());
+            return;
+        }
+        $threshold = max(2, $this->ReadPropertyInteger('RebootWatchdogMinutes')) * 60;
+        if (time() - $offlineSince < $threshold) {
+            return;
+        }
+        if (time() - $this->ReadAttributeInteger('LastRebootAttempt') < 1800) {
+            return;
+        }
+        $this->WriteAttributeInteger('LastRebootAttempt', time());
+        $deviceIP = trim($this->ReadPropertyString('DeviceIP'));
+        $result = $this->sendHttpGet('http://' . $deviceIP . '/reboot');
+        $this->LogMessage(
+            $result === false
+                ? sprintf($this->Translate('Reboot watchdog: heat pump offline for %d minutes, but HeishaMon at %s does not respond to HTTP either - a power cycle may be required.'), intdiv(time() - $offlineSince, 60), $deviceIP)
+                : sprintf($this->Translate('Reboot watchdog: heat pump offline for %d minutes - restart of the HeishaMon board triggered.'), intdiv(time() - $offlineSince, 60)),
+            KL_WARNING
+        );
+    }
+
+    /**
+     * HTTP-GET, gleiche Stream-Basis wie sendHttpPost. Rueckgabe: Antwort-Body oder false.
+     */
+    protected function sendHttpGet(string $url)
+    {
+        $context = stream_context_create(['http' => ['method' => 'GET', 'timeout' => 5]]);
+        return @file_get_contents($url, false, $context);
+    }
+
+    /**
      * HTTP-POST als Formulardaten. Bewusst ueber PHP-Streams statt Sys_GetURLContentEx -
      * letzteres kennt laut IPS-Doku nur Timeout/Auth/SSL-Optionen und ignoriert
      * Method/Content stillschweigend (es ginge ein GET raus, den der HeishaMon-Webserver
@@ -1082,7 +1144,14 @@ class HeishaMon extends IPSModule
 
         //Verfuegbarkeit (Last Will Topic)
         if ($subTopic == 'LWT') {
-            $this->SetValue('Reachable', $payload == 'Online');
+            $online = $payload == 'Online';
+            $this->SetValue('Reachable', $online);
+            //Offline-Beginn fuer den Neustart-Watchdog festhalten
+            if ($online) {
+                $this->WriteAttributeInteger('OfflineSince', 0);
+            } elseif ($this->ReadAttributeInteger('OfflineSince') == 0) {
+                $this->WriteAttributeInteger('OfflineSince', time());
+            }
             return '';
         }
 

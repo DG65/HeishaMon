@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.19.0 — 2026-08-18
+
+- Neuer Bereich **🔄 Neustart-Watchdog** (Dietmars Wunsch nach Selbstheilung bei Netzwerk-Hängern; Rules können das nicht — die Engine hat weder eine Neustart-Funktion noch WLAN-Sichtbarkeit, im Firmware-Code verifiziert): Bleibt die Wärmepumpe länger als eingestellt (Standard 10 min) per MQTT offline, stößt das Modul über den `/reboot`-Endpunkt der Firmware einen Platinen-Neustart an. Höchstens ein Versuch je 30 Minuten (Schutz vor Neustart-Schleifen); klare Log-Meldung, wenn auch HTTP nicht mehr antwortet (dann hilft nur Stromtrennung). Standardmäßig aus (Opt-in), nutzt die Platinen-IP aus dem Regelwerke-Bereich
+
 ## 1.18.1 — 2026-08-18
 
 - Regelwerk-Upload repariert: der Upload schlug mit "nicht erreichbar" fehl, obwohl die Platine antwortete — `Sys_GetURLContentEx` kennt laut IPS-Doku nur Timeout-/Auth-/SSL-Optionen und ignorierte die `Method`/`Content`-Parameter stillschweigend (es ging ein GET statt POST raus, den der HeishaMon-Webserver ablehnt). Der POST läuft jetzt über PHP-Streams

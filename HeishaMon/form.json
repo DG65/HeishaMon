@@ -279,6 +279,29 @@
         },
         {
             "type": "ExpansionPanel",
+            "caption": "🔄 Reboot watchdog (optional)",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "If the heat pump stays offline via MQTT for longer than the configured time, the module triggers a restart of the HeishaMon board via its /reboot endpoint (uses the IP address entered above). This helps in the most common hang (MQTT dead, web server still responding); if the board has dropped off the network entirely, its firmware keeps reconnecting on its own and only a power cycle helps. At most one restart attempt every 30 minutes."
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "RebootWatchdog",
+                    "caption": "Restart HeishaMon automatically after prolonged MQTT outage"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "RebootWatchdogMinutes",
+                    "caption": "Trigger after offline duration of",
+                    "suffix": " min",
+                    "minimum": 2,
+                    "maximum": 120
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
             "caption": "📊 Archiving (for monitoring tiles)",
             "items": [
                 {
