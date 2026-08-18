@@ -813,17 +813,31 @@ class HeishaMon extends IPSModule
             $this->ReadPropertyInteger('GuardOffMinutes'),
             $this->ReadPropertyInteger('GuardMinOutsideTemp')
         );
-        $result = @Sys_GetURLContentEx('http://' . $deviceIP . '/saverules', [
-            'Method'  => 'POST',
-            'Header'  => ['Content-Type: application/x-www-form-urlencoded'],
-            'Content' => http_build_query(['rules' => $rules]),
-            'Timeout' => 5000
-        ]);
+        $result = $this->sendHttpPost('http://' . $deviceIP . '/saverules', http_build_query(['rules' => $rules]));
         if ($result === false) {
             echo sprintf($this->Translate('Upload failed - HeishaMon at %s is not reachable via HTTP.'), $deviceIP);
             return;
         }
         echo $this->Translate('Ruleset uploaded. HeishaMon validates it itself - an invalid ruleset is discarded and the previous one stays active (see the HeishaMon console for details).');
+    }
+
+    /**
+     * HTTP-POST als Formulardaten. Bewusst ueber PHP-Streams statt Sys_GetURLContentEx -
+     * letzteres kennt laut IPS-Doku nur Timeout/Auth/SSL-Optionen und ignoriert
+     * Method/Content stillschweigend (es ginge ein GET raus, den der HeishaMon-Webserver
+     * ablehnt). Rueckgabe: Antwort-Body oder false.
+     */
+    protected function sendHttpPost(string $url, string $body)
+    {
+        $context = stream_context_create([
+            'http' => [
+                'method'  => 'POST',
+                'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
+                'content' => $body,
+                'timeout' => 5
+            ]
+        ]);
+        return @file_get_contents($url, false, $context);
     }
 
     /**

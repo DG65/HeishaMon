@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.18.1 — 2026-08-18
+
+- Regelwerk-Upload repariert: der Upload schlug mit "nicht erreichbar" fehl, obwohl die Platine antwortete — `Sys_GetURLContentEx` kennt laut IPS-Doku nur Timeout-/Auth-/SSL-Optionen und ignorierte die `Method`/`Content`-Parameter stillschweigend (es ging ein GET statt POST raus, den der HeishaMon-Webserver ablehnt). Der POST läuft jetzt über PHP-Streams
+
 ## 1.18.0 — 2026-08-17
 
 - Neuer Bereich **⚙️ Energiespar-Regelwerke** (Ebene A des Energiespar-Konzepts, EMS-Schichtung abgestimmt: Platinen-Regelwerke = autonome Schutz-Schicht, Planung bleibt bei EMS/IPS — Stellhebel-Konflikt geprüft, EMS nutzt `SetZ1HeatRequestTemperature` nicht): Das Modul kann einen **parametrisierten Taktschutz** (Vorlage: `Compressor-Short-Cycle-Guard` aus dem HeishaMon-Repo; Sperrzeit und Außentemperatur-Schwelle einstellbar) per HTTP direkt auf die HeishaMon-Platine spielen (`POST /saverules`, gleiches Format wie deren Weboberfläche) — läuft dort autonom weiter, auch wenn WLAN/IPS ausfallen. Deutliche Warnung im Formular + Bestätigungsdialog: der Upload ersetzt das komplette auf der Platine gespeicherte Regelwerk; die Firmware validiert selbst und behält bei Fehlern das alte. Neue Properties: HeishaMon-IP, Sperrzeit (Standard 45 min), Außentemperatur-Schwelle (Standard 2 °C)
