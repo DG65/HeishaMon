@@ -63,7 +63,7 @@ class HeishaMon extends IPSModule
         $this->RegisterPropertyBoolean('EnableExtraCommands', false);
 
         //Automatische Archivierung der Monitoring-Datenpunkte (fuer Zeitreihen-Kacheln wie
-        //NRGDashboardHeatMonitor). Attribut merkt sich einmal aktivierte Variablen, damit
+        //NRGDashboardWPMonitor). Attribut merkt sich einmal aktivierte Variablen, damit
         //eine spaetere Nutzer-Abwahl im Archiv-Handler nicht wieder ueberschrieben wird.
         $this->RegisterPropertyBoolean('ArchiveMonitoring', true);
         $this->RegisterAttributeString('ArchivedIdents', '[]');
