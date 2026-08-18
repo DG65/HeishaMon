@@ -247,4 +247,5 @@ Dieses Modul ist Teil des **NRG-Stack** und steht unter der [PolyForm Noncommerc
 
 - Private und nicht-kommerzielle Nutzung ist frei.
 - **Gewerbliche Nutzung** erfordert eine gesonderte Lizenz vom Rechteinhaber (Kontakt: DG65).
-- Spenden sind ausdrücklich willkommen und rein freiwillig (Kanal folgt).
+- Der Wechsel wirkt nur nach vorn: bereits unter MIT veröffentlichte Altversionen (bis Version 1.2.0) bleiben MIT.
+- Spenden sind ausdrücklich willkommen und rein freiwillig: [paypal.me/DietmarGureth](https://paypal.me/DietmarGureth)

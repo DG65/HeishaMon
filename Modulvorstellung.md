@@ -65,12 +65,16 @@ Alles Weitere (Zähler, Verknüpfungsstruktur, Regelwerke, Watchdog) ist optiona
 
 ## Lizenz
 
-Ab Version 1.2 steht das Modul — wie alle Module des NRG-Stack — unter der **PolyForm Noncommercial License 1.0.0**:
+Wie alle Module des NRG-Stack:
 
-- **Private / nicht-kommerzielle Nutzung ist frei** — das deckt die gesamte Symcon-Hobby-Community ab, für Euch ändert sich nichts.
-- **Gewerbliche Nutzung** (z. B. durch Integratoren/Dienstleister) erfordert eine gesonderte Lizenz vom Rechteinhaber (DG65) — bei Interesse einfach per PN melden.
-- Die bereits unter MIT veröffentlichten Altversionen (bis v1.1.1) bleiben MIT.
-- Der vollständige Lizenztext liegt als [LICENSE im Repo](https://github.com/DG65/NRGHeishaMon/blob/beta/LICENSE).
+> Lizenz: PolyForm Noncommercial 1.0.0 — private/nicht-kommerzielle Nutzung
+> ist frei, gewerbliche Nutzung erfordert eine gesonderte Lizenz vom
+> Rechteinhaber (DG65). Der Wechsel wirkt nur nach vorn: bereits unter MIT
+> veröffentlichte Altversionen (bis Version 1.2.0) bleiben MIT. Der
+> vollständige Lizenztext liegt im Repo (LICENSE). Spenden sind willkommen:
+> [paypal.me/DietmarGureth](https://paypal.me/DietmarGureth).
+
+Für die Symcon-Hobby-Community ändert sich damit nichts — private Nutzung bleibt komplett frei. Gewerbliche Interessenten (Integratoren/Dienstleister) melden sich einfach per PN.
 
 ## Haftung
 
