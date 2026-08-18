@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.20.0 — 2026-08-18
+
+- Abschlusspaket nach vollständiger Repo-/Integrations-Durchsicht (Lückenvergleich mit Home Assistant, openHAB, Domoticz, ioBroker, Node-RED):
+  - **Platinen-Diagnose** aus dem bisher ignorierten `stats`-Topic der Firmware: WLAN-Qualität, Laufzeit seit Neustart, MQTT-Neuverbindungen, Bus-Lesequalität (Anteil fehlerfreier Datagramme), aktive Regeln, Firmware-Version — als Variablen in der neuen Gruppe **Platinen-Diagnose**, WLAN-Qualität und MQTT-Neuverbindungen automatisch archiviert (Datenbasis für die Aussetzer-Analyse). Aktive Regeln zeigt zudem, ob das aufgespielte Taktschutz-Regelwerk läuft
+  - **S0-Zähler** direkt an der Platine (GPIO12/GPIO14): Leistung und Gesamtenergie je Port als Datenpunkte (neue Gruppe **S0-Zähler**); die Gesamtenergie wird von Wh auf kWh skaliert und taugt damit direkt als Quelle für den externen Energiezähler der COP-Berechnung — echte Messung ganz ohne zusätzlichen Shelly
+  - Generischer `scale`-Faktor in der Topic-Definition (für die Wh→kWh-Umrechnung)
+
 ## 1.19.0 — 2026-08-18
 
 - Neuer Bereich **🔄 Neustart-Watchdog** (Dietmars Wunsch nach Selbstheilung bei Netzwerk-Hängern; Rules können das nicht — die Engine hat weder eine Neustart-Funktion noch WLAN-Sichtbarkeit, im Firmware-Code verifiziert): Bleibt die Wärmepumpe länger als eingestellt (Standard 10 min) per MQTT offline, stößt das Modul über den `/reboot`-Endpunkt der Firmware einen Platinen-Neustart an. Höchstens ein Versuch je 30 Minuten (Schutz vor Neustart-Schleifen); klare Log-Meldung, wenn auch HTTP nicht mehr antwortet (dann hilft nur Stromtrennung). Standardmäßig aus (Opt-in), nutzt die Platinen-IP aus dem Regelwerke-Bereich

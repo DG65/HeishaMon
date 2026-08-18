@@ -56,6 +56,14 @@ Die Zeilen lassen sich durch **Ziehen mit der Maus sortieren** — die Variablen
 
 Temperatursensoren (z. B. DS18B20) am 1-Wire-Bus des HeishaMon senden auf einem eigenen, adressabhängigen Topic statt der festen Themenliste der Wärmepumpe. Das Modul erkennt sie automatisch, sobald ein erster Messwert eintrifft, und trägt sie im Bereich **1-Wire-Sensoren** mit ihrer Bus-Adresse ein. Dort lässt sich pro Sensor ein sprechender **Name** vergeben (z. B. "Vorlauf Pufferspeicher") und die Aktivierung wie bei den übrigen Datenpunkten steuern. Ohne vergebenen Namen erscheint zunächst ein generischer Platzhalter mit den letzten vier Stellen der Adresse.
 
+## S0-Zähler
+
+Die HeishaMon-Platine kann bis zu zwei S0-Stromzähler direkt auswerten (GPIO12 und GPIO14, siehe HeishaMon-Doku). Das Modul legt dafür je Port **Leistung** (W) und **Gesamtenergie** (kWh, aus den Wh-Rohwerten umgerechnet) als Datenpunkte an. Wer den Stromverbrauch der Wärmepumpe über einen solchen S0-Zähler misst, kann die Gesamtenergie-Variable direkt als **Energiezähler im Bereich "Externer Stromzähler"** auswählen — echte COP-/Arbeitszahl-Messung ganz ohne zusätzlichen Messaktor.
+
+## Platinen-Diagnose
+
+Aus dem `stats`-Topic der Firmware pflegt das Modul die Gruppe **Platinen-Diagnose**: WLAN-Qualität (%), Laufzeit seit Platinen-Neustart, MQTT-Neuverbindungen, Bus-Lesequalität (Anteil fehlerfreier Datagramme vom CN-CNT-Bus), aktive Regeln (zeigt u. a., ob das aufgespielte Taktschutz-Regelwerk läuft) und Firmware-Version. WLAN-Qualität und MQTT-Neuverbindungen werden automatisch archiviert — bei Verbindungsabbrüchen zeigt der Verlauf, ob schwaches WLAN, MQTT-Hänger, heimliche Neustarts (Laufzeit-Sprünge) oder Busfehler (Lesequalität) die Ursache sind.
+
 ## Verknüpfungsstruktur (gruppierte Ansicht)
 
 Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen — im WebFront wird daraus schnell eine lange, unübersichtliche Liste. Für eine übersichtliche, gruppierte WebFront-Navigation kann das Modul optional eine **Verknüpfungsstruktur** pflegen: Im Bereich **Verknüpfungsstruktur** die Option **Verknüpfungsstruktur erzeugen** aktivieren und eine **Zielkategorie** wählen (am besten eine, die selbst im WebFront sichtbar ist). Das Modul legt dort einen Kategoriebaum an:
@@ -71,7 +79,9 @@ Statusvariablen müssen in IP-Symcon flach unter der Instanz liegen — im WebFr
     ├── Gerätewerte
     ├── Anlagenkonfiguration
     ├── Optionale Platine
-    └── 1-Wire-Sensoren
+    ├── S0-Zähler
+    ├── 1-Wire-Sensoren
+    └── Platinen-Diagnose
 ```
 
 Darin liegen Verknüpfungen auf alle **aktiven** Datenpunkte (inklusive Schaltbarkeit — eine Verknüpfung auf die Warmwasser-Solltemperatur bleibt z. B. ein Schieberegler). Wird ein Datenpunkt in der Liste abgewählt, verschwindet seine Verknüpfung automatisch; neu empfangene Datenpunkte werden sofort einsortiert. Leere Gruppen werden entfernt.

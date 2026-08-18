@@ -192,6 +192,14 @@ class HeishaMonTopics
             'optional/Pool_Water_Pump'             => ['cap' => 'Optional PCB: Pool water pump', 'kind' => 'bool', 'on' => 'On', 'off' => 'Off'],
             'optional/Solar_Water_Pump'            => ['cap' => 'Optional PCB: Solar water pump', 'kind' => 'bool', 'on' => 'On', 'off' => 'Off'],
             'optional/Alarm_State'                 => ['cap' => 'Optional PCB: Alarm', 'kind' => 'bool', 'on' => 'On', 'off' => 'Off'],
+
+            // S0-Zaehler direkt an der Platine (GPIO12/GPIO14); WatthourTotal kommt in Wh
+            // und wird auf kWh skaliert, damit die Variable direkt als Energiezaehler-Quelle
+            // der COP-Berechnung taugt
+            's0/Watt/1'                            => ['cap' => 'S0 meter 1 power', 'kind' => 'int', 'suffix' => ' W'],
+            's0/Watt/2'                            => ['cap' => 'S0 meter 2 power', 'kind' => 'int', 'suffix' => ' W'],
+            's0/WatthourTotal/1'                   => ['cap' => 'S0 meter 1 energy total', 'kind' => 'float', 'suffix' => ' kWh', 'digits' => 3, 'scale' => 0.001],
+            's0/WatthourTotal/2'                   => ['cap' => 'S0 meter 2 energy total', 'kind' => 'float', 'suffix' => ' kWh', 'digits' => 3, 'scale' => 0.001],
         ];
     }
 
@@ -201,7 +209,7 @@ class HeishaMonTopics
      */
     public static function groupOrder(): array
     {
-        return ['Operation', 'Heating', 'Cooling', 'DHW', 'Power & COP', 'Device values', 'System configuration', 'Optional PCB', '1-Wire sensors'];
+        return ['Operation', 'Heating', 'Cooling', 'DHW', 'Power & COP', 'Device values', 'System configuration', 'Optional PCB', 'S0 meters', '1-Wire sensors', 'Board diagnostics'];
     }
 
     /**
@@ -214,7 +222,13 @@ class HeishaMonTopics
                 return $group;
             }
         }
-        return strpos($topic, 'optional/') === 0 ? 'Optional PCB' : 'Device values';
+        if (strpos($topic, 'optional/') === 0) {
+            return 'Optional PCB';
+        }
+        if (strpos($topic, 's0/') === 0) {
+            return 'S0 meters';
+        }
+        return 'Device values';
     }
 
     /**

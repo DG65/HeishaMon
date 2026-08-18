@@ -19,8 +19,10 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.19.0';
+    private const NEWS_VERSION = '1.20.0';
     private const NEWS_ITEMS = [
+        'New: board diagnostics - WiFi quality, uptime, MQTT reconnects, bus read quality, active rules and firmware version from the HeishaMon stats topic, as variables in the new "Board diagnostics" group.',
+        'New: S0 meters connected directly to the HeishaMon board (power + energy total in kWh) are now available as datapoints - usable as source for the measured COP.',
         'New: reboot watchdog - after a prolonged MQTT outage the module can restart the HeishaMon board via its /reboot endpoint. See "Reboot watchdog" panel.',
         'New: energy saving rulesets - the module can deploy a parameterized short-cycle guard directly to the HeishaMon board, where it keeps running even without WiFi/IP-Symcon. See "Energy saving rulesets" panel.',
         'New: energy saving check - the module assesses the received unit settings (DHW target, backup heater enables, heating curve, cycling) against reference values. See "Energy saving check" panel.',
@@ -667,9 +669,15 @@ class HeishaMon extends IPSModule
         }
         //Modul-eigene Variablen ausserhalb der TopicMap
         $extraIdents = [
-            'Reachable'           => 'Operation',
-            'Operating_Mode_Norm' => 'Operation',
-            'Heat_Output_Total'   => 'Power & COP',
+            'Reachable'             => 'Operation',
+            'Operating_Mode_Norm'   => 'Operation',
+            'Heat_Output_Total'     => 'Power & COP',
+            'Stats_WifiQuality'     => 'Board diagnostics',
+            'Stats_Uptime'          => 'Board diagnostics',
+            'Stats_MqttReconnects'  => 'Board diagnostics',
+            'Stats_ReadQuality'     => 'Board diagnostics',
+            'Stats_RulesActive'     => 'Board diagnostics',
+            'Stats_FirmwareVersion' => 'Board diagnostics',
             'Power_Total'        => 'Power & COP',
             'COP_Internal'       => 'Power & COP',
             'COP_Measured'       => 'Power & COP',
@@ -998,7 +1006,11 @@ class HeishaMon extends IPSModule
         'COP_Internal'       => false,
         'COP_Today'          => false,
         'Operations_Counter' => true,
-        'Operations_Hours'   => true
+        'Operations_Hours'   => true,
+        //Platinen-Diagnose: Verlauf von WLAN-Qualitaet und MQTT-Neuverbindungen ist die
+        //Datenbasis fuer die Aussetzer-Analyse
+        'Stats_WifiQuality'     => false,
+        'Stats_MqttReconnects'  => true
     ];
 
     /**
@@ -1162,6 +1174,12 @@ class HeishaMon extends IPSModule
             return '';
         }
 
+        //Platinen-Diagnose: HeishaMon publiziert zyklisch ein Status-JSON auf <base>/stats
+        if ($subTopic == 'stats') {
+            $this->receiveStats($payload);
+            return '';
+        }
+
         $topics = HeishaMonTopics::topics();
         if (!array_key_exists($subTopic, $topics)) {
             if ($this->ReadPropertyBoolean('DebugUnknownTopics')) {
@@ -1199,7 +1217,8 @@ class HeishaMon extends IPSModule
                 $this->SetValue($ident, intval($payload));
                 break;
             case 'float':
-                $this->SetValue($ident, floatval($payload));
+                //optionaler Skalierungsfaktor (z.B. S0-WatthourTotal: Wh -> kWh)
+                $this->SetValue($ident, floatval($payload) * ($definition['scale'] ?? 1));
                 break;
             default:
                 $this->SetValue($ident, $payload);
@@ -1222,6 +1241,77 @@ class HeishaMon extends IPSModule
             $this->updateHeatOutputTotal();
         }
         return '';
+    }
+
+    /**
+     * Platinen-Diagnose aus dem stats-JSON der Firmware: WLAN-Qualitaet, Laufzeit,
+     * MQTT-Neuverbindungen, Bus-Lesequalitaet (Anteil fehlerfreier Datagramme),
+     * aktive Regeln und Firmware-Version. Genau die Werte, die bei Verbindungs-
+     * abbruechen die Ursache eingrenzen (schwaches WLAN? MQTT-Haenger? Neustarts?
+     * Kabel-/CRC-Fehler?).
+     */
+    private function receiveStats(string $payload)
+    {
+        $data = json_decode($payload, true);
+        if (!is_array($data)) {
+            return;
+        }
+        $percentPresentation = ['PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION, 'SUFFIX' => ' %', 'DIGITS' => 0];
+        if (array_key_exists('wifi', $data)) {
+            $this->maintainStatsVariable('Stats_WifiQuality', $this->Translate('WiFi quality'), VARIABLETYPE_INTEGER, $percentPresentation, 3000);
+            $this->SetValue('Stats_WifiQuality', intval($data['wifi']));
+        }
+        if (array_key_exists('uptime', $data)) {
+            $this->maintainStatsVariable('Stats_Uptime', $this->Translate('Uptime since board restart'), VARIABLETYPE_FLOAT, [
+                'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION, 'SUFFIX' => ' h', 'DIGITS' => 1
+            ], 3001);
+            $this->SetValue('Stats_Uptime', round(floatval($data['uptime']) / 3600000, 1));
+        }
+        if (array_key_exists('mqtt reconnects', $data)) {
+            $this->maintainStatsVariable('Stats_MqttReconnects', $this->Translate('MQTT reconnects'), VARIABLETYPE_INTEGER, [
+                'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION, 'DIGITS' => 0
+            ], 3002);
+            $this->SetValue('Stats_MqttReconnects', intval($data['mqtt reconnects']));
+        }
+        if (array_key_exists('total reads', $data) && intval($data['total reads']) > 0) {
+            $this->maintainStatsVariable('Stats_ReadQuality', $this->Translate('Bus read quality'), VARIABLETYPE_FLOAT, [
+                'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION, 'SUFFIX' => ' %', 'DIGITS' => 1
+            ], 3003);
+            $this->SetValue('Stats_ReadQuality', round(intval($data['good reads'] ?? 0) / intval($data['total reads']) * 100, 1));
+        }
+        if (array_key_exists('rules active', $data)) {
+            $this->maintainStatsVariable('Stats_RulesActive', $this->Translate('Active rules'), VARIABLETYPE_INTEGER, [
+                'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION, 'DIGITS' => 0
+            ], 3004);
+            $this->SetValue('Stats_RulesActive', intval($data['rules active']));
+        }
+        if (array_key_exists('version', $data)) {
+            $this->maintainStatsVariable('Stats_FirmwareVersion', $this->Translate('Firmware version'), VARIABLETYPE_STRING, [
+                'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION
+            ], 3005);
+            $this->SetValue('Stats_FirmwareVersion', strval($data['version']));
+        }
+        //Diagnose-Variablen ggf. nachtraeglich archivieren (WifiQuality/MqttReconnects)
+        $this->maintainMonitoringArchive();
+    }
+
+    /**
+     * Legt eine Diagnose-Variable an bzw. aktualisiert die Darstellung nur bei Abweichung.
+     */
+    private function maintainStatsVariable(string $ident, string $caption, int $type, array $presentation, int $position)
+    {
+        $variableID = @$this->GetIDForIdent($ident);
+        if ($variableID !== false) {
+            $current = @IPS_GetVariablePresentation($variableID);
+            if (is_array($current) && $this->presentationMatches($current, $presentation)) {
+                return;
+            }
+        }
+        $this->MaintainVariable($ident, $caption, $type, $presentation, $position, true);
+        if ($variableID === false) {
+            //neue Diagnose-Variable sofort in die Linkstruktur aufnehmen
+            $this->maintainLinkTree();
+        }
     }
 
     /**
