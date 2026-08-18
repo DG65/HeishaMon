@@ -8,11 +8,55 @@
             "items": [
                 {
                     "type": "Label",
-                    "caption": "Variables are created automatically as soon as HeishaMon publishes the corresponding topics."
+                    "caption": "🔌 Connection: The instance runs below an MQTT server/client (splitter) and receives everything HeishaMon publishes. The only mandatory setting is the MQTT base topic - it must match the base topic configured in HeishaMon's own web interface exactly (default of both sides: panasonic_heat_pump). Everything else in this form is optional."
                 },
                 {
                     "type": "Label",
-                    "caption": "Deactivated datapoints are hidden - object ID and archive data remain. New topics are only created while activated. Reorder rows by drag & drop - variables and links follow the order."
+                    "caption": "\"Debug: unknown topics\" writes topics this module does not know yet to the instance debug window - only useful when investigating new firmware topics, leave it off otherwise."
+                },
+                {
+                    "type": "Label",
+                    "caption": "📋 Datapoints: Variables are created automatically as soon as HeishaMon publishes the corresponding topic - the Received column shows what your unit actually sends. Deactivating a datapoint hides its variable (object ID and archive data remain; reactivating simply shows it again); datapoints whose variable does not exist yet are not created while deactivated. Reorder rows by drag & drop - variable positions and links follow the order. \"Update variable names\" renames only variables that still carry an old default name (your own names stay untouched); \"Reset order and selection\" restores the default order in the open form - nothing is saved until you click Apply."
+                },
+                {
+                    "type": "Label",
+                    "caption": "🌡️ 1-Wire sensors: Additional temperature sensors (e.g. DS18B20) on the HeishaMon 1-Wire bus are detected automatically at their first reading and appear in their own list for naming and activation - no manual MQTT setup needed."
+                },
+                {
+                    "type": "Label",
+                    "caption": "🔗 Link structure: Creates a grouped category tree (Operation, Heating, DHW, ...) with links to all active datapoints - useful for a tidy WebFront navigation instead of one long flat list. Requires a target category; links of deactivated datapoints are removed automatically."
+                },
+                {
+                    "type": "Label",
+                    "caption": "⚡ External energy meter: If a meter (e.g. Shelly 3EM or an S0 meter wired directly to the HeishaMon board) measures the heat pump supply line, select its power (W) and energy counter (kWh, cumulative) variables. The module then reports the measured electrical power instead of the unit's rough estimate and calculates the measured COP plus the daily performance factor. The minimum power threshold prevents misleading COP values from standby noise."
+                },
+                {
+                    "type": "Label",
+                    "caption": "💡 Energy saving check: Assesses the settings received from the unit (DHW target, reheat delta, backup heater enables, heating-off threshold, heating curve, pump duty) and the real cycling behavior (runtime per compressor start) against reference values from the documented HeishaMon example rulesets and the Panasonic service manual. Display only - nothing is changed automatically."
+                },
+                {
+                    "type": "Label",
+                    "caption": "⚙️ Energy saving rulesets: Deploys a parameterized short-cycle guard to the HeishaMon board itself, where it keeps running even if WiFi or IP-Symcon fail. Deploying replaces the entire ruleset stored on the board; the firmware validates every upload and keeps the previous ruleset on errors."
+                },
+                {
+                    "type": "Label",
+                    "caption": "🔄 Reboot watchdog: If the heat pump stays offline via MQTT for longer than configured, the module triggers a restart of the HeishaMon board via its /reboot endpoint (at most once every 30 minutes). Helps when MQTT hangs but the board's web server still responds; if the board is entirely off the network, its firmware keeps reconnecting on its own."
+                },
+                {
+                    "type": "Label",
+                    "caption": "📊 Archiving: Automatically enables logging for the monitoring datapoints (power, flow/return/outside temperature, COP, defrost, compressor starts/hours, WiFi quality, MQTT reconnects) so time-series tiles can show day/week/month/year charts. Each variable is activated only once - disabling logging manually in the archive handler is respected permanently."
+                },
+                {
+                    "type": "Label",
+                    "caption": "🆕 Extra commands: Optional switchable variables for the two relays of the large HeishaMon board and the SmartGrid mode (digital replacement for the native SG ready dry contacts; requires the heat pump service setting \"Optional PCB\" = Yes). Write-only - the displayed value reflects the last command sent, not a confirmation from the unit."
+                },
+                {
+                    "type": "Label",
+                    "caption": "🩺 Board diagnostics: The variable group \"Board diagnostics\" (WiFi quality, uptime, MQTT reconnects, bus read quality, active rules, firmware version) is fed from the HeishaMon stats topic. When connections drop, its archived history shows the cause: weak WiFi, MQTT hangs, hidden restarts (uptime jumps) or cable/CRC issues."
+                },
+                {
+                    "type": "Label",
+                    "caption": "🤝 Integration: Other NRG-Stack modules (energy management, system schematic, heat pump monitor) find this heat pump automatically via HEISHA_GetFunctions - no manual variable assignment needed. Full documentation including scripting commands: see the README on GitHub (link below in the forum hint) and the CHANGELOG for version history."
                 }
             ]
         },
@@ -41,9 +85,28 @@
             ]
         },
         {
-            "type": "CheckBox",
-            "name": "DebugUnknownTopics",
-            "caption": "Debug: unknown topics"
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "CheckBox",
+                    "name": "DebugUnknownTopics",
+                    "caption": "Debug: unknown topics"
+                },
+                {
+                    "type": "PopupButton",
+                    "caption": "?",
+                    "width": "70px",
+                    "popup": {
+                        "caption": "Debug: unknown topics",
+                        "items": [
+                            {
+                                "type": "Label",
+                                "caption": "Writes MQTT topics this module does not know yet to the instance debug window (Debug button in the console). Only useful when investigating topics of a newer HeishaMon firmware - leave it off in normal operation, it has no effect on functionality."
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "type": "List",
@@ -175,14 +238,52 @@
                     "caption": "If an external energy meter (e.g. Shelly 3EM) measures the heat pump supply line, select its variables here. The module then calculates the measured COP and the daily performance factor from the meter readings."
                 },
                 {
-                    "type": "SelectVariable",
-                    "name": "PowerVariable",
-                    "caption": "Energy meter: active power of the heat pump (W)"
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "SelectVariable",
+                            "name": "PowerVariable",
+                            "caption": "Energy meter: active power of the heat pump (W)"
+                        },
+                        {
+                            "type": "PopupButton",
+                            "caption": "?",
+                            "width": "70px",
+                            "popup": {
+                                "caption": "Active power of the heat pump",
+                                "items": [
+                                    {
+                                        "type": "Label",
+                                        "caption": "Select a variable with the CURRENT power draw in watts, measured on the heat pump supply line only (e.g. the heat pump phase of a Shelly 3EM, or the datapoint \"S0 meter 1: power\" if an S0 meter is wired to the HeishaMon board). Do not select a whole-house meter - the COP would be meaningless. With this set, the module reports Measured=true and calculates the measured COP."
+                                    }
+                                ]
+                            }
+                        }
+                    ]
                 },
                 {
-                    "type": "SelectVariable",
-                    "name": "EnergyVariable",
-                    "caption": "Energy meter: energy counter of the heat pump (kWh)"
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "SelectVariable",
+                            "name": "EnergyVariable",
+                            "caption": "Energy meter: energy counter of the heat pump (kWh)"
+                        },
+                        {
+                            "type": "PopupButton",
+                            "caption": "?",
+                            "width": "70px",
+                            "popup": {
+                                "caption": "Energy counter of the heat pump",
+                                "items": [
+                                    {
+                                        "type": "Label",
+                                        "caption": "Select a CUMULATIVE kWh counter (total energy, ever increasing - e.g. the Shelly total counter or the datapoint \"S0 meter 1: energy total\"). Do NOT select a today/daily value that resets at midnight - the daily performance factor is calculated by this module itself from the counter. The unit must be kWh."
+                                    }
+                                ]
+                            }
+                        }
+                    ]
                 },
                 {
                     "type": "RowLayout",
@@ -230,9 +331,28 @@
                     "caption": "⚠️ Deploying REPLACES the entire ruleset currently stored on the board. If you maintain your own rules there, do not use this."
                 },
                 {
-                    "type": "ValidationTextBox",
-                    "name": "DeviceIP",
-                    "caption": "HeishaMon IP address or hostname"
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "ValidationTextBox",
+                            "name": "DeviceIP",
+                            "caption": "HeishaMon IP address or hostname"
+                        },
+                        {
+                            "type": "PopupButton",
+                            "caption": "?",
+                            "width": "70px",
+                            "popup": {
+                                "caption": "HeishaMon IP address",
+                                "items": [
+                                    {
+                                        "type": "Label",
+                                        "caption": "The address under which the HeishaMon web interface is reachable in your network (e.g. 192.168.2.16) - you can find it in your router's device list or via the hostname configured in HeishaMon. Used for the ruleset upload below and by the reboot watchdog. A fixed IP/DHCP reservation is recommended."
+                                    }
+                                ]
+                            }
+                        }
+                    ]
                 },
                 {
                     "type": "RowLayout",

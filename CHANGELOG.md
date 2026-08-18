@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.21.0 — 2026-08-18
+
+- Dokumentation & Hilfe massiv ausgebaut (Dietmars Feedback "viel zu wenig"): Das Doku-Panel erklärt jetzt jeden Formularbereich ausführlich (Verbindung, Datenpunkte inkl. beider Schaltflächen, 1-Wire, Verknüpfungsstruktur, externer Stromzähler, Energiespar-Prüfung, Regelwerke, Neustart-Watchdog, Archivierung, Zusätzliche Befehle, Platinen-Diagnose, Verbund-Integration). Vier neue ?-Hilfen direkt am Feld: Debug-Option, Leistungs- und Energiezähler-Auswahl (inkl. der klassischen Fallstricke Hauszähler bzw. Tageswert statt kumulativem Zähler) und HeishaMon-IP. Rein dokumentarisch, keine Verhaltensänderung
+
 ## 1.20.0 — 2026-08-18
 
 - Abschlusspaket nach vollständiger Repo-/Integrations-Durchsicht (Lückenvergleich mit Home Assistant, openHAB, Domoticz, ioBroker, Node-RED):
