@@ -73,3 +73,17 @@ Vor jedem Push `php test_module.php` im übergeordneten Arbeitsverzeichnis ausf�
 - In `onClick`-Skripten von Schaltflächen gibt es kein `$_IPS['TARGET']`, die Instanz-ID heißt `$id`.
 - Schaltflächen dürfen keine Eigenschaften per `IPS_SetProperty` + `IPS_ApplyChanges` persistieren, sondern nur die offene Maske per `UpdateFormField` ändern.
 - Nicht editierbare Listenspalten benötigen `"save": true`, sonst gehen ihre Werte beim Übernehmen verloren.
+
+
+## Verbund-Manifest SUITE.md — Bezugsquelle (19.08.2026)
+
+Primärquelle für alle Verbund-Konventionen ist `SUITE.md` im EMS-Repo
+(https://github.com/DG65/NRGEMS — während der EMS-Integrationsphase ist der
+Branch `ems-integration` der aktuellste Stand, nicht `main`). In diesem Repo
+liegt eine automatisch synchronisierte READ-ONLY-Kopie als `SUITE.md` im
+Repo-Root — dort lokal grep'en/lesen. NIEMALS die Kopie hier editieren:
+Änderungen gehören ins EMS-Repo; der Sync (GitHub Action `sync-suite` im
+EMS-Repo) überschreibt lokale Änderungen kommentarlos.
+
+Fallback, falls die Kopie (noch) fehlt oder veraltet wirkt:
+https://raw.githubusercontent.com/DG65/NRGEMS/ems-integration/SUITE.md
