@@ -547,6 +547,7 @@ class HeishaMon extends IPSModule
     {
         $rows = $this->buildVariableListRows(HeishaMonTopics::defaultOrder(), []);
         $this->UpdateFormField('VariableList', 'values', json_encode($rows));
+        echo $this->Translate('Order and selection reset in the open form - click "Apply changes" to save.');
     }
 
     /**

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.21.1 — 2026-08-20
+
+- Sichtbare Rückmeldung bei "Reihenfolge und Auswahl zurücksetzen" ergänzt (neue verbindliche Verbund-Konvention, SUITE.md: jeder Button muss ohne Formular-Neuöffnen erkennen lassen, dass etwas passiert ist). Der Button änderte die Liste zwar bereits live, aber ohne Hinweis, dass die Änderung nur in der offenen Maske liegt und noch "Änderungen übernehmen" fehlt — jetzt mit Bestätigungstext. Alle anderen Buttons und schaltbaren Variablen im Formular hatten bereits sichtbares Feedback (geprüft)
+
 ## 1.21.0 — 2026-08-18
 
 - Dokumentation & Hilfe massiv ausgebaut (Dietmars Feedback "viel zu wenig"): Das Doku-Panel erklärt jetzt jeden Formularbereich ausführlich (Verbindung, Datenpunkte inkl. beider Schaltflächen, 1-Wire, Verknüpfungsstruktur, externer Stromzähler, Energiespar-Prüfung, Regelwerke, Neustart-Watchdog, Archivierung, Zusätzliche Befehle, Platinen-Diagnose, Verbund-Integration). Vier neue ?-Hilfen direkt am Feld: Debug-Option, Leistungs- und Energiezähler-Auswahl (inkl. der klassischen Fallstricke Hauszähler bzw. Tageswert statt kumulativem Zähler) und HeishaMon-IP. Rein dokumentarisch, keine Verhaltensänderung

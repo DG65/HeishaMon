@@ -12,6 +12,7 @@
             "Yes": "Ja",
             "Reset order and selection": "Reihenfolge und Auswahl zurücksetzen",
             "Really reset the datapoint list to its default order and selection?": "Datenpunkt-Liste wirklich auf Standard-Reihenfolge und -Auswahl zurücksetzen?",
+            "Order and selection reset in the open form - click \"Apply changes\" to save.": "Reihenfolge und Auswahl in der offenen Maske zurückgesetzt - zum Speichern \"Änderungen übernehmen\" klicken.",
             "1-Wire sensors (optional)": "1-Wire-Sensoren (optional)",
             "Temperature sensors (e.g. DS18B20) connected to the HeishaMon's 1-Wire bus are detected automatically once a reading is received and appear here for naming and activation. Deactivated sensors are hidden - object ID and archive data remain.": "Temperatursensoren (z. B. DS18B20) am 1-Wire-Bus des HeishaMon werden automatisch erkannt, sobald ein Messwert empfangen wird, und erscheinen hier zur Benennung und Aktivierung. Deaktivierte Sensoren werden ausgeblendet - Objekt-ID und Archivdaten bleiben erhalten.",
             "Name": "Name",
