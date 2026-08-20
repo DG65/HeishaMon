@@ -87,3 +87,13 @@ EMS-Repo) überschreibt lokale Änderungen kommentarlos.
 
 Fallback, falls die Kopie (noch) fehlt oder veraltet wirkt:
 https://raw.githubusercontent.com/DG65/NRGEMS/ems-integration/SUITE.md
+
+## Verbund-Status-Kopfzeile bei künftigen Discovery-Panels (20.08.2026)
+
+Aktuell nicht anwendbar (HeishaMon hat keine Geräte-such-/Discovery-Funktion,
+nur passiven MQTT-Empfang) — aber falls das Modul irgendwann eine bekommt
+(z. B. 1-Wire- oder S0-Geräte-Suche): Muster aus SUITE.md ("Einheitliche
+Verbund-Status-Kopfzeile") von Anfang an übernehmen. Button zuerst, direkt
+darunter EINE Zeile `<Icon> <Zahl> <Was> gefunden (zuletzt <HH:MM:SS> Uhr).`
+(✅/⚠️/ℹ️), technische Details in ein eingeklapptes Unter-Panel. Referenz:
+EMS' `getDiscoverySummaryLine()` (module.php, 0.21.5).
