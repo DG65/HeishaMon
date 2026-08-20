@@ -1,0 +1,19 @@
+name: Check Style
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+      - name: PHP Syntax-Check
+        run: find . -name "*.php" -print0 | xargs -0 -n1 php -l
+      - name: JSON-Validierung
+        run: |
+          find . -name "*.json" -print0 | xargs -0 -n1 -I{} php -r 'json_decode(file_get_contents("{}"), true, 512, JSON_THROW_ON_ERROR); echo "{} OK\n";'
