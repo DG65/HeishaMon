@@ -19,8 +19,9 @@ class HeishaMon extends IPSModule
 {
     //Einheitliche Formular-Optik (NRG-Stack-Konvention, siehe SUITE.md): Neu-in-Version-Panel
     //je Release hochzaehlen und die Highlights seit dem letzten Store-Stand eintragen.
-    private const NEWS_VERSION = '1.20.0';
+    private const NEWS_VERSION = '1.22.0';
     private const NEWS_ITEMS = [
+        'New: the short-cycle guard can now also protect cooling mode - the original guard only suppressed the heat request, which has no effect while the unit is cooling. Enable "Also protect cooling mode" in the "Energy saving rulesets" panel.',
         'New: board diagnostics - WiFi quality, uptime, MQTT reconnects, bus read quality, active rules and firmware version from the HeishaMon stats topic, as variables in the new "Board diagnostics" group.',
         'New: S0 meters connected directly to the HeishaMon board (power + energy total in kWh) are now available as datapoints - usable as source for the measured COP.',
         'New: reboot watchdog - after a prolonged MQTT outage the module can restart the HeishaMon board via its /reboot endpoint. See "Reboot watchdog" panel.',
@@ -73,6 +74,8 @@ class HeishaMon extends IPSModule
         $this->RegisterPropertyString('DeviceIP', '');
         $this->RegisterPropertyInteger('GuardOffMinutes', 45);
         $this->RegisterPropertyInteger('GuardMinOutsideTemp', 2);
+        $this->RegisterPropertyBoolean('GuardCoolingEnabled', false);
+        $this->RegisterPropertyInteger('GuardMaxOutsideTempCool', 30);
 
         //Neustart-Watchdog: stoesst nach laengerem MQTT-Ausfall einen Platinen-Neustart
         //ueber den /reboot-Endpunkt der Firmware an (hilft, wenn MQTT haengt, aber der
@@ -795,18 +798,32 @@ class HeishaMon extends IPSModule
      * Wiederanlauf fuer die konfigurierte Zeit unterdrueckt (Heizanforderung -5 als Sentinel),
      * nur bei mildem Wetter und nicht waehrend einer Abtauung; faellt die Aussentemperatur
      * unter die Schwelle, endet die Sperre sofort. Ein einziger Restore-Pfad (timer=1).
+     *
+     * Optional ein zweiter, unabhaengiger Zweig fuer den Kuehlbetrieb (timer=2, eigener
+     * Sentinel auf @Z1_Cool_Request_Temp): die Heizanforderung wird beim Kuehlen von der
+     * Anlage nicht angesteuert, daher greift der Heiz-Zweig dort nicht - siehe Dietmars
+     * Nachfrage vom 21.08.2026 (Taktung trat waehrend Kuehlbetrieb auf, Heiz-Guard wirkungslos).
+     * Bei Kaelte hat der Heiz-Zweig Vorrang vor Wiederanlauf-Sperre (Schwelle als Untergrenze);
+     * bei Kuehlung ist es spiegelbildlich Hitze, die Vorrang hat (Schwelle als Obergrenze).
      */
-    private function buildShortCycleGuardRules(int $offMinutes, int $minOutsideTemp): string
+    private function buildShortCycleGuardRules(int $offMinutes, int $minOutsideTemp, bool $coolingEnabled, int $maxOutsideTempCool): string
     {
         $seconds = max(60, $offMinutes * 60);
-        return "on System#Boot then\n" .
+        $rules = "on System#Boot then\n" .
             "   setTimer(1, 60);\n" .
+            ($coolingEnabled ? "   setTimer(2, 60);\n" : '') .
             "end\n\n" .
             "on @Compressor_Freq then\n" .
             "   if @Compressor_Freq == 0 && @Defrosting_State == 0 && @Outside_Temp >= $minOutsideTemp && @Z1_Heat_Request_Temp == 0 then\n" .
             "      @SetZ1HeatRequestTemperature = -5;\n" .
             "      setTimer(1, $seconds);\n" .
             "   end\n" .
+            ($coolingEnabled
+                ? "   if @Compressor_Freq == 0 && @Outside_Temp <= $maxOutsideTempCool && @Z1_Cool_Request_Temp == 0 then\n" .
+                  "      @SetZ1CoolRequestTemperature = -5;\n" .
+                  "      setTimer(2, $seconds);\n" .
+                  "   end\n"
+                : '') .
             "end\n\n" .
             "on timer=1 then\n" .
             "   if @Z1_Heat_Request_Temp == -5 then\n" .
@@ -816,8 +833,21 @@ class HeishaMon extends IPSModule
             "on @Outside_Temp then\n" .
             "   if @Outside_Temp < $minOutsideTemp && @Z1_Heat_Request_Temp == -5 then\n" .
             "      setTimer(1, 1);\n" .
-            "   end\n" .
-            "end\n";
+            "   end\n";
+        if ($coolingEnabled) {
+            $rules .= "   if @Outside_Temp > $maxOutsideTempCool && @Z1_Cool_Request_Temp == -5 then\n" .
+                "      setTimer(2, 1);\n" .
+                "   end\n";
+        }
+        $rules .= "end\n";
+        if ($coolingEnabled) {
+            $rules .= "\non timer=2 then\n" .
+                "   if @Z1_Cool_Request_Temp == -5 then\n" .
+                "      @SetZ1CoolRequestTemperature = 0;\n" .
+                "   end\n" .
+                "end\n";
+        }
+        return $rules;
     }
 
     /**
@@ -835,7 +865,9 @@ class HeishaMon extends IPSModule
         }
         $rules = $this->buildShortCycleGuardRules(
             $this->ReadPropertyInteger('GuardOffMinutes'),
-            $this->ReadPropertyInteger('GuardMinOutsideTemp')
+            $this->ReadPropertyInteger('GuardMinOutsideTemp'),
+            $this->ReadPropertyBoolean('GuardCoolingEnabled'),
+            $this->ReadPropertyInteger('GuardMaxOutsideTempCool')
         );
         $result = $this->sendHttpPost('http://' . $deviceIP . '/saverules', http_build_query(['rules' => $rules]));
         if ($result === false) {

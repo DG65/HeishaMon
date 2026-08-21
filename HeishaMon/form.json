@@ -36,7 +36,7 @@
                 },
                 {
                     "type": "Label",
-                    "caption": "⚙️ Energy saving rulesets: Deploys a parameterized short-cycle guard to the HeishaMon board itself, where it keeps running even if WiFi or IP-Symcon fail. Deploying replaces the entire ruleset stored on the board; the firmware validates every upload and keeps the previous ruleset on errors."
+                    "caption": "⚙️ Energy saving rulesets: Deploys a parameterized short-cycle guard to the HeishaMon board itself, where it keeps running even if WiFi or IP-Symcon fail. Covers heating by default; \"Also protect cooling mode\" adds an independent, identical guard on the cool request, since the heat request has no effect while cooling. Deploying replaces the entire ruleset stored on the board; the firmware validates every upload and keeps the previous ruleset on errors."
                 },
                 {
                     "type": "Label",
@@ -383,6 +383,38 @@
                                     {
                                         "type": "Label",
                                         "caption": "After each compressor stop, the heat request is lowered for the configured time so the compressor does not restart immediately - fewer starts mean better efficiency and longer compressor life. Below the outside temperature threshold the suppression ends immediately (cold weather takes priority). Template: Compressor-Short-Cycle-Guard from the HeishaMon repository."
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "CheckBox",
+                            "name": "GuardCoolingEnabled",
+                            "caption": "🆕 Also protect cooling mode"
+                        },
+                        {
+                            "type": "NumberSpinner",
+                            "name": "GuardMaxOutsideTempCool",
+                            "caption": "Only below outside temperature",
+                            "suffix": " °C",
+                            "minimum": 15,
+                            "maximum": 40
+                        },
+                        {
+                            "type": "PopupButton",
+                            "caption": "?",
+                            "width": "70px",
+                            "popup": {
+                                "caption": "Short-cycle guard for cooling",
+                                "items": [
+                                    {
+                                        "type": "Label",
+                                        "caption": "The heat request suppression above has no effect while the unit is cooling - cooling demand is a separate value the heat pump does not touch during heating. This adds an independent, identical suppression on the cool request, so short-cycling is also avoided in cooling mode. Above the outside temperature threshold the suppression ends immediately (hot weather takes priority - mirrors the cold-weather override for heating)."
                                     }
                                 ]
                             }

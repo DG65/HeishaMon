@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.22.0 — 2026-08-21
+
+- Taktschutz-Regelwerk schützt jetzt optional auch den Kühlbetrieb (Dietmars Nachfrage: Taktung trat während laufender Kühlung auf). Grund war ein echter Geltungslücken-Fund: der Taktschutz sperrt nach Verdichterstopp die Heizanforderung (`Z1_Heat_Request_Temp`) — beim Kühlen steuert die Anlage aber über eine eigene Firmware-Variable (`Z1_Cool_Request_Temp`), die der Taktschutz nie berührt hat, daher wirkungslos während des Kühlens. Neu: Kontrollkästchen "Auch im Kühlbetrieb schützen" ergänzt einen unabhängigen, gleichartigen zweiten Regelzweig auf die Kühlanforderung (eigener Timer, eigene Außentemperatur-Obergrenze — bei großer Hitze hat Wiederanlauf Vorrang, spiegelbildlich zur Kälte-Priorität beim Heizen). Beide Namen gegen die Firmware-Tabellen (`decode.h`/`commands.h`) verifiziert; die reale Regelwerk-Syntax (mehrere unabhängige `if`-Blöcke in einem `on`-Ereignis) ist im Firmware-Beispiel `Jeisha-DHW-Radiators-Rowbuffer` bereits so belegt
+
 ## 1.21.1 — 2026-08-20
 
 - Sichtbare Rückmeldung bei "Reihenfolge und Auswahl zurücksetzen" ergänzt (neue verbindliche Verbund-Konvention, SUITE.md: jeder Button muss ohne Formular-Neuöffnen erkennen lassen, dass etwas passiert ist). Der Button änderte die Liste zwar bereits live, aber ohne Hinweis, dass die Änderung nur in der offenen Maske liegt und noch "Änderungen übernehmen" fehlt — jetzt mit Bestätigungstext. Alle anderen Buttons und schaltbaren Variablen im Formular hatten bereits sichtbares Feedback (geprüft)
