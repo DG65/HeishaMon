@@ -1611,6 +1611,17 @@ class HeishaMon extends IPSModule
      *   operationsHoursID Ab contractVersion 1.10: kumulierte Betriebsstunden
      *            (main/Operations_Hours) - zusammen mit compressorStartsID ergibt sich die
      *            mittlere Laufzeit je Start.
+     *   internalHeaterStateID/externalHeaterStateID Ab contractVersion 1.12: Backup-/
+     *            Zusatzheizstab aktiv (main/Internal_Heater_State, main/External_Heater_State,
+     *            je Boolean). WICHTIG: Der Split ist Intern/Extern nach Hardware-Lage (Heizstab
+     *            im Innengeraet vs. externer Zusatz-/Booster-Heizer) - NICHT WW/Raum. Die
+     *            gleichnamig wirkenden main/DHW_Heater_State/main/Room_Heater_State sind reine
+     *            Freigabe-Flags (Gegenstueck zu SetDHWHeaterState/SetRoomHeaterState), keine
+     *            Laufzeit-Statuswerte, und werden deshalb hier nicht abgebildet (Klaerung mit
+     *            Dashboard/EMS, 24.08.2026 - siehe SUITE.md-Feldregister).
+     *   forceHeaterStateID Ab contractVersion 1.12: Notheizstab-Taste aktiv
+     *            (main/Force_Heater_State, Boolean) - entspricht dem physischen Heizstab-Knopf
+     *            an der Fernbedienung (SetForceHeater).
      *   contractVersion 'Major.Minor' des Vertrags (Suite-Konvention, SUITE.md im EMS-Repo).
      *            Major nur bei Bruch; Kompatibilitaet nur innerhalb derselben Major. Fehlt = '1.0'.
      */
@@ -1666,7 +1677,10 @@ class HeishaMon extends IPSModule
                 'outsideTempID'        => $this->idForIdent('Outside_Temp'),
                 'compressorStartsID'   => $this->idForIdent('Operations_Counter'),
                 'operationsHoursID'    => $this->idForIdent('Operations_Hours'),
-                'contractVersion'      => '1.10'
+                'internalHeaterStateID' => $this->idForIdent('Internal_Heater_State'),
+                'externalHeaterStateID' => $this->idForIdent('External_Heater_State'),
+                'forceHeaterStateID'   => $this->idForIdent('Force_Heater_State'),
+                'contractVersion'      => '1.12'
             ]
         ];
     }

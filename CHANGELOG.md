@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.0 — 2026-08-24
+
+- `HEISHA_GetFunctions()` liefert jetzt `internalHeaterStateID`/`externalHeaterStateID` (Backup-/Zusatzheizstab aktiv, main/Internal_Heater_State bzw. main/External_Heater_State) sowie `forceHeaterStateID` (Notheizstab-Taste, main/Force_Heater_State) - contractVersion 1.12. Auslöser: NRGDashboard wollte den Heizstab im Hydraulikschema zeigen; im Feldregister mit EMS abgestimmt. Wichtige Klarstellung dabei: main/DHW_Heater_State und main/Room_Heater_State (Gegenstücke zu SetDHWHeaterState/SetRoomHeaterState) sind reine Freigabe-Flags, keine Laufzeit-Statuswerte - der reale Split ist Intern/Extern nach Hardware-Lage, nicht WW/Raum. Reine Vertragserweiterung, keine neuen Formularfelder in diesem Modul
+
 ## 1.22.0 — 2026-08-21
 
 - Taktschutz-Regelwerk schützt jetzt optional auch den Kühlbetrieb (Dietmars Nachfrage: Taktung trat während laufender Kühlung auf). Grund war ein echter Geltungslücken-Fund: der Taktschutz sperrt nach Verdichterstopp die Heizanforderung (`Z1_Heat_Request_Temp`) — beim Kühlen steuert die Anlage aber über eine eigene Firmware-Variable (`Z1_Cool_Request_Temp`), die der Taktschutz nie berührt hat, daher wirkungslos während des Kühlens. Neu: Kontrollkästchen "Auch im Kühlbetrieb schützen" ergänzt einen unabhängigen, gleichartigen zweiten Regelzweig auf die Kühlanforderung (eigener Timer, eigene Außentemperatur-Obergrenze — bei großer Hitze hat Wiederanlauf Vorrang, spiegelbildlich zur Kälte-Priorität beim Heizen). Beide Namen gegen die Firmware-Tabellen (`decode.h`/`commands.h`) verifiziert; die reale Regelwerk-Syntax (mehrere unabhängige `if`-Blöcke in einem `on`-Ereignis) ist im Firmware-Beispiel `Jeisha-DHW-Radiators-Rowbuffer` bereits so belegt
