@@ -1552,8 +1552,14 @@ class HeishaMon extends IPSModule
      *            - Konsumenten, die das unterscheiden muessen, sollten zusaetzlich pruefen, ob
      *            die Variable ueberhaupt existiert (IPS_VariableExists), nicht nur den Wert.
      *   fan1SpeedID/fan2SpeedID Ab contractVersion 1.5: Luefterdrehzahl des Aussengeraets in
-     *            U/min (main/Fan1_Motor_Speed bzw. main/Fan2_Motor_Speed - Fan2 nur bei
-     *            groesseren Geraeten mit zwei Lueftern). 0, wenn nicht empfangen.
+     *            U/min (main/Fan1_Motor_Speed bzw. main/Fan2_Motor_Speed). 0, wenn nicht
+     *            empfangen. ACHTUNG (Korrektur 24.08.2026, Dashboard-Fund bei Dietmars
+     *            Ein-Luefter-Geraet): main/Fan2_Motor_Speed liegt an einer fixen Byte-Position
+     *            im CN-CNT-Protokoll und wird von der Firmware IMMER dekodiert/gesendet,
+     *            unabhaengig davon, ob das konkrete Modell ueberhaupt zwei Luefter hat - die
+     *            reine Existenz von fan2SpeedID ist daher KEIN verlaesslicher Beleg fuer einen
+     *            zweiten Luefter. Konsumenten, die das brauchen, sollten pruefen, ob der Wert
+     *            jemals > 0 war, nicht nur ob die Variable existiert.
      *   suctionTempID Ab contractVersion 1.6: Sauggas-/Kaltgastemperatur in °C, Gegenstueck
      *            zur Heissgastemperatur (dischargeTempID). Funktional-herstellerneutral
      *            benannt: jedes heatpump-Modul liefert seine beste verfuegbare Messstelle

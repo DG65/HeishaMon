@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.1 — 2026-08-24
+
+- Falsche Doku-Aussage bei `fan2SpeedID` korrigiert (Dashboard-Fund: Dietmars Panasonic hat nur einen Lüfter, meldet aber trotzdem eine echte fan2SpeedID-Variable). Der bisherige Kommentar "Fan2 nur bei größeren Geräten mit zwei Lüftern" war falsch - main/Fan2_Motor_Speed liegt an einer festen Byte-Position im CN-CNT-Protokoll und wird von der Firmware für JEDES Modell dekodiert/gesendet, unabhängig von der tatsächlichen Lüfteranzahl (decode.h: fixer Offset, generische RotationsPerMin-Formel, keine Modellunterscheidung). Reine Dokumentationskorrektur im Vertrags-PHPDoc, kein Feld-/Verhaltensänderung
+
 ## 1.23.0 — 2026-08-24
 
 - `HEISHA_GetFunctions()` liefert jetzt `internalHeaterStateID`/`externalHeaterStateID` (Backup-/Zusatzheizstab aktiv, main/Internal_Heater_State bzw. main/External_Heater_State) sowie `forceHeaterStateID` (Notheizstab-Taste, main/Force_Heater_State) - contractVersion 1.12. Auslöser: NRGDashboard wollte den Heizstab im Hydraulikschema zeigen; im Feldregister mit EMS abgestimmt. Wichtige Klarstellung dabei: main/DHW_Heater_State und main/Room_Heater_State (Gegenstücke zu SetDHWHeaterState/SetRoomHeaterState) sind reine Freigabe-Flags, keine Laufzeit-Statuswerte - der reale Split ist Intern/Extern nach Hardware-Lage, nicht WW/Raum. Reine Vertragserweiterung, keine neuen Formularfelder in diesem Modul
